@@ -223,52 +223,93 @@ class CycleShow extends Component
 
     public function saveKeyResult()
     {
-        $this->validate([
-            'keyResultTitle' => 'required|string|max:255',
-            'keyResultDescription' => 'nullable|string',
-            'keyResultValueType' => 'required|in:absolute,percentage,boolean',
-            'keyResultTargetValue' => 'required|string',
-            'keyResultCurrentValue' => 'nullable|string',
-            'keyResultUnit' => 'nullable|string|max:50',
-        ]);
-
-        if (!$this->editingKeyResultObjectiveId) {
-            session()->flash('error', 'Fehler: Objective ID fehlt!');
-            return;
-        }
-        
-        $objective = $this->cycle->objectives()->findOrFail($this->editingKeyResultObjectiveId);
-        
-        // Set default unit based on value type
-        $unit = $this->keyResultUnit;
-        if (empty($unit)) {
-            $unit = match($this->keyResultValueType) {
-                'percentage' => '%',
-                'boolean' => '',
-                'absolute' => 'Stück',
-                default => ''
-            };
-        }
-
-        if ($this->editingKeyResultId) {
-            // Update existing Key Result
-            $keyResult = $objective->keyResults()->findOrFail($this->editingKeyResultId);
-            $keyResult->update([
-                'title' => $this->keyResultTitle,
-                'description' => $this->keyResultDescription,
-                'target_value' => $this->keyResultTargetValue,
-                'unit' => $unit,
+        try {
+            // Debug: Log current values
+            \Log::info('Key Result Save Debug', [
+                'editingKeyResultId' => $this->editingKeyResultId,
+                'editingKeyResultObjectiveId' => $this->editingKeyResultObjectiveId,
+                'keyResultTitle' => $this->keyResultTitle,
+                'keyResultTargetValue' => $this->keyResultTargetValue,
+                'keyResultCurrentValue' => $this->keyResultCurrentValue,
+                'keyResultValueType' => $this->keyResultValueType,
+                'keyResultUnit' => $this->keyResultUnit,
             ]);
 
-            // Update performance record
-            if ($keyResult->performance) {
-                $keyResult->performance->update([
-                    'type' => $this->keyResultValueType,
+            $this->validate([
+                'keyResultTitle' => 'required|string|max:255',
+                'keyResultDescription' => 'nullable|string',
+                'keyResultValueType' => 'required|in:absolute,percentage,boolean',
+                'keyResultTargetValue' => 'required|string',
+                'keyResultCurrentValue' => 'nullable|string',
+                'keyResultUnit' => 'nullable|string|max:50',
+            ]);
+
+            if (!$this->editingKeyResultObjectiveId) {
+                session()->flash('error', 'Fehler: Objective ID fehlt!');
+                return;
+            }
+            
+            $objective = $this->cycle->objectives()->findOrFail($this->editingKeyResultObjectiveId);
+            
+            // Set default unit based on value type
+            $unit = $this->keyResultUnit;
+            if (empty($unit)) {
+                $unit = match($this->keyResultValueType) {
+                    'percentage' => '%',
+                    'boolean' => '',
+                    'absolute' => 'Stück',
+                    default => ''
+                };
+            }
+
+            if ($this->editingKeyResultId) {
+                // Update existing Key Result
+                $keyResult = $objective->keyResults()->findOrFail($this->editingKeyResultId);
+                $keyResult->update([
+                    'title' => $this->keyResultTitle,
+                    'description' => $this->keyResultDescription,
                     'target_value' => $this->keyResultTargetValue,
-                    'current_value' => $this->keyResultCurrentValue ?: 0,
-                    'is_completed' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue === 'Ja' || $this->keyResultCurrentValue === 'Erledigt') : false,
+                    'unit' => $unit,
                 ]);
+
+                // Update performance record
+                if ($keyResult->performance) {
+                    $keyResult->performance->update([
+                        'type' => $this->keyResultValueType,
+                        'target_value' => $this->keyResultTargetValue,
+                        'current_value' => $this->keyResultCurrentValue ?: 0,
+                        'is_completed' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue === 'Ja' || $this->keyResultCurrentValue === 'Erledigt') : false,
+                    ]);
+                } else {
+                    $keyResult->performances()->create([
+                        'type' => $this->keyResultValueType,
+                        'target_value' => $this->keyResultTargetValue,
+                        'current_value' => $this->keyResultCurrentValue ?: 0,
+                        'is_completed' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue === 'Ja' || $this->keyResultCurrentValue === 'Erledigt') : false,
+                        'performance_score' => 0.0,
+                        'team_id' => auth()->user()->current_team_id,
+                        'user_id' => auth()->id(),
+                    ]);
+                }
+                
+                $this->closeKeyResultEditModal();
+                session()->flash('message', 'Key Result erfolgreich aktualisiert!');
             } else {
+                // Create new Key Result
+                $nextOrder = $objective->keyResults()->max('order') + 1;
+                
+                $keyResult = $objective->keyResults()->create([
+                    'title' => $this->keyResultTitle,
+                    'description' => $this->keyResultDescription,
+                    'target_value' => $this->keyResultTargetValue,
+                    'current_value' => '0', // Default, wird über Performance verwaltet
+                    'unit' => $unit,
+                    'order' => $nextOrder,
+                    'team_id' => auth()->user()->current_team_id,
+                    'user_id' => auth()->id(),
+                ]);
+
+                // Create initial performance record
                 $keyResult->performances()->create([
                     'type' => $this->keyResultValueType,
                     'target_value' => $this->keyResultTargetValue,
@@ -278,41 +319,18 @@ class CycleShow extends Component
                     'team_id' => auth()->user()->current_team_id,
                     'user_id' => auth()->id(),
                 ]);
+                
+                $this->closeKeyResultCreateModal();
+                session()->flash('message', 'Key Result erfolgreich hinzugefügt!');
             }
             
-            $this->closeKeyResultEditModal();
-            session()->flash('message', 'Key Result erfolgreich aktualisiert!');
-        } else {
-            // Create new Key Result
-            $nextOrder = $objective->keyResults()->max('order') + 1;
+            $this->cycle->load('objectives.keyResults.performance');
             
-            $keyResult = $objective->keyResults()->create([
-                'title' => $this->keyResultTitle,
-                'description' => $this->keyResultDescription,
-                'target_value' => $this->keyResultTargetValue,
-                'current_value' => '0', // Default, wird über Performance verwaltet
-                'unit' => $unit,
-                'order' => $nextOrder,
-                'team_id' => auth()->user()->current_team_id,
-                'user_id' => auth()->id(),
-            ]);
-
-            // Create initial performance record
-            $keyResult->performances()->create([
-                'type' => $this->keyResultValueType,
-                'target_value' => $this->keyResultTargetValue,
-                'current_value' => $this->keyResultCurrentValue ?: 0,
-                'is_completed' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue === 'Ja' || $this->keyResultCurrentValue === 'Erledigt') : false,
-                'performance_score' => 0.0,
-                'team_id' => auth()->user()->current_team_id,
-                'user_id' => auth()->id(),
-            ]);
-            
-            $this->closeKeyResultCreateModal();
-            session()->flash('message', 'Key Result erfolgreich hinzugefügt!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            session()->flash('error', 'Validierungsfehler: ' . implode(', ', $e->validator->errors()->all()));
+        } catch (\Exception $e) {
+            session()->flash('error', 'Fehler beim Speichern: ' . $e->getMessage());
         }
-        
-        $this->cycle->load('objectives.keyResults.performance');
     }
 
     protected function resetObjectiveForm()
