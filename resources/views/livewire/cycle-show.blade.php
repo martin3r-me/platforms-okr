@@ -145,8 +145,26 @@
                                                                 @endif
                                                             @endif
                                                         </div>
+                                                        @if($keyResult->performance)
+                                                            <div class="text-xs text-muted">
+                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                                                    @if($keyResult->performance->type === 'boolean') bg-purple-100 text-purple-800
+                                                                    @elseif($keyResult->performance->type === 'percentage') bg-blue-100 text-blue-800
+                                                                    @else bg-green-100 text-green-800
+                                                                    @endif">
+                                                                    {{ ucfirst($keyResult->performance->type) }}
+                                                                </span>
+                                                            </div>
+                                                        @endif
                                                     @endif
                                                 </div>
+                                                <x-ui-button 
+                                                    size="xs" 
+                                                    variant="secondary-outline" 
+                                                    wire:click="editKeyResult({{ $keyResult->id }})"
+                                                >
+                                                    @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
+                                                </x-ui-button>
                                             </div>
                                         @endforeach
                                     </div>
@@ -463,6 +481,106 @@
                 </x-ui-button>
                 <x-ui-button type="button" variant="primary" wire:click="saveKeyResult">
                     Hinzufügen
+                </x-ui-button>
+            </div>
+        </x-slot>
+    </x-ui-modal>
+
+    <!-- Key Result Edit Modal -->
+    <x-ui-modal
+        size="lg"
+        model="keyResultEditModalShow"
+    >
+        <x-slot name="header">
+            Key Result bearbeiten
+        </x-slot>
+
+        <div class="space-y-4">
+            <x-ui-input-text
+                name="keyResultTitle"
+                label="Titel"
+                wire:model.live="keyResultTitle"
+                placeholder="Titel des Key Result eingeben..."
+                required
+            />
+
+            <x-ui-input-textarea
+                name="keyResultDescription"
+                label="Beschreibung"
+                wire:model.live="keyResultDescription"
+                placeholder="Beschreibung des Key Result (optional)"
+                rows="3"
+            />
+
+            <x-ui-input-select
+                name="keyResultValueType"
+                label="Wert-Typ"
+                :options="[
+                    'absolute' => 'Absolut (z.B. 100 Stück, 50.000€)',
+                    'percentage' => 'Prozent (z.B. 80%, 15%)',
+                    'boolean' => 'Ja/Nein (z.B. Erledigt, Implementiert)'
+                ]"
+                :nullable="false"
+                wire:model.live="keyResultValueType"
+                required
+            />
+
+            <div class="grid grid-cols-2 gap-4">
+                <x-ui-input-text
+                    name="keyResultTargetValue"
+                    label="Zielwert"
+                    wire:model.live="keyResultTargetValue"
+                    :placeholder="match($keyResultValueType) {
+                        'percentage' => 'z.B. 80',
+                        'boolean' => 'z.B. Ja oder Nein',
+                        'absolute' => 'z.B. 100',
+                        default => 'Zielwert eingeben...'
+                    }"
+                    required
+                />
+
+                <x-ui-input-text
+                    name="keyResultCurrentValue"
+                    label="Aktueller Wert"
+                    wire:model.live="keyResultCurrentValue"
+                    :placeholder="match($keyResultValueType) {
+                        'percentage' => 'z.B. 45',
+                        'boolean' => 'z.B. Nein',
+                        'absolute' => 'z.B. 60',
+                        default => 'Aktueller Wert (optional)'
+                    }"
+                />
+            </div>
+
+            @if($keyResultValueType === 'absolute')
+                <x-ui-input-text
+                    name="keyResultUnit"
+                    label="Einheit"
+                    wire:model.live="keyResultUnit"
+                    placeholder="z.B. Stück, €, Kunden, etc."
+                />
+            @endif
+
+            @if($keyResultValueType === 'boolean')
+                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="text-sm text-blue-800">
+                        <strong>Boolean-Werte:</strong> Verwende "Ja", "Nein", "Erledigt", "Nicht erledigt", "Implementiert", etc.
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        <x-slot name="footer">
+            <div class="d-flex justify-end gap-2">
+                <x-ui-button 
+                    type="button" 
+                    variant="secondary-outline" 
+                    wire:click="closeKeyResultEditModal"
+                >
+                    Abbrechen
+                </x-ui-button>
+                <x-ui-button type="button" variant="primary" wire:click="saveKeyResult">
+                    Speichern
                 </x-ui-button>
             </div>
         </x-slot>
