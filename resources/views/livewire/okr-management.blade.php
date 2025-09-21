@@ -83,7 +83,7 @@
 
     <!-- Create OKR Modal -->
     <x-ui-modal
-        wire:model.live="modalShow"
+        wire:model="modalShow"
         size="lg"
     >
         <x-slot name="header">
@@ -161,7 +161,7 @@
                 <x-ui-button 
                     type="button" 
                     variant="secondary-outline" 
-                    @click="$wire.closeCreateModal()"
+                    wire:click="closeCreateModal"
                 >
                     Abbrechen
                 </x-ui-button>
