@@ -380,7 +380,7 @@
         </x-slot>
 
         <div class="space-y-4">
-            <form wire:submit.prevent="saveKeyResult" class="space-y-4">
+            <div class="space-y-4">
                 <x-ui-input-text
                     name="keyResultForm.title"
                     label="Titel"
@@ -428,7 +428,7 @@
                         required
                     />
                 </div>
-            </form>
+            </div>
         </div>
 
         <x-slot name="footer">
@@ -457,7 +457,7 @@
         </x-slot>
 
         <div class="space-y-4">
-            <form wire:submit.prevent="saveKeyResult" class="space-y-4">
+            <div class="space-y-4">
                 <x-ui-input-text
                     name="keyResultForm.title"
                     label="Titel"
@@ -505,7 +505,7 @@
                         required
                     />
                 </div>
-            </form>
+            </div>
         </div>
 
         <x-slot name="footer">

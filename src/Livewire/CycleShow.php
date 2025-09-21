@@ -167,6 +167,9 @@ class CycleShow extends Component
         $this->editingKeyResultObjectiveId = $objectiveId;
         $this->resetKeyResultForm();
         $this->keyResultCreateModalShow = true;
+        
+        // Debug: Log the objective ID
+        \Log::info('Adding Key Result to Objective ID: ' . $objectiveId);
     }
 
     public function closeKeyResultCreateModal()
@@ -204,54 +207,61 @@ class CycleShow extends Component
 
     public function saveKeyResult()
     {
-        $this->validate([
-            'keyResultForm.title' => 'required|string|max:255',
-            'keyResultForm.description' => 'nullable|string',
-            'keyResultForm.target_value' => 'required|string',
-            'keyResultForm.current_value' => 'nullable|string',
-            'keyResultForm.unit' => 'nullable|string|max:50',
-            'keyResultForm.order' => 'required|integer|min:0',
-        ]);
+        try {
+            $this->validate([
+                'keyResultForm.title' => 'required|string|max:255',
+                'keyResultForm.description' => 'nullable|string',
+                'keyResultForm.target_value' => 'required|string',
+                'keyResultForm.current_value' => 'nullable|string',
+                'keyResultForm.unit' => 'nullable|string|max:50',
+                'keyResultForm.order' => 'required|integer|min:0',
+            ]);
 
-        if ($this->editingKeyResultId) {
-            $keyResult = $this->cycle->objectives()->with('keyResults')->get()
-                ->pluck('keyResults')->flatten()
-                ->find($this->editingKeyResultId);
-            
-            if ($keyResult) {
-                $keyResult->update([
+            if ($this->editingKeyResultId) {
+                $keyResult = $this->cycle->objectives()->with('keyResults')->get()
+                    ->pluck('keyResults')->flatten()
+                    ->find($this->editingKeyResultId);
+                
+                if ($keyResult) {
+                    $keyResult->update([
+                        'title' => $this->keyResultForm['title'],
+                        'description' => $this->keyResultForm['description'],
+                        'target_value' => $this->keyResultForm['target_value'],
+                        'current_value' => $this->keyResultForm['current_value'],
+                        'unit' => $this->keyResultForm['unit'],
+                        'order' => $this->keyResultForm['order'],
+                    ]);
+                    session()->flash('message', 'Key Result erfolgreich aktualisiert!');
+                }
+            } else {
+                if (!$this->editingKeyResultObjectiveId) {
+                    session()->flash('error', 'Fehler: Objective ID fehlt!');
+                    return;
+                }
+                
+                $objective = $this->cycle->objectives()->findOrFail($this->editingKeyResultObjectiveId);
+                $objective->keyResults()->create([
                     'title' => $this->keyResultForm['title'],
                     'description' => $this->keyResultForm['description'],
                     'target_value' => $this->keyResultForm['target_value'],
                     'current_value' => $this->keyResultForm['current_value'],
                     'unit' => $this->keyResultForm['unit'],
                     'order' => $this->keyResultForm['order'],
+                    'team_id' => auth()->user()->current_team_id,
+                    'user_id' => auth()->id(),
                 ]);
-                session()->flash('message', 'Key Result erfolgreich aktualisiert!');
+                session()->flash('message', 'Key Result erfolgreich hinzugefügt!');
             }
-        } else {
-            if (!$this->editingKeyResultObjectiveId) {
-                session()->flash('error', 'Fehler: Objective ID fehlt!');
-                return;
-            }
-            
-            $objective = $this->cycle->objectives()->findOrFail($this->editingKeyResultObjectiveId);
-            $objective->keyResults()->create([
-                'title' => $this->keyResultForm['title'],
-                'description' => $this->keyResultForm['description'],
-                'target_value' => $this->keyResultForm['target_value'],
-                'current_value' => $this->keyResultForm['current_value'],
-                'unit' => $this->keyResultForm['unit'],
-                'order' => $this->keyResultForm['order'],
-                'team_id' => auth()->user()->current_team_id,
-                'user_id' => auth()->id(),
-            ]);
-            session()->flash('message', 'Key Result erfolgreich hinzugefügt!');
-        }
 
-        $this->cycle->load('objectives.keyResults'); // Refresh objectives and key results
-        $this->closeKeyResultCreateModal();
-        $this->closeKeyResultEditModal();
+            $this->cycle->load('objectives.keyResults'); // Refresh objectives and key results
+            $this->closeKeyResultCreateModal();
+            $this->closeKeyResultEditModal();
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            session()->flash('error', 'Validierungsfehler: ' . implode(', ', $e->validator->errors()->all()));
+        } catch (\Exception $e) {
+            session()->flash('error', 'Fehler beim Speichern: ' . $e->getMessage());
+        }
     }
 
     public function deleteKeyResultAndCloseModal()
@@ -285,8 +295,8 @@ class CycleShow extends Component
         $this->keyResultForm = [
             'title' => '',
             'description' => '',
-            'target_value' => '',
-            'current_value' => '',
+            'target_value' => '0', // Default value for required field
+            'current_value' => '0', // Default value
             'unit' => '',
             'order' => 0,
         ];
