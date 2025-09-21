@@ -35,11 +35,6 @@ class OkrManagement extends Component
         'manager_user_id' => 'nullable|exists:users,id',
     ];
 
-    public function mount()
-    {
-        $this->modalShow = false;
-    }
-
     public function render()
     {
         $okrs = Okr::with(['user', 'manager', 'cycles'])
@@ -124,17 +119,5 @@ class OkrManagement extends Component
         $okr->delete();
         
         session()->flash('message', 'OKR erfolgreich gelöscht!');
-    }
-
-    public function index()
-    {
-        return $this->render();
-    }
-
-
-    public function show($okr)
-    {
-        // TODO: Implement OKR detail view
-        return redirect()->route('okr.okrs.index');
     }
 }

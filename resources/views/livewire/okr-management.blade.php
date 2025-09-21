@@ -11,13 +11,7 @@
             Neues OKR
         </x-ui-button>
     </div>
-
-    @if(session()->has('message'))
-        <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p class="text-green-800">{{ session('message') }}</p>
-        </div>
-    @endif
-
+    
     <x-ui-table compact="true">
         <x-ui-table-header>
             <x-ui-table-header-cell compact="true" sortable="true" sortField="title" :currentSort="$sortField" :sortDirection="$sortDirection">Titel</x-ui-table-header-cell>

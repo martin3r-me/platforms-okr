@@ -30,25 +30,27 @@
         <!-- Haupt-Content (nimmt Restplatz, scrollt) -->
         <div class="flex-grow-1 overflow-y-auto p-4">
             
-            {{-- OKR Grunddaten --}}
+            {{-- OKR Details --}}
             <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4 text-secondary">OKR Grunddaten</h3>
+                <h3 class="text-lg font-semibold mb-4 text-secondary">OKR Details</h3>
                 <div class="grid grid-cols-2 gap-4">
                     <x-ui-input-text 
                         name="okr.title"
                         label="Titel"
                         wire:model.live.debounce.500ms="okr.title"
-                        placeholder="OKR Titel eingeben..."
+                        placeholder="Titel des OKR eingeben..."
                         required
                         :errorKey="'okr.title'"
                     />
-                    <x-ui-input-number
-                        name="okr.performance_score"
-                        label="Performance Score (%)"
-                        wire:model.live.debounce.500ms="okr.performance_score"
-                        min="0"
-                        max="100"
-                        :errorKey="'okr.performance_score'"
+                    <x-ui-input-select
+                        name="okr.manager_user_id"
+                        label="Verantwortlicher Manager"
+                        :options="$this->users"
+                        optionValue="id"
+                        optionLabel="name"
+                        :nullable="true"
+                        nullLabel="– Manager auswählen –"
+                        wire:model.live="okr.manager_user_id"
                     />
                 </div>
                 <div class="mt-4">
@@ -61,50 +63,106 @@
                         :errorKey="'okr.description'"
                     />
                 </div>
-            </div>
-
-            {{-- Verantwortlichkeiten --}}
-            <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4 text-secondary">Verantwortlichkeiten</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-select
-                        name="okr.user_id"
-                        label="Verantwortlicher"
-                        :options="$users"
-                        optionValue="id"
-                        optionLabel="name"
-                        :nullable="false"
-                        wire:model.live="okr.user_id"
-                        required
+                <div class="grid grid-cols-2 gap-4 mt-4">
+                    <x-ui-input-number
+                        name="okr.performance_score"
+                        label="Performance Score (%)"
+                        wire:model.live.debounce.500ms="okr.performance_score"
+                        min="0"
+                        max="100"
+                        :errorKey="'okr.performance_score'"
                     />
-                    <x-ui-input-select
-                        name="okr.manager_user_id"
-                        label="Manager"
-                        :options="$users"
-                        optionValue="id"
-                        optionLabel="name"
-                        :nullable="true"
-                        nullLabel="– Manager auswählen –"
-                        wire:model.live="okr.manager_user_id"
-                    />
+                    <div class="d-flex items-center gap-4">
+                        <div class="d-flex items-center gap-2">
+                            <input 
+                                type="checkbox" 
+                                id="okr_auto_transfer"
+                                wire:model.live="okr.auto_transfer"
+                                class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                            >
+                            <label for="okr_auto_transfer" class="text-sm font-medium text-gray-700">
+                                Automatisch übertragen
+                            </label>
+                        </div>
+                        <div class="d-flex items-center gap-2">
+                            <input 
+                                type="checkbox" 
+                                id="okr_is_template"
+                                wire:model.live="okr.is_template"
+                                class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                            >
+                            <label for="okr_is_template" class="text-sm font-medium text-gray-700">
+                                Als Template speichern
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {{-- Einstellungen --}}
+            {{-- Cycles --}}
             <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4 text-secondary">Einstellungen</h3>
-                <div class="d-flex items-center gap-4">
-                    <x-ui-input-checkbox
-                        name="okr.auto_transfer"
-                        label="Automatisch übertragen"
-                        wire:model.live="okr.auto_transfer"
-                    />
-                    <x-ui-input-checkbox
-                        name="okr.is_template"
-                        label="Als Template speichern"
-                        wire:model.live="okr.is_template"
-                    />
+                <h3 class="text-lg font-semibold mb-4 text-secondary">Cycles</h3>
+                <div class="space-y-2">
+                    @foreach($okr->cycles as $cycle)
+                        <div class="d-flex items-center gap-2 p-2 bg-muted-5 rounded cursor-pointer" wire:click="editCycle({{ $cycle->id }})">
+                            <div class="flex-grow-1">
+                                <div class="text-sm font-medium">
+                                    {{ $cycle->template?->label ?? 'Unbekannter Cycle' }}
+                                </div>
+                                <div class="text-xs text-muted">
+                                    {{ $cycle->template?->starts_at?->format('d.m.Y') }} - {{ $cycle->template?->ends_at?->format('d.m.Y') }}
+                                </div>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    @if($cycle->status === 'current') bg-green-100 text-green-800
+                                    @elseif($cycle->status === 'draft') bg-gray-100 text-gray-800
+                                    @elseif($cycle->status === 'ending_soon') bg-yellow-100 text-yellow-800
+                                    @elseif($cycle->status === 'past') bg-red-100 text-red-800
+                                    @else bg-blue-100 text-blue-800
+                                    @endif">
+                                    {{ ucfirst($cycle->status) }}
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                    @if($okr->cycles->count() === 0)
+                        <p class="text-sm text-muted">Noch keine Cycles vorhanden.</p>
+                    @endif
+                    <x-ui-button size="sm" variant="secondary-outline" wire:click="addCycle">
+                        <div class="d-flex items-center gap-2">
+                            @svg('heroicon-o-plus', 'w-4 h-4')
+                            Cycle hinzufügen
+                        </div>
+                    </x-ui-button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Aktivitäten (immer unten) -->
+        <div x-data="{ open: false }" class="flex-shrink-0 border-t border-muted">
+            <div 
+                @click="open = !open" 
+                class="cursor-pointer border-top-1 border-top-solid border-top-muted border-bottom-1 border-bottom-solid border-bottom-muted p-2 text-center d-flex items-center justify-center gap-1 mx-2 shadow-lg"
+            >
+                AKTIVITÄTEN 
+                <span class="text-xs">
+                    {{$okr->activities->count()}}
+                </span>
+                <x-heroicon-o-chevron-double-down 
+                    class="w-3 h-3" 
+                    x-show="!open"
+                />
+                <x-heroicon-o-chevron-double-up 
+                    class="w-3 h-3" 
+                    x-show="open"
+                />
+            </div>
+            <div x-show="open" class="p-2 max-h-xs overflow-y-auto">
+                {{-- <livewire:activity-log.index
+                    :model="$okr"
+                    :key="get_class($okr) . '_' . $okr->id"
+                /> --}}
             </div>
         </div>
     </div>
@@ -114,7 +172,7 @@
 
         <div class="d-flex gap-2 border-top-1 border-bottom-1 border-muted border-top-solid border-bottom-solid p-2 flex-shrink-0">
             <x-heroicon-o-cog-6-tooth class="w-6 h-6"/>
-            Cycles
+            Einstellungen
         </div>
         <div class="flex-grow-1 overflow-y-auto p-4">
 
@@ -139,51 +197,14 @@
                 <h4 class="font-semibold mb-2 text-secondary">OKR-Übersicht</h4>
                 <div class="space-y-1 text-sm">
                     <div><strong>Titel:</strong> {{ $okr->title }}</div>
-                    @if($okr->performance_score !== null)
-                        <div><strong>Score:</strong> {{ $okr->performance_score }}%</div>
-                    @endif
-                    <div><strong>Verantwortlicher:</strong> {{ $okr->user?->name ?? 'Unbekannt' }}</div>
                     @if($okr->manager)
                         <div><strong>Manager:</strong> {{ $okr->manager->name }}</div>
                     @endif
-                    <div><strong>Cycles:</strong> {{ $okr->cycles->count() }}</div>
-                </div>
-            </div>
-
-            {{-- Cycles --}}
-            <div class="mb-4">
-                <h4 class="font-semibold mb-2">Cycles</h4>
-                <div class="space-y-2">
-                    @foreach($okr->cycles as $cycle)
-                        <div class="d-flex items-center gap-2 p-2 bg-muted-5 rounded cursor-pointer" wire:click="editCycle({{ $cycle->id }})">
-                            <div class="flex-grow-1">
-                                <div class="text-sm font-medium">
-                                    {{ $cycle->template?->label ?? 'Unbekanntes Template' }}
-                                </div>
-                                <div class="text-xs text-muted">
-                                    {{ $cycle->template?->starts_at?->format('d.m.Y') }} - 
-                                    {{ $cycle->template?->ends_at?->format('d.m.Y') }}
-                                </div>
-                            </div>
-                            <div class="d-flex gap-1">
-                                <x-ui-badge 
-                                    variant="@if($cycle->status === 'current') success @elseif($cycle->status === 'draft') secondary @elseif($cycle->status === 'ending_soon') warning @else danger @endif" 
-                                    size="xs"
-                                >
-                                    {{ ucfirst($cycle->status) }}
-                                </x-ui-badge>
-                            </div>
-                        </div>
-                    @endforeach
-                    @if($okr->cycles->count() === 0)
-                        <p class="text-sm text-muted">Noch keine Cycles vorhanden.</p>
+                    <div><strong>Verantwortlicher:</strong> {{ $okr->user->name }}</div>
+                    @if($okr->performance_score !== null)
+                        <div><strong>Score:</strong> {{ $okr->performance_score }}%</div>
                     @endif
-                    <x-ui-button size="sm" variant="secondary-outline" wire:click="addCycle">
-                        <div class="d-flex items-center gap-2">
-                            @svg('heroicon-o-plus', 'w-4 h-4')
-                            Cycle hinzufügen
-                        </div>
-                    </x-ui-button>
+                    <div><strong>Cycles:</strong> {{ $okr->cycles->count() }}</div>
                 </div>
             </div>
 
@@ -194,48 +215,44 @@
 
     <!-- Cycle Create Modal -->
     <x-ui-modal
-        size="md"
-        model="cycleCreateModalShow"
+        size="lg"
+        wire:model="cycleCreateModalShow"
     >
         <x-slot name="header">
             Cycle hinzufügen
         </x-slot>
 
         <div class="space-y-4">
-            <x-ui-input-select
-                name="cycleForm.cycle_template_id"
-                label="Cycle Template"
-                :options="$cycleTemplates"
-                optionValue="id"
-                optionLabel="label"
-                :nullable="false"
-                wire:model.live="cycleForm.cycle_template_id"
-                required
-            />
+            <form wire:submit.prevent="saveCycle" class="space-y-4">
+                <x-ui-input-select
+                    name="cycleForm.cycle_template_id"
+                    label="Cycle Template auswählen"
+                    :options="$this->cycleTemplates"
+                    optionValue="id"
+                    optionLabel="label"
+                    :nullable="true"
+                    nullLabel="– Template auswählen –"
+                    wire:model.live="cycleForm.cycle_template_id"
+                    required
+                />
 
-            <x-ui-input-select
-                name="cycleForm.status"
-                label="Status"
-                :options="[
-                    ['id' => 'draft', 'name' => 'Draft'],
-                    ['id' => 'current', 'name' => 'Current'],
-                    ['id' => 'ending_soon', 'name' => 'Ending Soon'],
-                    ['id' => 'completed', 'name' => 'Completed'],
-                    ['id' => 'archived', 'name' => 'Archived']
-                ]"
-                optionValue="id"
-                optionLabel="name"
-                :nullable="false"
-                wire:model.live="cycleForm.status"
-            />
+                <x-ui-input-select
+                    name="cycleForm.status"
+                    label="Status"
+                    :options="['draft' => 'Entwurf', 'active' => 'Aktiv', 'completed' => 'Abgeschlossen', 'ending_soon' => 'Endet bald', 'past' => 'Vergangen']"
+                    :nullable="false"
+                    wire:model.live="cycleForm.status"
+                    required
+                />
 
-            <x-ui-input-textarea
-                name="cycleForm.notes"
-                label="Notizen"
-                wire:model.live="cycleForm.notes"
-                placeholder="Zusätzliche Notizen zum Cycle (optional)"
-                rows="3"
-            />
+                <x-ui-input-textarea
+                    name="cycleForm.notes"
+                    label="Notizen"
+                    wire:model.live="cycleForm.notes"
+                    placeholder="Zusätzliche Notizen zum Cycle (optional)"
+                    rows="3"
+                />
+            </form>
         </div>
 
         <x-slot name="footer">
@@ -256,48 +273,44 @@
 
     <!-- Cycle Edit Modal -->
     <x-ui-modal
-        size="md"
-        model="cycleEditModalShow"
+        size="lg"
+        wire:model="cycleEditModalShow"
     >
         <x-slot name="header">
             Cycle bearbeiten
         </x-slot>
 
         <div class="space-y-4">
-            <x-ui-input-select
-                name="cycleForm.cycle_template_id"
-                label="Cycle Template"
-                :options="$cycleTemplates"
-                optionValue="id"
-                optionLabel="label"
-                :nullable="false"
-                wire:model.live="cycleForm.cycle_template_id"
-                required
-            />
+            <form wire:submit.prevent="saveCycle" class="space-y-4">
+                <x-ui-input-select
+                    name="cycleForm.cycle_template_id"
+                    label="Cycle Template auswählen"
+                    :options="$this->cycleTemplates"
+                    optionValue="id"
+                    optionLabel="label"
+                    :nullable="true"
+                    nullLabel="– Template auswählen –"
+                    wire:model.live="cycleForm.cycle_template_id"
+                    required
+                />
 
-            <x-ui-input-select
-                name="cycleForm.status"
-                label="Status"
-                :options="[
-                    ['id' => 'draft', 'name' => 'Draft'],
-                    ['id' => 'current', 'name' => 'Current'],
-                    ['id' => 'ending_soon', 'name' => 'Ending Soon'],
-                    ['id' => 'completed', 'name' => 'Completed'],
-                    ['id' => 'archived', 'name' => 'Archived']
-                ]"
-                optionValue="id"
-                optionLabel="name"
-                :nullable="false"
-                wire:model.live="cycleForm.status"
-            />
+                <x-ui-input-select
+                    name="cycleForm.status"
+                    label="Status"
+                    :options="['draft' => 'Entwurf', 'active' => 'Aktiv', 'completed' => 'Abgeschlossen', 'ending_soon' => 'Endet bald', 'past' => 'Vergangen']"
+                    :nullable="false"
+                    wire:model.live="cycleForm.status"
+                    required
+                />
 
-            <x-ui-input-textarea
-                name="cycleForm.notes"
-                label="Notizen"
-                wire:model.live="cycleForm.notes"
-                placeholder="Zusätzliche Notizen zum Cycle (optional)"
-                rows="3"
-            />
+                <x-ui-input-textarea
+                    name="cycleForm.notes"
+                    label="Notizen"
+                    wire:model.live="cycleForm.notes"
+                    placeholder="Zusätzliche Notizen zum Cycle (optional)"
+                    rows="3"
+                />
+            </form>
         </div>
 
         <x-slot name="footer">
@@ -326,5 +339,4 @@
             </div>
         </x-slot>
     </x-ui-modal>
-
 </div>

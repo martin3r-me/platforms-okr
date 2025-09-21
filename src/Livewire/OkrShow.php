@@ -7,19 +7,19 @@ use Platform\Okr\Models\Okr;
 use Platform\Okr\Models\Cycle;
 use Platform\Okr\Models\CycleTemplate;
 use Platform\Core\Models\User;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 
 class OkrShow extends Component
 {
     public Okr $okr;
-    public bool $isDirty = false;
-    
-    // Cycle Modals
-    public bool $cycleCreateModalShow = false;
-    public bool $cycleEditModalShow = false;
-    public ?int $editingCycleId = null;
-    
-    // Cycle Form
-    public array $cycleForm = [
+    public $isDirty = false;
+
+    // Cycle Modal Properties
+    public $cycleCreateModalShow = false;
+    public $cycleEditModalShow = false;
+    public $editingCycleId = null;
+    public $cycleForm = [
         'cycle_template_id' => '',
         'status' => 'draft',
         'notes' => '',
@@ -29,26 +29,39 @@ class OkrShow extends Component
         'okr.title' => 'required|string|max:255',
         'okr.description' => 'nullable|string',
         'okr.performance_score' => 'nullable|numeric|min:0|max:100',
-        'okr.user_id' => 'required|exists:users,id',
-        'okr.manager_user_id' => 'nullable|exists:users,id',
         'okr.auto_transfer' => 'boolean',
         'okr.is_template' => 'boolean',
+        'okr.manager_user_id' => 'nullable|exists:users,id',
+
         'cycleForm.cycle_template_id' => 'required|exists:okr_cycle_templates,id',
-        'cycleForm.status' => 'required|in:draft,current,ending_soon,completed,archived',
+        'cycleForm.status' => 'required|in:draft,active,completed,ending_soon,past',
         'cycleForm.notes' => 'nullable|string',
     ];
 
     public function mount(Okr $okr)
     {
         $this->okr = $okr;
-        $this->okr->load(['cycles.template', 'user', 'manager']);
+        $this->okr->load(['user', 'manager', 'cycles.template']);
     }
 
-    public function updated($propertyName)
+    #[Computed]
+    public function users()
     {
-        if (str_starts_with($propertyName, 'okr.')) {
+        return User::where('current_team_id', auth()->user()->current_team_id)->get();
+    }
+
+    #[Computed]
+    public function cycleTemplates()
+    {
+        return CycleTemplate::orderBy('starts_at')->get();
+    }
+
+    public function updated($property)
+    {
+        if (str($property)->startsWith('okr.')) {
             $this->isDirty = true;
         }
+        $this->validateOnly($property);
     }
 
     public function save()
@@ -57,84 +70,21 @@ class OkrShow extends Component
             'okr.title' => 'required|string|max:255',
             'okr.description' => 'nullable|string',
             'okr.performance_score' => 'nullable|numeric|min:0|max:100',
-            'okr.user_id' => 'required|exists:users,id',
-            'okr.manager_user_id' => 'nullable|exists:users,id',
             'okr.auto_transfer' => 'boolean',
             'okr.is_template' => 'boolean',
+            'okr.manager_user_id' => 'nullable|exists:users,id',
         ]);
 
         $this->okr->save();
         $this->isDirty = false;
-        
-        session()->flash('message', 'OKR erfolgreich gespeichert!');
+        session()->flash('message', 'OKR erfolgreich aktualisiert!');
     }
 
+    // Cycle Management
     public function addCycle()
     {
         $this->resetCycleForm();
         $this->cycleCreateModalShow = true;
-    }
-
-    public function editCycle($cycleId)
-    {
-        $cycle = Cycle::findOrFail($cycleId);
-        $this->editingCycleId = $cycleId;
-        $this->cycleForm = [
-            'cycle_template_id' => $cycle->cycle_template_id,
-            'status' => $cycle->status,
-            'notes' => $cycle->notes ?? '',
-        ];
-        $this->cycleEditModalShow = true;
-    }
-
-    public function saveCycle()
-    {
-        $this->validate([
-            'cycleForm.cycle_template_id' => 'required|exists:okr_cycle_templates,id',
-            'cycleForm.status' => 'required|in:draft,current,ending_soon,completed,archived',
-            'cycleForm.notes' => 'nullable|string',
-        ]);
-
-        if ($this->editingCycleId) {
-            // Update existing cycle
-            $cycle = Cycle::findOrFail($this->editingCycleId);
-            $cycle->update([
-                'cycle_template_id' => $this->cycleForm['cycle_template_id'],
-                'status' => $this->cycleForm['status'],
-                'notes' => $this->cycleForm['notes'] ?: null,
-            ]);
-            $message = 'Cycle erfolgreich aktualisiert!';
-        } else {
-            // Create new cycle
-            Cycle::create([
-                'okr_id' => $this->okr->id,
-                'cycle_template_id' => $this->cycleForm['cycle_template_id'],
-                'status' => $this->cycleForm['status'],
-                'notes' => $this->cycleForm['notes'] ?: null,
-                'team_id' => auth()->user()->current_team_id,
-                'user_id' => auth()->id(),
-            ]);
-            $message = 'Cycle erfolgreich erstellt!';
-        }
-
-        $this->okr->refresh();
-        $this->closeCycleCreateModal();
-        $this->closeCycleEditModal();
-        
-        session()->flash('message', $message);
-    }
-
-    public function deleteCycleAndCloseModal()
-    {
-        if ($this->editingCycleId) {
-            $cycle = Cycle::findOrFail($this->editingCycleId);
-            $cycle->delete();
-            
-            $this->okr->refresh();
-            $this->closeCycleEditModal();
-            
-            session()->flash('message', 'Cycle erfolgreich gelöscht!');
-        }
     }
 
     public function closeCycleCreateModal()
@@ -143,15 +93,68 @@ class OkrShow extends Component
         $this->resetCycleForm();
     }
 
+    public function editCycle($cycleId)
+    {
+        $cycle = $this->okr->cycles()->findOrFail($cycleId);
+        $this->editingCycleId = $cycle->id;
+        $this->cycleForm = [
+            'cycle_template_id' => $cycle->cycle_template_id,
+            'status' => $cycle->status,
+            'notes' => $cycle->notes,
+        ];
+        $this->cycleEditModalShow = true;
+    }
+
     public function closeCycleEditModal()
     {
         $this->cycleEditModalShow = false;
-        $this->editingCycleId = null;
         $this->resetCycleForm();
+    }
+
+    public function saveCycle()
+    {
+        $this->validate([
+            'cycleForm.cycle_template_id' => 'required|exists:okr_cycle_templates,id',
+            'cycleForm.status' => 'required|in:draft,active,completed,ending_soon,past',
+            'cycleForm.notes' => 'nullable|string',
+        ]);
+
+        if ($this->editingCycleId) {
+            $cycle = $this->okr->cycles()->findOrFail($this->editingCycleId);
+            $cycle->update([
+                'cycle_template_id' => $this->cycleForm['cycle_template_id'],
+                'status' => $this->cycleForm['status'],
+                'notes' => $this->cycleForm['notes'],
+            ]);
+            session()->flash('message', 'Cycle erfolgreich aktualisiert!');
+        } else {
+            $this->okr->cycles()->create([
+                'cycle_template_id' => $this->cycleForm['cycle_template_id'],
+                'status' => $this->cycleForm['status'],
+                'notes' => $this->cycleForm['notes'],
+                'team_id' => auth()->user()->current_team_id,
+                'user_id' => auth()->id(),
+            ]);
+            session()->flash('message', 'Cycle erfolgreich hinzugefügt!');
+        }
+
+        $this->okr->load('cycles.template'); // Refresh cycles
+        $this->closeCycleCreateModal();
+        $this->closeCycleEditModal();
+    }
+
+    public function deleteCycleAndCloseModal()
+    {
+        $cycle = $this->okr->cycles()->findOrFail($this->editingCycleId);
+        $cycle->delete();
+        session()->flash('message', 'Cycle erfolgreich gelöscht!');
+        $this->okr->load('cycles.template'); // Refresh cycles
+        $this->closeCycleEditModal();
     }
 
     protected function resetCycleForm()
     {
+        $this->editingCycleId = null;
         $this->cycleForm = [
             'cycle_template_id' => '',
             'status' => 'draft',
@@ -161,12 +164,7 @@ class OkrShow extends Component
 
     public function render()
     {
-        $users = User::where('current_team_id', auth()->user()->current_team_id)->get();
-        $cycleTemplates = CycleTemplate::orderBy('starts_at')->get();
-
-        return view('okr::livewire.okr-show', [
-            'users' => $users,
-            'cycleTemplates' => $cycleTemplates,
-        ])->layout('platform::layouts.app');
+        return view('okr::livewire.okr-show')
+            ->layout('platform::layouts.app');
     }
 }
