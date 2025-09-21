@@ -19,6 +19,9 @@ class OkrServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \Platform\Okr\Console\Commands\GenerateQuarterCycleTemplates::class,
+                \Platform\Okr\Console\Commands\GenerateCycleTemplates::class,
+                \Platform\Okr\Console\Commands\UpdateCurrentCycle::class,
+                \Platform\Okr\Console\Commands\MaintainCycleTemplates::class,
                 \Platform\Okr\Console\Commands\SeedOkrData::class,
                 \Platform\Okr\Console\Commands\SeedOkrLookupData::class,
             ]);
