@@ -133,6 +133,19 @@
                                                     @if($keyResult->description)
                                                         <div class="text-xs text-muted">{{ Str::limit($keyResult->description, 60) }}</div>
                                                     @endif
+                                                    @if($keyResult->target_value)
+                                                        <div class="text-xs text-muted mt-1">
+                                                            <span class="font-medium">Ziel:</span> {{ $keyResult->target_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
+                                                            @if($keyResult->performance && $keyResult->performance->current_value)
+                                                                | <span class="font-medium">Aktuell:</span> 
+                                                                @if($keyResult->performance->type === 'boolean')
+                                                                    {{ $keyResult->performance->is_completed ? 'Ja' : 'Nein' }}
+                                                                @else
+                                                                    {{ $keyResult->performance->current_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
+                                                                @endif
+                                                            @endif
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         @endforeach
@@ -357,7 +370,7 @@
 
     <!-- Key Result Create Modal -->
     <x-ui-modal
-        size="md"
+        size="lg"
         model="keyResultCreateModalShow"
     >
         <x-slot name="header">
@@ -380,6 +393,63 @@
                 placeholder="Beschreibung des Key Result (optional)"
                 rows="3"
             />
+
+            <x-ui-input-select
+                name="keyResultValueType"
+                label="Wert-Typ"
+                :options="[
+                    'absolute' => 'Absolut (z.B. 100 Stück, 50.000€)',
+                    'percentage' => 'Prozent (z.B. 80%, 15%)',
+                    'boolean' => 'Ja/Nein (z.B. Erledigt, Implementiert)'
+                ]"
+                :nullable="false"
+                wire:model.live="keyResultValueType"
+                required
+            />
+
+            <div class="grid grid-cols-2 gap-4">
+                <x-ui-input-text
+                    name="keyResultTargetValue"
+                    label="Zielwert"
+                    wire:model.live="keyResultTargetValue"
+                    :placeholder="match($keyResultValueType) {
+                        'percentage' => 'z.B. 80',
+                        'boolean' => 'z.B. Ja oder Nein',
+                        'absolute' => 'z.B. 100',
+                        default => 'Zielwert eingeben...'
+                    }"
+                    required
+                />
+
+                <x-ui-input-text
+                    name="keyResultCurrentValue"
+                    label="Aktueller Wert"
+                    wire:model.live="keyResultCurrentValue"
+                    :placeholder="match($keyResultValueType) {
+                        'percentage' => 'z.B. 45',
+                        'boolean' => 'z.B. Nein',
+                        'absolute' => 'z.B. 60',
+                        default => 'Aktueller Wert (optional)'
+                    }"
+                />
+            </div>
+
+            @if($keyResultValueType === 'absolute')
+                <x-ui-input-text
+                    name="keyResultUnit"
+                    label="Einheit"
+                    wire:model.live="keyResultUnit"
+                    placeholder="z.B. Stück, €, Kunden, etc."
+                />
+            @endif
+
+            @if($keyResultValueType === 'boolean')
+                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="text-sm text-blue-800">
+                        <strong>Boolean-Werte:</strong> Verwende "Ja", "Nein", "Erledigt", "Nicht erledigt", "Implementiert", etc.
+                    </div>
+                </div>
+            @endif
         </div>
 
         <x-slot name="footer">

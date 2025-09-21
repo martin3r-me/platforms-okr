@@ -28,6 +28,10 @@ class CycleShow extends Component
     public $editingKeyResultObjectiveId = null;
     public $keyResultTitle = '';
     public $keyResultDescription = '';
+    public $keyResultValueType = 'absolute'; // absolute, percentage, boolean
+    public $keyResultTargetValue = '';
+    public $keyResultCurrentValue = '';
+    public $keyResultUnit = '';
 
     protected $rules = [
         'cycle.status' => 'required|in:draft,active,completed,ending_soon,past',
@@ -39,12 +43,16 @@ class CycleShow extends Component
 
         'keyResultTitle' => 'required|string|max:255',
         'keyResultDescription' => 'nullable|string',
+        'keyResultValueType' => 'required|in:absolute,percentage,boolean',
+        'keyResultTargetValue' => 'required|string',
+        'keyResultCurrentValue' => 'nullable|string',
+        'keyResultUnit' => 'nullable|string|max:50',
     ];
 
     public function mount(Cycle $cycle)
     {
         $this->cycle = $cycle;
-        $this->cycle->load(['okr', 'template', 'objectives.keyResults']);
+        $this->cycle->load(['okr', 'template', 'objectives.keyResults.performance']);
     }
 
     #[Computed]
@@ -155,6 +163,10 @@ class CycleShow extends Component
         $this->editingKeyResultObjectiveId = $objectiveId;
         $this->keyResultTitle = '';
         $this->keyResultDescription = '';
+        $this->keyResultValueType = 'absolute';
+        $this->keyResultTargetValue = '';
+        $this->keyResultCurrentValue = '';
+        $this->keyResultUnit = '';
         $this->keyResultCreateModalShow = true;
     }
 
@@ -163,6 +175,10 @@ class CycleShow extends Component
         $this->keyResultCreateModalShow = false;
         $this->keyResultTitle = '';
         $this->keyResultDescription = '';
+        $this->keyResultValueType = 'absolute';
+        $this->keyResultTargetValue = '';
+        $this->keyResultCurrentValue = '';
+        $this->keyResultUnit = '';
     }
 
     public function saveKeyResult()
@@ -170,6 +186,10 @@ class CycleShow extends Component
         $this->validate([
             'keyResultTitle' => 'required|string|max:255',
             'keyResultDescription' => 'nullable|string',
+            'keyResultValueType' => 'required|in:absolute,percentage,boolean',
+            'keyResultTargetValue' => 'required|string',
+            'keyResultCurrentValue' => 'nullable|string',
+            'keyResultUnit' => 'nullable|string|max:50',
         ]);
 
         if (!$this->editingKeyResultObjectiveId) {
@@ -182,18 +202,40 @@ class CycleShow extends Component
         // Auto-calculate order
         $nextOrder = $objective->keyResults()->max('order') + 1;
         
-        $objective->keyResults()->create([
+        // Set default unit based on value type
+        $unit = $this->keyResultUnit;
+        if (empty($unit)) {
+            $unit = match($this->keyResultValueType) {
+                'percentage' => '%',
+                'boolean' => '',
+                'absolute' => 'Stück',
+                default => ''
+            };
+        }
+        
+        $keyResult = $objective->keyResults()->create([
             'title' => $this->keyResultTitle,
             'description' => $this->keyResultDescription,
-            'target_value' => '0',
-            'current_value' => '0',
-            'unit' => '',
+            'target_value' => $this->keyResultTargetValue,
+            'current_value' => '0', // Default, wird über Performance verwaltet
+            'unit' => $unit,
             'order' => $nextOrder,
             'team_id' => auth()->user()->current_team_id,
             'user_id' => auth()->id(),
         ]);
+
+        // Create initial performance record
+        $keyResult->performances()->create([
+            'type' => $this->keyResultValueType,
+            'target_value' => $this->keyResultTargetValue,
+            'current_value' => $this->keyResultCurrentValue ?: 0,
+            'is_completed' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue === 'Ja' || $this->keyResultCurrentValue === 'Erledigt') : false,
+            'performance_score' => 0.0,
+            'team_id' => auth()->user()->current_team_id,
+            'user_id' => auth()->id(),
+        ]);
         
-        $this->cycle->load('objectives.keyResults');
+        $this->cycle->load('objectives.keyResults.performance');
         $this->closeKeyResultCreateModal();
         session()->flash('message', 'Key Result erfolgreich hinzugefügt!');
     }
@@ -219,7 +261,7 @@ class CycleShow extends Component
             }
         }
         
-        $this->cycle->load('objectives.keyResults');
+        $this->cycle->load('objectives.keyResults.performance');
         session()->flash('message', 'Objective-Reihenfolge aktualisiert!');
     }
 
@@ -237,7 +279,7 @@ class CycleShow extends Component
             }
         }
         
-        $this->cycle->load('objectives.keyResults');
+        $this->cycle->load('objectives.keyResults.performance');
         session()->flash('message', 'Key Result-Reihenfolge aktualisiert!');
     }
 
