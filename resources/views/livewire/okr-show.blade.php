@@ -73,28 +73,16 @@
                         :errorKey="'okr.performance_score'"
                     />
                     <div class="d-flex items-center gap-4">
-                        <div class="d-flex items-center gap-2">
-                            <input 
-                                type="checkbox" 
-                                id="okr_auto_transfer"
-                                wire:model.live="okr.auto_transfer"
-                                class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
-                            >
-                            <label for="okr_auto_transfer" class="text-sm font-medium text-gray-700">
-                                Automatisch übertragen
-                            </label>
-                        </div>
-                        <div class="d-flex items-center gap-2">
-                            <input 
-                                type="checkbox" 
-                                id="okr_is_template"
-                                wire:model.live="okr.is_template"
-                                class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
-                            >
-                            <label for="okr_is_template" class="text-sm font-medium text-gray-700">
-                                Als Template speichern
-                            </label>
-                        </div>
+                        <x-ui-input-checkbox
+                            name="okr.auto_transfer"
+                            label="Automatisch übertragen"
+                            wire:model.live="okr.auto_transfer"
+                        />
+                        <x-ui-input-checkbox
+                            name="okr.is_template"
+                            label="Als Template speichern"
+                            wire:model.live="okr.is_template"
+                        />
                     </div>
                 </div>
             </div>
