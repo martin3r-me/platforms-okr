@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
 
-            $table->foreignId('objective_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('objective_id')->constrained('okr_objectives')->cascadeOnDelete();
             $table->foreignId('team_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete(); // Erstellt von
             $table->foreignId('manager_user_id')->nullable()->constrained('users')->nullOnDelete(); // Verantwortlich
