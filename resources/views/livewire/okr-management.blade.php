@@ -106,7 +106,7 @@
     @else
         <div class="text-center py-12">
             <div class="mx-auto h-12 w-12 text-gray-400">
-                @svg('heroicon-o-target')
+                @svg('heroicon-o-flag')
             </div>
             <h3 class="mt-2 text-sm font-medium text-gray-900">Keine OKRs</h3>
             <p class="mt-1 text-sm text-gray-500">Erstelle dein erstes OKR.</p>
