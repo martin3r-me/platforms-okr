@@ -274,7 +274,7 @@
     <!-- Objective Create Modal -->
     <x-ui-modal
         size="lg"
-        model="objectiveCreateModalShow"
+        wire:model="objectiveCreateModalShow"
     >
         <x-slot name="header">
             Objective hinzufügen
@@ -327,7 +327,7 @@
     <!-- Objective Edit Modal -->
     <x-ui-modal
         size="lg"
-        model="objectiveEditModalShow"
+        wire:model="objectiveEditModalShow"
     >
         <x-slot name="header">
             Objective bearbeiten
@@ -391,7 +391,7 @@
     <!-- Key Result Create Modal -->
     <x-ui-modal
         size="lg"
-        model="keyResultCreateModalShow"
+        wire:model="keyResultCreateModalShow"
     >
         <x-slot name="header">
             Key Result hinzufügen
@@ -495,7 +495,7 @@
     <!-- Key Result Edit Modal -->
     <x-ui-modal
         size="lg"
-        model="keyResultEditModalShow"
+        wire:model="keyResultEditModalShow"
     >
         <x-slot name="header">
             Key Result bearbeiten
