@@ -218,9 +218,15 @@ class CycleShow extends Component
         $this->keyResultUnit = '';
     }
 
+    public function testMethod()
+    {
+        session()->flash('message', 'Test-Methode funktioniert!');
+    }
+
     public function saveKeyResult()
     {
         \Log::info('saveKeyResult method called');
+        session()->flash('message', 'saveKeyResult wurde aufgerufen!');
         
         try {
             // Debug: Log current values

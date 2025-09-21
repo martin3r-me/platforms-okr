@@ -474,16 +474,20 @@
 
         <x-slot name="footer">
             <div class="d-flex justify-end gap-2">
-                <x-ui-button 
+                <button 
                     type="button" 
-                    variant="secondary-outline" 
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     wire:click="closeKeyResultCreateModal"
                 >
                     Abbrechen
-                </x-ui-button>
-                <x-ui-button type="button" variant="primary" wire:click="saveKeyResult">
+                </button>
+                <button 
+                    type="button" 
+                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    wire:click="saveKeyResult"
+                >
                     Hinzufügen
-                </x-ui-button>
+                </button>
             </div>
         </x-slot>
     </x-ui-modal>
@@ -574,16 +578,27 @@
 
         <x-slot name="footer">
             <div class="d-flex justify-end gap-2">
-                <x-ui-button 
+                <button 
                     type="button" 
-                    variant="secondary-outline" 
+                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     wire:click="closeKeyResultEditModal"
                 >
                     Abbrechen
-                </x-ui-button>
-                <x-ui-button type="button" variant="primary" wire:click="saveKeyResult">
+                </button>
+                <button 
+                    type="button" 
+                    class="px-4 py-2 text-sm font-medium text-yellow-600 bg-yellow-100 border border-transparent rounded-md hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+                    wire:click="testMethod"
+                >
+                    Test
+                </button>
+                <button 
+                    type="button" 
+                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    wire:click="saveKeyResult"
+                >
                     Speichern
-                </x-ui-button>
+                </button>
             </div>
         </x-slot>
     </x-ui-modal>
