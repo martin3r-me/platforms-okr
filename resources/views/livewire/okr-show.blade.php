@@ -74,14 +74,12 @@
                     />
                     <div class="d-flex items-center gap-4">
                         <x-ui-input-checkbox
-                            name="okr.auto_transfer"
-                            label="Automatisch übertragen"
-                            wire:model.live="okr.auto_transfer"
+                            model="okr.auto_transfer"
+                            checked-label="Automatisch übertragen"
                         />
                         <x-ui-input-checkbox
-                            name="okr.is_template"
-                            label="Als Template speichern"
-                            wire:model.live="okr.is_template"
+                            model="okr.is_template"
+                            checked-label="Als Template speichern"
                         />
                     </div>
                 </div>
