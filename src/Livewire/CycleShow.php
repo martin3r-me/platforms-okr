@@ -42,13 +42,6 @@ class CycleShow extends Component
         'objectiveForm.title' => 'required|string|max:255',
         'objectiveForm.description' => 'nullable|string',
         'objectiveForm.order' => 'required|integer|min:0',
-
-        'keyResultTitle' => 'required|string|max:255',
-        'keyResultDescription' => 'nullable|string',
-        'keyResultValueType' => 'required|in:absolute,percentage,boolean',
-        'keyResultTargetValue' => 'required|string',
-        'keyResultCurrentValue' => 'nullable|string',
-        'keyResultUnit' => 'nullable|string|max:50',
     ];
 
     public function mount(Cycle $cycle)
@@ -71,7 +64,11 @@ class CycleShow extends Component
         if (str($property)->startsWith('objectiveForm.')) {
             $this->isDirty = true;
         }
-        $this->validateOnly($property);
+        
+        // Only validate cycle and objective properties, not key result properties
+        if (str($property)->startsWith('cycle.') || str($property)->startsWith('objectiveForm.')) {
+            $this->validateOnly($property);
+        }
     }
 
     public function save()
@@ -223,6 +220,8 @@ class CycleShow extends Component
 
     public function saveKeyResult()
     {
+        \Log::info('saveKeyResult method called');
+        
         try {
             // Debug: Log current values
             \Log::info('Key Result Save Debug', [
@@ -235,14 +234,26 @@ class CycleShow extends Component
                 'keyResultUnit' => $this->keyResultUnit,
             ]);
 
-            $this->validate([
-                'keyResultTitle' => 'required|string|max:255',
-                'keyResultDescription' => 'nullable|string',
-                'keyResultValueType' => 'required|in:absolute,percentage,boolean',
-                'keyResultTargetValue' => 'required|string',
-                'keyResultCurrentValue' => 'nullable|string',
-                'keyResultUnit' => 'nullable|string|max:50',
-            ]);
+            // Validate required fields
+            if (empty($this->keyResultTitle)) {
+                session()->flash('error', 'Titel ist erforderlich!');
+                return;
+            }
+            
+            if (empty($this->keyResultValueType)) {
+                session()->flash('error', 'Wert-Typ ist erforderlich!');
+                return;
+            }
+            
+            if (empty($this->keyResultTargetValue)) {
+                session()->flash('error', 'Zielwert ist erforderlich!');
+                return;
+            }
+            
+            if (!in_array($this->keyResultValueType, ['absolute', 'percentage', 'boolean'])) {
+                session()->flash('error', 'Ungültiger Wert-Typ!');
+                return;
+            }
 
             if (!$this->editingKeyResultObjectiveId) {
                 session()->flash('error', 'Fehler: Objective ID fehlt!');
