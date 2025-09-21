@@ -35,6 +35,11 @@ class OkrManagement extends Component
         'manager_user_id' => 'nullable|exists:users,id',
     ];
 
+    public function mount()
+    {
+        $this->modalShow = false;
+    }
+
     public function render()
     {
         $okrs = Okr::with(['user', 'manager', 'cycles'])
