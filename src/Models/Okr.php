@@ -11,12 +11,10 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
-use Platform\Core\Traits\HasEntities;
-
 class Okr extends Model
 {
     protected $table = 'okr_okrs';
-    use SoftDeletes, HasEntities;
+    use SoftDeletes;
 
     protected $fillable = [
         'uuid',

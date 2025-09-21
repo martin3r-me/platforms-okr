@@ -42,7 +42,7 @@ class KeyResult extends Model
             }
 
             if (empty($kr->team_id)) {
-                $kr->team_id = Auth::user()?->currentTeam->id;
+                $kr->team_id = Auth::user()?->current_team_id;
             }
         });
     }

@@ -39,7 +39,7 @@ class KeyResultPerformance extends Model
             $performance->uuid = $uuid;
 
             if (empty($performance->team_id)) {
-                $performance->team_id = Auth::user()?->currentTeam->id;
+                $performance->team_id = Auth::user()?->current_team_id;
             }
         });
     }

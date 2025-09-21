@@ -44,7 +44,7 @@ class Objective extends Model
             }
 
             if (empty($objective->team_id)) {
-                $objective->team_id = Auth::user()?->currentTeam->id;
+                $objective->team_id = Auth::user()?->current_team_id;
             }
         });
     }
