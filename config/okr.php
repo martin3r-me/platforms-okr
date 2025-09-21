@@ -9,7 +9,7 @@ return [
 
     'navigation' => [
         'route' => 'okr.dashboard',
-        'icon'  => 'heroicon-o-target',
+        'icon'  => 'heroicon-o-flag',
         'order' => 35,
     ],
 

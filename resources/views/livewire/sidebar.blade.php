@@ -62,7 +62,7 @@
                            : 'text-black hover:bg-primary-10 hover:text-primary hover:shadow-md'
                    ]"
                    wire:navigate>
-                    <x-heroicon-o-target class="w-6 h-6 flex-shrink-0"/>
+                    <x-heroicon-o-flag class="w-6 h-6 flex-shrink-0"/>
                     <span class="truncate">{{ $okr->title }}</span>
                 </a>
             @endforeach
