@@ -45,7 +45,6 @@ class OkrServiceProvider extends ServiceProvider
                 'routing'    => config('okr.routing'),
                 'guard'      => config('okr.guard'),
                 'navigation' => config('okr.navigation'),
-                'sidebar'    => config('okr.sidebar'),
             ]);
         }
 

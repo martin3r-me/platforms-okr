@@ -69,4 +69,21 @@ class CycleManagement extends Component
         return view('okr::livewire.cycle-management')
             ->layout('platform::layouts.app');
     }
+
+    public function index()
+    {
+        return $this->render();
+    }
+
+    public function create()
+    {
+        $this->showCreateModal = true;
+        return $this->render();
+    }
+
+    public function show($cycle)
+    {
+        // TODO: Implement Cycle detail view
+        return redirect()->route('okr.cycles.index');
+    }
 }
