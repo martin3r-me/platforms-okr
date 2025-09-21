@@ -130,16 +130,28 @@
                 </div>
 
                 <div class="d-flex items-center gap-4">
-                    <x-ui-input-checkbox
-                        name="auto_transfer"
-                        label="Automatisch übertragen"
-                        model="auto_transfer"
-                    />
-                    <x-ui-input-checkbox
-                        name="is_template"
-                        label="Als Template speichern"
-                        model="is_template"
-                    />
+                    <div class="d-flex items-center gap-2">
+                        <input 
+                            type="checkbox" 
+                            id="auto_transfer"
+                            wire:model.live="auto_transfer"
+                            class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                        >
+                        <label for="auto_transfer" class="text-sm font-medium text-gray-700">
+                            Automatisch übertragen
+                        </label>
+                    </div>
+                    <div class="d-flex items-center gap-2">
+                        <input 
+                            type="checkbox" 
+                            id="is_template"
+                            wire:model.live="is_template"
+                            class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                        >
+                        <label for="is_template" class="text-sm font-medium text-gray-700">
+                            Als Template speichern
+                        </label>
+                    </div>
                 </div>
             </form>
         </div>
