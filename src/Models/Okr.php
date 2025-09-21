@@ -4,6 +4,7 @@ namespace Platform\Okr\Models;
 
 use Platform\Core\Models\Team;
 use Platform\Core\Models\User;
+use Platform\ActivityLog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,7 +15,7 @@ use Symfony\Component\Uid\UuidV7;
 class Okr extends Model
 {
     protected $table = 'okr_okrs';
-    use SoftDeletes;
+    use SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'uuid',
@@ -96,4 +97,5 @@ class Okr extends Model
             'id'
         );
     }
+
 }

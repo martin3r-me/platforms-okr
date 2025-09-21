@@ -4,6 +4,7 @@ namespace Platform\Okr\Models;
 
 use Platform\Core\Models\Team;
 use Platform\Core\Models\User;
+use Platform\ActivityLog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -15,7 +16,7 @@ use Symfony\Component\Uid\UuidV7;
 class Cycle extends Model
 {
     protected $table = 'okr_cycles';
-    use SoftDeletes;
+    use SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'uuid',
