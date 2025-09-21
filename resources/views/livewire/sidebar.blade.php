@@ -24,14 +24,21 @@
             <span x-show="!collapsed" class="truncate">Dashboard</span>
         </a>
 
-        {{-- OKR anlegen --}}
-        <a href="{{ route('okr.okrs.create') }}"
-           class="relative d-flex items-center p-2 my-1 rounded-md font-medium transition"
-           :class="collapsed ? 'justify-center' : 'gap-3'"
-           wire:navigate>
-            <x-heroicon-o-plus class="w-6 h-6 flex-shrink-0"/>
-            <span x-show="!collapsed" class="truncate">OKR anlegen</span>
-        </a>
+            {{-- OKRs --}}
+            <a href="{{ route('okr.okrs.index') }}"
+               class="relative d-flex items-center p-2 my-1 rounded-md font-medium transition"
+               :class="[
+                   window.location.pathname.includes('/okrs') || 
+                   window.location.pathname.endsWith('/okrs') ||
+                   window.location.pathname.endsWith('/okrs/')
+                       ? 'bg-primary text-on-primary shadow-md'
+                       : 'text-black hover:bg-primary-10 hover:text-primary hover:shadow-md',
+                   collapsed ? 'justify-center' : 'gap-3'
+               ]"
+               wire:navigate>
+                <x-heroicon-o-flag class="w-6 h-6 flex-shrink-0"/>
+                <span x-show="!collapsed" class="truncate">OKRs</span>
+            </a>
     </div>
 
     {{-- Abschnitt: OKRs --}}

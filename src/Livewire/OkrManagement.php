@@ -131,11 +131,6 @@ class OkrManagement extends Component
         return $this->render();
     }
 
-    public function create()
-    {
-        $this->openCreateModal();
-        return $this->render();
-    }
 
     public function show($okr)
     {

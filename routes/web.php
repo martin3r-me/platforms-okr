@@ -10,5 +10,4 @@ Route::get('/', Dashboard::class)->name('okr.dashboard');
 
 // OKR Management
 Route::get('/okrs', [OkrManagement::class, 'index'])->name('okr.okrs.index');
-Route::get('/okrs/create', [OkrManagement::class, 'create'])->name('okr.okrs.create');
 Route::get('/okrs/{okr}', OkrShow::class)->name('okr.okrs.show');

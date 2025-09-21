@@ -83,7 +83,7 @@
 
     <!-- Create OKR Modal -->
     <x-ui-modal
-        wire:model="modalShow"
+        wire:model.live="modalShow"
         size="lg"
     >
         <x-slot name="header">
