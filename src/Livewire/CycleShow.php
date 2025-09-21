@@ -23,6 +23,20 @@ class CycleShow extends Component
         'order' => 0,
     ];
 
+    // Key Result Modal Properties
+    public $keyResultCreateModalShow = false;
+    public $keyResultEditModalShow = false;
+    public $editingKeyResultId = null;
+    public $editingKeyResultObjectiveId = null;
+    public $keyResultForm = [
+        'title' => '',
+        'description' => '',
+        'target_value' => '',
+        'current_value' => '',
+        'unit' => '',
+        'order' => 0,
+    ];
+
     protected $rules = [
         'cycle.status' => 'required|in:draft,active,completed,ending_soon,past',
         'cycle.notes' => 'nullable|string',
@@ -30,6 +44,13 @@ class CycleShow extends Component
         'objectiveForm.title' => 'required|string|max:255',
         'objectiveForm.description' => 'nullable|string',
         'objectiveForm.order' => 'required|integer|min:0',
+
+        'keyResultForm.title' => 'required|string|max:255',
+        'keyResultForm.description' => 'nullable|string',
+        'keyResultForm.target_value' => 'required|string',
+        'keyResultForm.current_value' => 'nullable|string',
+        'keyResultForm.unit' => 'nullable|string|max:50',
+        'keyResultForm.order' => 'required|integer|min:0',
     ];
 
     public function mount(Cycle $cycle)
@@ -140,10 +161,106 @@ class CycleShow extends Component
         $this->closeObjectiveEditModal();
     }
 
-    public function manageObjectiveKeyResults($objectiveId)
+    // Key Result Management
+    public function addKeyResult($objectiveId)
     {
-        // Navigate to objective key results management
-        return redirect()->route('okr.objectives.show', ['objective' => $objectiveId]);
+        $this->editingKeyResultObjectiveId = $objectiveId;
+        $this->resetKeyResultForm();
+        $this->keyResultCreateModalShow = true;
+    }
+
+    public function closeKeyResultCreateModal()
+    {
+        $this->keyResultCreateModalShow = false;
+        $this->resetKeyResultForm();
+    }
+
+    public function editKeyResult($keyResultId)
+    {
+        $keyResult = $this->cycle->objectives()->with('keyResults')->get()
+            ->pluck('keyResults')->flatten()
+            ->find($keyResultId);
+        
+        if ($keyResult) {
+            $this->editingKeyResultId = $keyResult->id;
+            $this->editingKeyResultObjectiveId = $keyResult->objective_id;
+            $this->keyResultForm = [
+                'title' => $keyResult->title,
+                'description' => $keyResult->description,
+                'target_value' => $keyResult->target_value,
+                'current_value' => $keyResult->current_value,
+                'unit' => $keyResult->unit,
+                'order' => $keyResult->order,
+            ];
+            $this->keyResultEditModalShow = true;
+        }
+    }
+
+    public function closeKeyResultEditModal()
+    {
+        $this->keyResultEditModalShow = false;
+        $this->resetKeyResultForm();
+    }
+
+    public function saveKeyResult()
+    {
+        $this->validate([
+            'keyResultForm.title' => 'required|string|max:255',
+            'keyResultForm.description' => 'nullable|string',
+            'keyResultForm.target_value' => 'required|string',
+            'keyResultForm.current_value' => 'nullable|string',
+            'keyResultForm.unit' => 'nullable|string|max:50',
+            'keyResultForm.order' => 'required|integer|min:0',
+        ]);
+
+        if ($this->editingKeyResultId) {
+            $keyResult = $this->cycle->objectives()->with('keyResults')->get()
+                ->pluck('keyResults')->flatten()
+                ->find($this->editingKeyResultId);
+            
+            if ($keyResult) {
+                $keyResult->update([
+                    'title' => $this->keyResultForm['title'],
+                    'description' => $this->keyResultForm['description'],
+                    'target_value' => $this->keyResultForm['target_value'],
+                    'current_value' => $this->keyResultForm['current_value'],
+                    'unit' => $this->keyResultForm['unit'],
+                    'order' => $this->keyResultForm['order'],
+                ]);
+                session()->flash('message', 'Key Result erfolgreich aktualisiert!');
+            }
+        } else {
+            $objective = $this->cycle->objectives()->findOrFail($this->editingKeyResultObjectiveId);
+            $objective->keyResults()->create([
+                'title' => $this->keyResultForm['title'],
+                'description' => $this->keyResultForm['description'],
+                'target_value' => $this->keyResultForm['target_value'],
+                'current_value' => $this->keyResultForm['current_value'],
+                'unit' => $this->keyResultForm['unit'],
+                'order' => $this->keyResultForm['order'],
+                'team_id' => auth()->user()->current_team_id,
+                'user_id' => auth()->id(),
+            ]);
+            session()->flash('message', 'Key Result erfolgreich hinzugefügt!');
+        }
+
+        $this->cycle->load('objectives.keyResults'); // Refresh objectives and key results
+        $this->closeKeyResultCreateModal();
+        $this->closeKeyResultEditModal();
+    }
+
+    public function deleteKeyResultAndCloseModal()
+    {
+        $keyResult = $this->cycle->objectives()->with('keyResults')->get()
+            ->pluck('keyResults')->flatten()
+            ->find($this->editingKeyResultId);
+        
+        if ($keyResult) {
+            $keyResult->delete();
+            session()->flash('message', 'Key Result erfolgreich gelöscht!');
+            $this->cycle->load('objectives.keyResults'); // Refresh objectives and key results
+        }
+        $this->closeKeyResultEditModal();
     }
 
     protected function resetObjectiveForm()
@@ -152,6 +269,20 @@ class CycleShow extends Component
         $this->objectiveForm = [
             'title' => '',
             'description' => '',
+            'order' => 0,
+        ];
+    }
+
+    protected function resetKeyResultForm()
+    {
+        $this->editingKeyResultId = null;
+        $this->editingKeyResultObjectiveId = null;
+        $this->keyResultForm = [
+            'title' => '',
+            'description' => '',
+            'target_value' => '',
+            'current_value' => '',
+            'unit' => '',
             'order' => 0,
         ];
     }

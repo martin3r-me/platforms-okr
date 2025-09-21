@@ -61,42 +61,10 @@
                 </div>
             </div>
 
-            {{-- Objectives --}}
+            {{-- Objectives & Key Results --}}
             <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4 text-secondary">Objectives</h3>
-                <div class="space-y-2">
-                    @foreach($cycle->objectives as $objective)
-                        <div class="d-flex items-center gap-2 p-2 bg-muted-5 rounded cursor-pointer" wire:click="manageObjectiveKeyResults({{ $objective->id }})">
-                            <div class="flex-grow-1">
-                                <div class="text-sm font-medium">
-                                    {{ $objective->title }}
-                                </div>
-                                <div class="text-xs text-muted">
-                                    @if($objective->description)
-                                        {{ Str::limit($objective->description, 50) }}
-                                    @endif
-                                    @if($objective->keyResults->count() > 0)
-                                        • {{ $objective->keyResults->count() }} Key Results
-                                    @endif
-                                </div>
-                            </div>
-                            <div class="d-flex gap-1">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    Order: {{ $objective->order }}
-                                </span>
-                                <x-ui-button 
-                                    size="xs" 
-                                    variant="secondary-outline" 
-                                    wire:click.stop="editObjective({{ $objective->id }})"
-                                >
-                                    @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
-                                </x-ui-button>
-                            </div>
-                        </div>
-                    @endforeach
-                    @if($cycle->objectives->count() === 0)
-                        <p class="text-sm text-muted">Noch keine Objectives vorhanden.</p>
-                    @endif
+                <div class="d-flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-secondary">Objectives & Key Results</h3>
                     <x-ui-button size="sm" variant="secondary-outline" wire:click="addObjective">
                         <div class="d-flex items-center gap-2">
                             @svg('heroicon-o-plus', 'w-4 h-4')
@@ -104,6 +72,78 @@
                         </div>
                     </x-ui-button>
                 </div>
+
+                @if($cycle->objectives->count() > 0)
+                    <x-ui-table compact="true">
+                        <x-ui-table-header>
+                            <x-ui-table-header-cell compact="true">Objective</x-ui-table-header-cell>
+                            <x-ui-table-header-cell compact="true">Key Results</x-ui-table-header-cell>
+                            <x-ui-table-header-cell compact="true" align="right">Aktionen</x-ui-table-header-cell>
+                        </x-ui-table-header>
+                        
+                        <x-ui-table-body>
+                            @foreach($cycle->objectives as $objective)
+                                <x-ui-table-row compact="true">
+                                    <x-ui-table-cell compact="true">
+                                        <div class="font-medium">{{ $objective->title }}</div>
+                                        @if($objective->description)
+                                            <div class="text-xs text-muted">{{ Str::limit($objective->description, 50) }}</div>
+                                        @endif
+                                        <div class="text-xs text-muted">Order: {{ $objective->order }}</div>
+                                    </x-ui-table-cell>
+                                    <x-ui-table-cell compact="true">
+                                        <div class="space-y-1">
+                                            @foreach($objective->keyResults as $keyResult)
+                                                <div class="d-flex items-center gap-2 p-1 bg-muted-5 rounded text-xs">
+                                                    <div class="flex-grow-1">
+                                                        <div class="font-medium">{{ $keyResult->title }}</div>
+                                                        @if($keyResult->target_value)
+                                                            <div class="text-muted">Ziel: {{ $keyResult->target_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}</div>
+                                                        @endif
+                                                    </div>
+                                                    <x-ui-button 
+                                                        size="xs" 
+                                                        variant="secondary-outline" 
+                                                        wire:click="editKeyResult({{ $keyResult->id }})"
+                                                    >
+                                                        @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
+                                                    </x-ui-button>
+                                                </div>
+                                            @endforeach
+                                            @if($objective->keyResults->count() === 0)
+                                                <div class="text-xs text-muted">Keine Key Results</div>
+                                            @endif
+                                            <x-ui-button 
+                                                size="xs" 
+                                                variant="secondary-outline" 
+                                                wire:click="addKeyResult({{ $objective->id }})"
+                                            >
+                                                <div class="d-flex items-center gap-1">
+                                                    @svg('heroicon-o-plus', 'w-3 h-3')
+                                                    KR hinzufügen
+                                                </div>
+                                            </x-ui-button>
+                                        </div>
+                                    </x-ui-table-cell>
+                                    <x-ui-table-cell compact="true" align="right">
+                                        <x-ui-button 
+                                            size="xs" 
+                                            variant="secondary-outline" 
+                                            wire:click="editObjective({{ $objective->id }})"
+                                        >
+                                            @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
+                                        </x-ui-button>
+                                    </x-ui-table-cell>
+                                </x-ui-table-row>
+                            @endforeach
+                        </x-ui-table-body>
+                    </x-ui-table>
+                @else
+                    <div class="text-center p-8 text-muted">
+                        <div class="text-lg mb-2">Noch keine Objectives vorhanden</div>
+                        <div class="text-sm">Klicken Sie auf "Objective hinzufügen" um zu beginnen</div>
+                    </div>
+                @endif
             </div>
         </div>
 
@@ -300,6 +340,171 @@
                         Abbrechen
                     </x-ui-button>
                     <x-ui-button type="button" variant="primary" wire:click="saveObjective">
+                        Speichern
+                    </x-ui-button>
+                </div>
+            </div>
+        </x-slot>
+    </x-ui-modal>
+
+    <!-- Key Result Create Modal -->
+    <x-ui-modal
+        size="lg"
+        model="keyResultCreateModalShow"
+    >
+        <x-slot name="header">
+            Key Result hinzufügen
+        </x-slot>
+
+        <div class="space-y-4">
+            <form wire:submit.prevent="saveKeyResult" class="space-y-4">
+                <x-ui-input-text
+                    name="keyResultForm.title"
+                    label="Titel"
+                    wire:model.live="keyResultForm.title"
+                    placeholder="Titel des Key Result eingeben..."
+                    required
+                />
+
+                <x-ui-input-textarea
+                    name="keyResultForm.description"
+                    label="Beschreibung"
+                    wire:model.live="keyResultForm.description"
+                    placeholder="Detaillierte Beschreibung des Key Result (optional)"
+                    rows="3"
+                />
+
+                <div class="grid grid-cols-2 gap-4">
+                    <x-ui-input-text
+                        name="keyResultForm.target_value"
+                        label="Zielwert"
+                        wire:model.live="keyResultForm.target_value"
+                        placeholder="Zielwert eingeben..."
+                        required
+                    />
+                    <x-ui-input-text
+                        name="keyResultForm.current_value"
+                        label="Aktueller Wert"
+                        wire:model.live="keyResultForm.current_value"
+                        placeholder="Aktueller Wert (optional)"
+                    />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <x-ui-input-text
+                        name="keyResultForm.unit"
+                        label="Einheit"
+                        wire:model.live="keyResultForm.unit"
+                        placeholder="z.B. %, €, Stück"
+                    />
+                    <x-ui-input-number
+                        name="keyResultForm.order"
+                        label="Reihenfolge"
+                        wire:model.live="keyResultForm.order"
+                        min="0"
+                        required
+                    />
+                </div>
+            </form>
+        </div>
+
+        <x-slot name="footer">
+            <div class="d-flex justify-end gap-2">
+                <x-ui-button 
+                    type="button" 
+                    variant="secondary-outline" 
+                    wire:click="closeKeyResultCreateModal"
+                >
+                    Abbrechen
+                </x-ui-button>
+                <x-ui-button type="button" variant="primary" wire:click="saveKeyResult">
+                    Hinzufügen
+                </x-ui-button>
+            </div>
+        </x-slot>
+    </x-ui-modal>
+
+    <!-- Key Result Edit Modal -->
+    <x-ui-modal
+        size="lg"
+        model="keyResultEditModalShow"
+    >
+        <x-slot name="header">
+            Key Result bearbeiten
+        </x-slot>
+
+        <div class="space-y-4">
+            <form wire:submit.prevent="saveKeyResult" class="space-y-4">
+                <x-ui-input-text
+                    name="keyResultForm.title"
+                    label="Titel"
+                    wire:model.live="keyResultForm.title"
+                    placeholder="Titel des Key Result eingeben..."
+                    required
+                />
+
+                <x-ui-input-textarea
+                    name="keyResultForm.description"
+                    label="Beschreibung"
+                    wire:model.live="keyResultForm.description"
+                    placeholder="Detaillierte Beschreibung des Key Result (optional)"
+                    rows="3"
+                />
+
+                <div class="grid grid-cols-2 gap-4">
+                    <x-ui-input-text
+                        name="keyResultForm.target_value"
+                        label="Zielwert"
+                        wire:model.live="keyResultForm.target_value"
+                        placeholder="Zielwert eingeben..."
+                        required
+                    />
+                    <x-ui-input-text
+                        name="keyResultForm.current_value"
+                        label="Aktueller Wert"
+                        wire:model.live="keyResultForm.current_value"
+                        placeholder="Aktueller Wert (optional)"
+                    />
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <x-ui-input-text
+                        name="keyResultForm.unit"
+                        label="Einheit"
+                        wire:model.live="keyResultForm.unit"
+                        placeholder="z.B. %, €, Stück"
+                    />
+                    <x-ui-input-number
+                        name="keyResultForm.order"
+                        label="Reihenfolge"
+                        wire:model.live="keyResultForm.order"
+                        min="0"
+                        required
+                    />
+                </div>
+            </form>
+        </div>
+
+        <x-slot name="footer">
+            <div class="d-flex justify-between items-center gap-4">
+                <div class="flex-shrink-0">
+                    <x-ui-confirm-button 
+                        action="deleteKeyResultAndCloseModal" 
+                        text="Löschen" 
+                        confirmText="Wirklich löschen?" 
+                        variant="danger-outline"
+                        :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
+                    />
+                </div>
+                <div class="d-flex gap-2 flex-shrink-0">
+                    <x-ui-button 
+                        type="button" 
+                        variant="secondary-outline" 
+                        wire:click="closeKeyResultEditModal"
+                    >
+                        Abbrechen
+                    </x-ui-button>
+                    <x-ui-button type="button" variant="primary" wire:click="saveKeyResult">
                         Speichern
                     </x-ui-button>
                 </div>
