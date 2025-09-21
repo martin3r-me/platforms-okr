@@ -8,8 +8,8 @@
     </x-ui-sidebar-item>
     
     <x-ui-sidebar-item 
-        href="{{ route('okr.cycles.index') }}" 
-        :active="request()->routeIs('okr.cycles.*')"
+        href="{{ route('okr.cycles') }}" 
+        :active="request()->routeIs('okr.cycles')"
         icon="heroicon-o-calendar-days"
     >
         Cycles
