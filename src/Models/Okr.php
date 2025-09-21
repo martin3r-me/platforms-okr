@@ -70,6 +70,11 @@ class Okr extends Model
         return $this->belongsTo(User::class, 'manager_user_id');
     }
 
+    public function manager(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'manager_user_id');
+    }
+
     public function cycles(): HasMany
     {
         return $this->hasMany(Cycle::class);
