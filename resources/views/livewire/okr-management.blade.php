@@ -109,6 +109,7 @@
                         wire:model.live="performance_score"
                         min="0"
                         max="100"
+                        required
                     />
 
                     <x-ui-input-select

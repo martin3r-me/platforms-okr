@@ -29,7 +29,7 @@ class OkrManagement extends Component
     protected $rules = [
         'title' => 'required|string|max:255',
         'description' => 'nullable|string',
-        'performance_score' => 'nullable|numeric|min:0|max:100',
+        'performance_score' => 'required|numeric|min:0|max:100',
         'auto_transfer' => 'boolean',
         'is_template' => 'boolean',
         'manager_user_id' => 'nullable|exists:users,id',
@@ -68,7 +68,7 @@ class OkrManagement extends Component
         $okr = Okr::create([
             'title' => $this->title,
             'description' => $this->description ?: null,
-            'performance_score' => $this->performance_score ?: null,
+            'performance_score' => $this->performance_score ?: 0,
             'auto_transfer' => $this->auto_transfer,
             'is_template' => $this->is_template,
             'manager_user_id' => $this->manager_user_id ?: null,
