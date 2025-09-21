@@ -199,10 +199,10 @@
         </div>
     </div>
 
-    <!-- Cycle Create Modal -->
+    <!-- Create Cycle Modal -->
     <x-ui-modal
         size="lg"
-        wire:model="cycleCreateModalShow"
+        model="cycleCreateModalShow"
     >
         <x-slot name="header">
             Cycle hinzufügen
@@ -257,10 +257,10 @@
         </x-slot>
     </x-ui-modal>
 
-    <!-- Cycle Edit Modal -->
+    <!-- Edit Cycle Modal -->
     <x-ui-modal
         size="lg"
-        wire:model="cycleEditModalShow"
+        model="cycleEditModalShow"
     >
         <x-slot name="header">
             Cycle bearbeiten
