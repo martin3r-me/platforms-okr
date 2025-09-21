@@ -15,6 +15,7 @@ use Platform\Core\Traits\HasEntities;
 
 class Okr extends Model
 {
+    protected $table = 'okr_okrs';
     use SoftDeletes, HasEntities;
 
     protected $fillable = [

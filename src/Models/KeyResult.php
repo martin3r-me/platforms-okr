@@ -13,6 +13,7 @@ use Symfony\Component\Uid\UuidV7;
 
 class KeyResult extends Model
 {
+    protected $table = 'okr_key_results';
     use SoftDeletes;
 
     protected $fillable = [

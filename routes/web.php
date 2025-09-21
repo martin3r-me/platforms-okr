@@ -1,8 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Platform\Okr\Livewire\Dashboard;
+use Platform\Okr\Livewire\CycleManagement;
 
-Route::get('/', Platform\Okr\Livewire\Dashboard::class)->name('okr.dashboard');
+Route::get('/', Dashboard::class)->name('dashboard');
+Route::get('/cycles', CycleManagement::class)->name('cycles');
 
 
 

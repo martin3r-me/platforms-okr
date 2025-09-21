@@ -13,6 +13,7 @@ use Symfony\Component\Uid\UuidV7;
 
 class Objective extends Model
 {
+    protected $table = 'okr_objectives';
     use SoftDeletes;
 
     protected $fillable = [

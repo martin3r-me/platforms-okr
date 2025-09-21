@@ -15,9 +15,14 @@ class OkrServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Falls in Zukunft Artisan Commands o.ä. nötig sind, hier rein
-        
-        // Keine Services in Okr vorhanden
+        // Commands registrieren
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Platform\Okr\Console\Commands\GenerateQuarterCycleTemplates::class,
+                \Platform\Okr\Console\Commands\SeedOkrData::class,
+                \Platform\Okr\Console\Commands\SeedOkrLookupData::class,
+            ]);
+        }
     }
 
     public function boot(): void

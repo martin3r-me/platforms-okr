@@ -11,21 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('okr_okrs', function (Blueprint $table) {
+        Schema::create('okr_cycles', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
 
-            $table->string('title');
-            $table->text('description')->nullable();
-
-            $table->decimal('performance_score', 4, 3)->default(0.0);
-
-            $table->boolean('auto_transfer')->default(false);
-            $table->boolean('is_template')->default(false);
+            $table->foreignId('okr_id')->constrained('okr_okrs')->cascadeOnDelete();
 
             $table->foreignId('team_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('manager_user_id')->nullable()->constrained('users')->nullOnDelete();
+
+            $table->foreignId('cycle_template_id')->nullable()->constrained('okr_cycle_templates')->nullOnDelete();
+
+            $table->string('status')->default('draft'); // draft | current | ending_soon | past | future
 
             $table->timestamps();
             $table->softDeletes();
@@ -37,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('okr_okrs');
+        Schema::dropIfExists('okr_cycles');
     }
 };

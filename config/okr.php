@@ -32,6 +32,21 @@ return [
                     'route' => 'okr.dashboard',
                     'icon' => 'heroicon-o-home',
                 ],
+                'cycles' => [
+                    'title' => 'Zyklen',
+                    'route' => 'okr.cycles',
+                    'icon' => 'heroicon-o-calendar',
+                ],
+                'objectives' => [
+                    'title' => 'Objectives',
+                    'route' => 'okr.objectives',
+                    'icon' => 'heroicon-o-flag',
+                ],
+                'key-results' => [
+                    'title' => 'Key Results',
+                    'route' => 'okr.key-results',
+                    'icon' => 'heroicon-o-check-circle',
+                ],
             ],
         ],
     ],

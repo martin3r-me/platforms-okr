@@ -14,6 +14,7 @@ use Symfony\Component\Uid\UuidV7;
 
 class Cycle extends Model
 {
+    protected $table = 'okr_cycles';
     use SoftDeletes;
 
     protected $fillable = [
@@ -97,9 +98,9 @@ class Cycle extends Model
             'objective_id',   // Foreign key on KeyResult
             'id',             // Local key on Cycle
             'id'              // Local key on Objective
-        )->join('objectives', 'objectives.id', '=', 'key_results.objective_id')
-         ->orderBy('objectives.order')
-         ->orderBy('key_results.order')
-         ->select('key_results.*'); // wichtig: damit du nicht auch alle Objective-Spalten bekommst
+        )->join('okr_objectives', 'okr_objectives.id', '=', 'okr_key_results.objective_id')
+         ->orderBy('okr_objectives.order')
+         ->orderBy('okr_key_results.order')
+         ->select('okr_key_results.*'); // wichtig: damit du nicht auch alle Objective-Spalten bekommst
     }
 }

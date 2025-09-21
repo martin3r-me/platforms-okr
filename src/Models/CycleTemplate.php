@@ -8,6 +8,7 @@ use Symfony\Component\Uid\UuidV7;
 
 class CycleTemplate extends Model
 {
+    protected $table = 'okr_cycle_templates';
     protected $fillable = [
         'uuid',
         'label',

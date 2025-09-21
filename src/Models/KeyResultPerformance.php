@@ -12,6 +12,7 @@ use Symfony\Component\Uid\UuidV7;
 
 class KeyResultPerformance extends Model
 {
+    protected $table = 'okr_key_result_performances';
     use SoftDeletes;
 
     protected $fillable = [
