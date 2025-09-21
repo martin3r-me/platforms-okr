@@ -87,6 +87,12 @@ class OkrShow extends Component
         $this->cycleCreateModalShow = true;
     }
 
+    public function manageCycleObjectives($cycleId)
+    {
+        // Navigate to cycle show page
+        return redirect()->route('okr.cycles.show', ['cycle' => $cycleId]);
+    }
+
     public function closeCycleCreateModal()
     {
         $this->cycleCreateModalShow = false;

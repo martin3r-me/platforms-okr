@@ -90,13 +90,16 @@
                 <h3 class="text-lg font-semibold mb-4 text-secondary">Cycles</h3>
                 <div class="space-y-2">
                     @foreach($okr->cycles as $cycle)
-                        <div class="d-flex items-center gap-2 p-2 bg-muted-5 rounded cursor-pointer" wire:click="editCycle({{ $cycle->id }})">
+                        <div class="d-flex items-center gap-2 p-2 bg-muted-5 rounded cursor-pointer" wire:click="manageCycleObjectives({{ $cycle->id }})">
                             <div class="flex-grow-1">
                                 <div class="text-sm font-medium">
                                     {{ $cycle->template?->label ?? 'Unbekannter Cycle' }}
                                 </div>
                                 <div class="text-xs text-muted">
                                     {{ $cycle->template?->starts_at?->format('d.m.Y') }} - {{ $cycle->template?->ends_at?->format('d.m.Y') }}
+                                    @if($cycle->objectives->count() > 0)
+                                        • {{ $cycle->objectives->count() }} Objectives
+                                    @endif
                                 </div>
                             </div>
                             <div class="d-flex gap-1">
@@ -109,6 +112,13 @@
                                     @endif">
                                     {{ ucfirst($cycle->status) }}
                                 </span>
+                                <x-ui-button 
+                                    size="xs" 
+                                    variant="secondary-outline" 
+                                    wire:click.stop="editCycle({{ $cycle->id }})"
+                                >
+                                    @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
+                                </x-ui-button>
                             </div>
                         </div>
                     @endforeach
