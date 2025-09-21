@@ -1,18 +1,15 @@
-<div class="h-full overflow-y-auto p-6">
-    <div class="mb-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900">OKR Management</h1>
-                <p class="mt-1 text-sm text-gray-500">Verwalte deine OKRs</p>
-            </div>
-            <button 
-                wire:click="openCreateModal"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-                @svg('heroicon-o-plus')
-                Neues OKR
-            </button>
-        </div>
+<div class="p-3">
+    <h1 class="text-2xl font-bold mb-4">OKRs</h1>
+
+    <div class="d-flex justify-between mb-4">
+        <x-ui-input-text 
+            name="search" 
+            placeholder="Suche OKRs..." 
+            class="w-64"
+        />
+        <x-ui-button variant="primary" wire:click="openCreateModal">
+            Neues OKR
+        </x-ui-button>
     </div>
 
     @if(session()->has('message'))
@@ -21,191 +18,145 @@
         </div>
     @endif
 
-    @if($okrs && $okrs->count() > 0)
-        <div class="space-y-4">
-            @foreach($okrs as $okr)
-                <div class="bg-white shadow rounded-lg p-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex-1">
-                            <div class="flex items-center space-x-3">
-                                <h3 class="text-lg font-semibold text-gray-900">
-                                    {{ $okr->title }}
-                                </h3>
-                                @if($okr->is_template)
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                        Template
-                                    </span>
-                                @endif
-                            </div>
-                            
-                            @if($okr->description)
-                                <p class="mt-1 text-sm text-gray-600">
-                                    {{ Str::limit($okr->description, 100) }}
-                                </p>
-                            @endif
-                            
-                            <div class="mt-2 flex items-center space-x-4 text-xs text-gray-500">
-                                <div class="flex items-center space-x-1">
-                                    @svg('heroicon-o-user', 'w-4 h-4')
-                                    <span>{{ $okr->user?->name ?? 'Unbekannt' }}</span>
-                                </div>
-                                
-                                @if($okr->manager)
-                                    <div class="flex items-center space-x-1">
-                                        @svg('heroicon-o-user-group', 'w-4 h-4')
-                                        <span>Manager: {{ $okr->manager->name }}</span>
-                                    </div>
-                                @endif
-                                
-                                <div class="flex items-center space-x-1">
-                                    @svg('heroicon-o-calendar', 'w-4 h-4')
-                                    <span>{{ $okr->cycles->count() }} Cycles</span>
-                                </div>
-                                
-                                @if($okr->performance_score !== null)
-                                    <div class="flex items-center space-x-1">
-                                        @svg('heroicon-o-chart-bar', 'w-4 h-4')
-                                        <span>{{ $okr->performance_score }}% Score</span>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center space-x-3">
-                            @if($okr->auto_transfer)
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                    Auto-Transfer
-                                </span>
-                            @endif
-                            
-                            <div class="flex space-x-2">
-                                <button 
-                                    wire:click="show({{ $okr->id }})"
-                                    class="text-sm text-blue-600 hover:text-blue-800"
-                                >
-                                    Anzeigen
-                                </button>
-                                
-                                <button 
-                                    wire:click="deleteOkr({{ $okr->id }})"
-                                    onclick="return confirm('OKR wirklich löschen?')"
-                                    class="text-sm text-red-600 hover:text-red-800"
-                                >
-                                    Löschen
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @endforeach
-        </div>
+    <x-ui-table compact="true">
+        <x-ui-table-header>
+            <x-ui-table-header-cell compact="true" sortable="true" sortField="title" :currentSort="$sortField" :sortDirection="$sortDirection">Titel</x-ui-table-header-cell>
+            <x-ui-table-header-cell compact="true">Beschreibung</x-ui-table-header-cell>
+            <x-ui-table-header-cell compact="true">Verantwortlicher</x-ui-table-header-cell>
+            <x-ui-table-header-cell compact="true">Manager</x-ui-table-header-cell>
+            <x-ui-table-header-cell compact="true" sortable="true" sortField="performance_score" :currentSort="$sortField" :sortDirection="$sortDirection">Score</x-ui-table-header-cell>
+            <x-ui-table-header-cell compact="true">Cycles</x-ui-table-header-cell>
+            <x-ui-table-header-cell compact="true" align="right">Aktionen</x-ui-table-header-cell>
+        </x-ui-table-header>
         
-        <div class="mt-6">
-            {{ $okrs->links() }}
-        </div>
-    @else
-        <div class="text-center py-12">
-            <div class="mx-auto h-12 w-12 text-gray-400">
-                @svg('heroicon-o-flag')
-            </div>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">Keine OKRs</h3>
-            <p class="mt-1 text-sm text-gray-500">Erstelle dein erstes OKR.</p>
-        </div>
-    @endif
+        <x-ui-table-body>
+            @foreach($okrs as $okr)
+                <x-ui-table-row 
+                    compact="true"
+                    clickable="true" 
+                    :href="route('okr.okrs.show', ['okr' => $okr->id])"
+                >
+                    <x-ui-table-cell compact="true">
+                        <div class="font-medium">{{ $okr->title }}</div>
+                        @if($okr->is_template)
+                            <x-ui-badge variant="info" size="xs">Template</x-ui-badge>
+                        @endif
+                        @if($okr->auto_transfer)
+                            <x-ui-badge variant="success" size="xs">Auto-Transfer</x-ui-badge>
+                        @endif
+                    </x-ui-table-cell>
+                    <x-ui-table-cell compact="true">
+                        <div class="text-xs text-muted">{{ Str::limit($okr->description, 50) }}</div>
+                    </x-ui-table-cell>
+                    <x-ui-table-cell compact="true">
+                        <div class="text-xs text-muted">{{ $okr->user?->name ?? 'Unbekannt' }}</div>
+                    </x-ui-table-cell>
+                    <x-ui-table-cell compact="true">
+                        <div class="text-xs text-muted">{{ $okr->manager?->name ?? '–' }}</div>
+                    </x-ui-table-cell>
+                    <x-ui-table-cell compact="true">
+                        @if($okr->performance_score !== null)
+                            <x-ui-badge variant="info" size="sm">{{ $okr->performance_score }}%</x-ui-badge>
+                        @else
+                            <span class="text-xs text-muted">–</span>
+                        @endif
+                    </x-ui-table-cell>
+                    <x-ui-table-cell compact="true">
+                        <div class="text-xs text-muted">{{ $okr->cycles->count() }} Cycles</div>
+                    </x-ui-table-cell>
+                    <x-ui-table-cell compact="true" align="right">
+                        <x-ui-button 
+                            size="sm" 
+                            variant="secondary" 
+                            href="{{ route('okr.okrs.show', ['okr' => $okr->id]) }}" 
+                            wire:navigate
+                        >
+                            Bearbeiten
+                        </x-ui-button>
+                    </x-ui-table-cell>
+                </x-ui-table-row>
+            @endforeach
+        </x-ui-table-body>
+    </x-ui-table>
+
+    {{ $okrs->links() }}
 
     <!-- Create OKR Modal -->
-    @if($modalShow)
-        <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                <div class="mt-3">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">Neues OKR erstellen</h3>
-                    
-                    <form wire:submit.prevent="createOkr">
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Titel *</label>
-                            <input 
-                                type="text" 
-                                wire:model="title"
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="OKR Titel eingeben"
-                                required
-                            >
-                            @error('title') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
+    <x-ui-modal
+        wire:model="modalShow"
+        size="lg"
+    >
+        <x-slot name="header">
+            OKR anlegen
+        </x-slot>
 
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Beschreibung</label>
-                            <textarea 
-                                wire:model="description"
-                                rows="3"
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="OKR Beschreibung (optional)"
-                            ></textarea>
-                            @error('description') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
+        <div class="space-y-4">
+            <form wire:submit.prevent="createOkr" class="space-y-4">
+                <x-ui-input-text
+                    name="title"
+                    label="Titel"
+                    wire:model.live="title"
+                    required
+                    placeholder="Titel des OKR eingeben"
+                />
 
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Performance Score (%)</label>
-                            <input 
-                                type="number" 
-                                wire:model="performance_score"
-                                min="0" 
-                                max="100"
-                                class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="0-100"
-                            >
-                            @error('performance_score') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
+                <x-ui-input-textarea
+                    name="description"
+                    label="Beschreibung"
+                    wire:model.live="description"
+                    placeholder="Detaillierte Beschreibung des OKR (optional)"
+                    rows="3"
+                />
 
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Manager</label>
-                            <select wire:model="manager_user_id" class="w-full border border-gray-300 rounded-md px-3 py-2">
-                                <option value="">Kein Manager</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-                            </select>
-                            @error('manager_user_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <x-ui-input-number
+                        name="performance_score"
+                        label="Performance Score (%)"
+                        wire:model.live="performance_score"
+                        min="0"
+                        max="100"
+                    />
 
-                        <div class="mb-4 space-y-2">
-                            <label class="flex items-center">
-                                <input 
-                                    type="checkbox" 
-                                    wire:model="auto_transfer"
-                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                >
-                                <span class="ml-2 text-sm text-gray-700">Auto-Transfer</span>
-                            </label>
-                            
-                            <label class="flex items-center">
-                                <input 
-                                    type="checkbox" 
-                                    wire:model="is_template"
-                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                >
-                                <span class="ml-2 text-sm text-gray-700">Als Template</span>
-                            </label>
-                        </div>
-
-                        <div class="flex justify-end space-x-3">
-                            <button 
-                                type="button"
-                                wire:click="closeCreateModal"
-                                class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-                            >
-                                Abbrechen
-                            </button>
-                            <button 
-                                type="submit"
-                                class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700"
-                            >
-                                Erstellen
-                            </button>
-                        </div>
-                    </form>
+                    <x-ui-input-select
+                        name="manager_user_id"
+                        label="Verantwortlicher Manager"
+                        :options="$users"
+                        optionValue="id"
+                        optionLabel="name"
+                        :nullable="true"
+                        nullLabel="– Manager auswählen –"
+                        wire:model.live="manager_user_id"
+                    />
                 </div>
-            </div>
+
+                <div class="d-flex items-center gap-4">
+                    <x-ui-input-checkbox
+                        name="auto_transfer"
+                        label="Automatisch übertragen"
+                        wire:model.live="auto_transfer"
+                    />
+                    <x-ui-input-checkbox
+                        name="is_template"
+                        label="Als Template speichern"
+                        wire:model.live="is_template"
+                    />
+                </div>
+            </form>
         </div>
-    @endif
+
+        <x-slot name="footer">
+            <div class="d-flex justify-end gap-2">
+                <x-ui-button 
+                    type="button" 
+                    variant="secondary-outline" 
+                    @click="$wire.closeCreateModal()"
+                >
+                    Abbrechen
+                </x-ui-button>
+                <x-ui-button type="button" variant="primary" wire:click="createOkr">
+                    OKR anlegen
+                </x-ui-button>
+            </div>
+        </x-slot>
+    </x-ui-modal>
 </div>
