@@ -124,7 +124,9 @@
                                 @if($objective->keyResults->count() > 0)
                                     <div wire:sortable-group.item-group="{{ $objective->id }}" wire:sortable-group.options="{ animation: 100 }" class="space-y-2">
                                         @foreach($objective->keyResults->sortBy('order') as $keyResult)
-                                            <div wire:sortable-group.item="{{ $keyResult->id }}" wire:key="keyresult-{{ $keyResult->id }}" class="d-flex items-center gap-2 p-3 bg-muted-5 rounded border">
+                                            <div wire:sortable-group.item="{{ $keyResult->id }}" wire:key="keyresult-{{ $keyResult->id }}" 
+                                                 class="d-flex items-center gap-2 p-3 bg-muted-5 rounded border cursor-pointer hover:bg-muted-10 transition-colors"
+                                                 wire:click="editKeyResult({{ $keyResult->id }})">
                                                 <div wire:sortable-group.handle class="cursor-move p-1 text-muted hover:text-primary">
                                                     @svg('heroicon-o-bars-3', 'w-3 h-3')
                                                 </div>
@@ -133,38 +135,37 @@
                                                     @if($keyResult->description)
                                                         <div class="text-xs text-muted">{{ Str::limit($keyResult->description, 60) }}</div>
                                                     @endif
-                                                    @if($keyResult->target_value)
-                                                        <div class="text-xs text-muted mt-1">
-                                                            <span class="font-medium">Ziel:</span> {{ $keyResult->target_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
-                                                            @if($keyResult->performance && $keyResult->performance->current_value)
-                                                                | <span class="font-medium">Aktuell:</span> 
-                                                                @if($keyResult->performance->type === 'boolean')
-                                                                    {{ $keyResult->performance->is_completed ? 'Ja' : 'Nein' }}
-                                                                @else
-                                                                    {{ $keyResult->performance->current_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
-                                                                @endif
+                                                    <div class="text-xs text-muted mt-1">
+                                                        <span class="font-medium">Ziel:</span> {{ $keyResult->target_value ?? 'Nicht gesetzt' }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
+                                                        @if($keyResult->performance && $keyResult->performance->current_value !== null)
+                                                            | <span class="font-medium">Aktuell:</span> 
+                                                            @if($keyResult->performance->type === 'boolean')
+                                                                {{ $keyResult->performance->is_completed ? 'Ja' : 'Nein' }}
+                                                            @else
+                                                                {{ $keyResult->performance->current_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
                                                             @endif
-                                                        </div>
-                                                        @if($keyResult->performance)
-                                                            <div class="text-xs text-muted">
-                                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                                                                    @if($keyResult->performance->type === 'boolean') bg-purple-100 text-purple-800
-                                                                    @elseif($keyResult->performance->type === 'percentage') bg-blue-100 text-blue-800
-                                                                    @else bg-green-100 text-green-800
-                                                                    @endif">
-                                                                    {{ ucfirst($keyResult->performance->type) }}
-                                                                </span>
-                                                            </div>
+                                                        @else
+                                                            | <span class="font-medium">Aktuell:</span> <span class="text-muted">Nicht gesetzt</span>
                                                         @endif
+                                                    </div>
+                                                    @if($keyResult->performance)
+                                                        <div class="text-xs text-muted mt-1">
+                                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                                                @if($keyResult->performance->type === 'boolean') bg-purple-100 text-purple-800
+                                                                @elseif($keyResult->performance->type === 'percentage') bg-blue-100 text-blue-800
+                                                                @else bg-green-100 text-green-800
+                                                                @endif">
+                                                                {{ ucfirst($keyResult->performance->type) }}
+                                                            </span>
+                                                        </div>
+                                                    @else
+                                                        <div class="text-xs text-muted mt-1">
+                                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                                                Kein Typ
+                                                            </span>
+                                                        </div>
                                                     @endif
                                                 </div>
-                                                <x-ui-button 
-                                                    size="xs" 
-                                                    variant="secondary-outline" 
-                                                    wire:click="editKeyResult({{ $keyResult->id }})"
-                                                >
-                                                    @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
-                                                </x-ui-button>
                                             </div>
                                         @endforeach
                                     </div>

@@ -192,14 +192,14 @@ class CycleShow extends Component
             $this->editingKeyResultId = $keyResult->id;
             $this->editingKeyResultObjectiveId = $keyResult->objective_id;
             $this->keyResultTitle = $keyResult->title;
-            $this->keyResultDescription = $keyResult->description;
-            $this->keyResultTargetValue = $keyResult->target_value;
-            $this->keyResultUnit = $keyResult->unit;
+            $this->keyResultDescription = $keyResult->description ?? '';
+            $this->keyResultTargetValue = $keyResult->target_value ?? '';
+            $this->keyResultUnit = $keyResult->unit ?? '';
             
             // Load performance data
             if ($keyResult->performance) {
-                $this->keyResultValueType = $keyResult->performance->type;
-                $this->keyResultCurrentValue = $keyResult->performance->current_value;
+                $this->keyResultValueType = $keyResult->performance->type ?? 'absolute';
+                $this->keyResultCurrentValue = $keyResult->performance->current_value ?? '0';
             } else {
                 $this->keyResultValueType = 'absolute';
                 $this->keyResultCurrentValue = '0';
