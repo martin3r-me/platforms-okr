@@ -413,21 +413,12 @@
                     />
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text
-                        name="keyResultForm.unit"
-                        label="Einheit"
-                        wire:model.live="keyResultForm.unit"
-                        placeholder="z.B. %, €, Stück"
-                    />
-                    <x-ui-input-number
-                        name="keyResultForm.order"
-                        label="Reihenfolge"
-                        wire:model.live="keyResultForm.order"
-                        min="0"
-                        required
-                    />
-                </div>
+                <x-ui-input-text
+                    name="keyResultForm.unit"
+                    label="Einheit"
+                    wire:model.live="keyResultForm.unit"
+                    placeholder="z.B. %, €, Stück"
+                />
             </div>
         </div>
 
@@ -490,21 +481,12 @@
                     />
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text
-                        name="keyResultForm.unit"
-                        label="Einheit"
-                        wire:model.live="keyResultForm.unit"
-                        placeholder="z.B. %, €, Stück"
-                    />
-                    <x-ui-input-number
-                        name="keyResultForm.order"
-                        label="Reihenfolge"
-                        wire:model.live="keyResultForm.order"
-                        min="0"
-                        required
-                    />
-                </div>
+                <x-ui-input-text
+                    name="keyResultForm.unit"
+                    label="Einheit"
+                    wire:model.live="keyResultForm.unit"
+                    placeholder="z.B. %, €, Stück"
+                />
             </div>
         </div>
 

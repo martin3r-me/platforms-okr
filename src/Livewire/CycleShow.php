@@ -165,11 +165,27 @@ class CycleShow extends Component
     public function addKeyResult($objectiveId)
     {
         $this->editingKeyResultObjectiveId = $objectiveId;
-        $this->resetKeyResultForm();
+        
+        // Auto-calculate order for new Key Result
+        $nextOrder = 0;
+        $objective = $this->cycle->objectives()->find($objectiveId);
+        if ($objective) {
+            $nextOrder = $objective->keyResults()->max('order') + 1;
+        }
+        
+        $this->keyResultForm = [
+            'title' => '',
+            'description' => '',
+            'target_value' => '0',
+            'current_value' => '0',
+            'unit' => '',
+            'order' => $nextOrder,
+        ];
+        
         $this->keyResultCreateModalShow = true;
         
         // Debug: Log the objective ID
-        \Log::info('Adding Key Result to Objective ID: ' . $objectiveId);
+        \Log::info('Adding Key Result to Objective ID: ' . $objectiveId . ' with order: ' . $nextOrder);
     }
 
     public function closeKeyResultCreateModal()
@@ -193,7 +209,7 @@ class CycleShow extends Component
                 'target_value' => $keyResult->target_value,
                 'current_value' => $keyResult->current_value,
                 'unit' => $keyResult->unit,
-                'order' => $keyResult->order,
+                'order' => $keyResult->order, // Keep existing order for editing
             ];
             $this->keyResultEditModalShow = true;
         }
@@ -214,7 +230,6 @@ class CycleShow extends Component
                 'keyResultForm.target_value' => 'required|string',
                 'keyResultForm.current_value' => 'nullable|string',
                 'keyResultForm.unit' => 'nullable|string|max:50',
-                'keyResultForm.order' => 'required|integer|min:0',
             ]);
 
             if ($this->editingKeyResultId) {
@@ -239,8 +254,10 @@ class CycleShow extends Component
                     return;
                 }
                 
+                \Log::info('Creating Key Result with data:', $this->keyResultForm);
+                
                 $objective = $this->cycle->objectives()->findOrFail($this->editingKeyResultObjectiveId);
-                $objective->keyResults()->create([
+                $keyResult = $objective->keyResults()->create([
                     'title' => $this->keyResultForm['title'],
                     'description' => $this->keyResultForm['description'],
                     'target_value' => $this->keyResultForm['target_value'],
@@ -250,6 +267,8 @@ class CycleShow extends Component
                     'team_id' => auth()->user()->current_team_id,
                     'user_id' => auth()->id(),
                 ]);
+                
+                \Log::info('Key Result created with ID: ' . $keyResult->id);
                 session()->flash('message', 'Key Result erfolgreich hinzugefügt!');
             }
 
@@ -292,13 +311,23 @@ class CycleShow extends Component
     {
         $this->editingKeyResultId = null;
         $this->editingKeyResultObjectiveId = null;
+        
+        // Auto-calculate order for new Key Result
+        $nextOrder = 0;
+        if ($this->editingKeyResultObjectiveId) {
+            $objective = $this->cycle->objectives()->find($this->editingKeyResultObjectiveId);
+            if ($objective) {
+                $nextOrder = $objective->keyResults()->max('order') + 1;
+            }
+        }
+        
         $this->keyResultForm = [
             'title' => '',
             'description' => '',
             'target_value' => '0', // Default value for required field
             'current_value' => '0', // Default value
             'unit' => '',
-            'order' => 0,
+            'order' => $nextOrder,
         ];
     }
 
