@@ -220,7 +220,9 @@ class CycleShow extends Component
 
     public function testMethod()
     {
+        \Log::info('testMethod called');
         session()->flash('message', 'Test-Methode funktioniert!');
+        $this->dispatch('test-event');
     }
 
     public function saveKeyResult()
@@ -228,126 +230,8 @@ class CycleShow extends Component
         \Log::info('saveKeyResult method called');
         session()->flash('message', 'saveKeyResult wurde aufgerufen!');
         
-        try {
-            // Debug: Log current values
-            \Log::info('Key Result Save Debug', [
-                'editingKeyResultId' => $this->editingKeyResultId,
-                'editingKeyResultObjectiveId' => $this->editingKeyResultObjectiveId,
-                'keyResultTitle' => $this->keyResultTitle,
-                'keyResultTargetValue' => $this->keyResultTargetValue,
-                'keyResultCurrentValue' => $this->keyResultCurrentValue,
-                'keyResultValueType' => $this->keyResultValueType,
-                'keyResultUnit' => $this->keyResultUnit,
-            ]);
-
-            // Validate required fields
-            if (empty($this->keyResultTitle)) {
-                session()->flash('error', 'Titel ist erforderlich!');
-                return;
-            }
-            
-            if (empty($this->keyResultValueType)) {
-                session()->flash('error', 'Wert-Typ ist erforderlich!');
-                return;
-            }
-            
-            if (empty($this->keyResultTargetValue)) {
-                session()->flash('error', 'Zielwert ist erforderlich!');
-                return;
-            }
-            
-            if (!in_array($this->keyResultValueType, ['absolute', 'percentage', 'boolean'])) {
-                session()->flash('error', 'Ungültiger Wert-Typ!');
-                return;
-            }
-
-            if (!$this->editingKeyResultObjectiveId) {
-                session()->flash('error', 'Fehler: Objective ID fehlt!');
-                return;
-            }
-            
-            $objective = $this->cycle->objectives()->findOrFail($this->editingKeyResultObjectiveId);
-            
-            // Set default unit based on value type
-            $unit = $this->keyResultUnit;
-            if (empty($unit)) {
-                $unit = match($this->keyResultValueType) {
-                    'percentage' => '%',
-                    'boolean' => '',
-                    'absolute' => 'Stück',
-                    default => ''
-                };
-            }
-
-            if ($this->editingKeyResultId) {
-                // Update existing Key Result
-                $keyResult = $objective->keyResults()->findOrFail($this->editingKeyResultId);
-                $keyResult->update([
-                    'title' => $this->keyResultTitle,
-                    'description' => $this->keyResultDescription,
-                    'target_value' => $this->keyResultTargetValue,
-                    'unit' => $unit,
-                ]);
-
-                // Update performance record
-                if ($keyResult->performance) {
-                    $keyResult->performance->update([
-                        'type' => $this->keyResultValueType,
-                        'target_value' => $this->keyResultTargetValue,
-                        'current_value' => $this->keyResultCurrentValue ?: 0,
-                        'is_completed' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue === 'Ja' || $this->keyResultCurrentValue === 'Erledigt') : false,
-                    ]);
-                } else {
-                    $keyResult->performances()->create([
-                        'type' => $this->keyResultValueType,
-                        'target_value' => $this->keyResultTargetValue,
-                        'current_value' => $this->keyResultCurrentValue ?: 0,
-                        'is_completed' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue === 'Ja' || $this->keyResultCurrentValue === 'Erledigt') : false,
-                        'performance_score' => 0.0,
-                        'team_id' => auth()->user()->current_team_id,
-                        'user_id' => auth()->id(),
-                    ]);
-                }
-                
-                $this->closeKeyResultEditModal();
-                session()->flash('message', 'Key Result erfolgreich aktualisiert!');
-            } else {
-                // Create new Key Result
-                $nextOrder = $objective->keyResults()->max('order') + 1;
-                
-                $keyResult = $objective->keyResults()->create([
-                    'title' => $this->keyResultTitle,
-                    'description' => $this->keyResultDescription,
-                    'target_value' => $this->keyResultTargetValue,
-                    'current_value' => '0', // Default, wird über Performance verwaltet
-                    'unit' => $unit,
-                    'order' => $nextOrder,
-                    'team_id' => auth()->user()->current_team_id,
-                    'user_id' => auth()->id(),
-                ]);
-
-                // Create initial performance record
-                $keyResult->performances()->create([
-                    'type' => $this->keyResultValueType,
-                    'target_value' => $this->keyResultTargetValue,
-                    'current_value' => $this->keyResultCurrentValue ?: 0,
-                    'is_completed' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue === 'Ja' || $this->keyResultCurrentValue === 'Erledigt') : false,
-                    'performance_score' => 0.0,
-                    'team_id' => auth()->user()->current_team_id,
-                    'user_id' => auth()->id(),
-                ]);
-                
-                $this->closeKeyResultCreateModal();
-                session()->flash('message', 'Key Result erfolgreich hinzugefügt!');
-            }
-            
-            $this->cycle->load('objectives.keyResults.performance');
-            
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            session()->flash('error', 'Validierungsfehler: ' . implode(', ', $e->validator->errors()->all()));
-        } catch (\Exception $e) {
-            session()->flash('error', 'Fehler beim Speichern: ' . $e->getMessage());
-        }
+        // Einfacher Test - nur schauen ob die Methode aufgerufen wird
+        return;
     }
 
     protected function resetObjectiveForm()
