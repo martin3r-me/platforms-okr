@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
 
@@ -73,5 +74,10 @@ class KeyResult extends Model
     public function performance(): HasOne
     {
         return $this->hasOne(KeyResultPerformance::class);
+    }
+
+    public function performances(): HasMany
+    {
+        return $this->hasMany(KeyResultPerformance::class);
     }
 }
