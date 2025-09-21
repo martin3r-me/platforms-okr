@@ -20,6 +20,7 @@ class KeyResultPerformance extends Model
         'uuid',
         'key_result_id',
         'team_id',
+        'user_id',
         'type',
         'is_completed',
         'current_value',
@@ -38,6 +39,10 @@ class KeyResultPerformance extends Model
             } while (self::where('uuid', $uuid)->exists());
 
             $performance->uuid = $uuid;
+
+            if (empty($performance->user_id)) {
+                $performance->user_id = Auth::id();
+            }
 
             if (empty($performance->team_id)) {
                 $performance->team_id = Auth::user()?->current_team_id;

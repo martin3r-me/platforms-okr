@@ -26,6 +26,9 @@ class KeyResult extends Model
         'manager_user_id',
         'title',
         'description',
+        'target_value',
+        'current_value',
+        'unit',
         'performance_score',
         'order',
     ];
