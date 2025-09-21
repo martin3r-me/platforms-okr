@@ -130,25 +130,10 @@
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <div class="font-medium text-sm">{{ $keyResult->title }}</div>
-                                                    @if($keyResult->target_value)
-                                                        <div class="text-xs text-muted">
-                                                            Ziel: {{ $keyResult->target_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
-                                                            @if($keyResult->current_value)
-                                                                | Aktuell: {{ $keyResult->current_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
-                                                            @endif
-                                                        </div>
-                                                    @endif
                                                     @if($keyResult->description)
                                                         <div class="text-xs text-muted">{{ Str::limit($keyResult->description, 60) }}</div>
                                                     @endif
                                                 </div>
-                                                <x-ui-button 
-                                                    size="xs" 
-                                                    variant="secondary-outline" 
-                                                    wire:click="editKeyResult({{ $keyResult->id }})"
-                                                >
-                                                    @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
-                                                </x-ui-button>
                                             </div>
                                         @endforeach
                                     </div>
@@ -372,7 +357,7 @@
 
     <!-- Key Result Create Modal -->
     <x-ui-modal
-        size="lg"
+        size="md"
         model="keyResultCreateModalShow"
     >
         <x-slot name="header">
@@ -380,46 +365,21 @@
         </x-slot>
 
         <div class="space-y-4">
-            <div class="space-y-4">
-                <x-ui-input-text
-                    name="keyResultForm.title"
-                    label="Titel"
-                    wire:model.live="keyResultForm.title"
-                    placeholder="Titel des Key Result eingeben..."
-                    required
-                />
+            <x-ui-input-text
+                name="keyResultTitle"
+                label="Titel"
+                wire:model.live="keyResultTitle"
+                placeholder="Titel des Key Result eingeben..."
+                required
+            />
 
-                <x-ui-input-textarea
-                    name="keyResultForm.description"
-                    label="Beschreibung"
-                    wire:model.live="keyResultForm.description"
-                    placeholder="Detaillierte Beschreibung des Key Result (optional)"
-                    rows="3"
-                />
-
-                <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text
-                        name="keyResultForm.target_value"
-                        label="Zielwert"
-                        wire:model.live="keyResultForm.target_value"
-                        placeholder="Zielwert eingeben..."
-                        required
-                    />
-                    <x-ui-input-text
-                        name="keyResultForm.current_value"
-                        label="Aktueller Wert"
-                        wire:model.live="keyResultForm.current_value"
-                        placeholder="Aktueller Wert (optional)"
-                    />
-                </div>
-
-                <x-ui-input-text
-                    name="keyResultForm.unit"
-                    label="Einheit"
-                    wire:model.live="keyResultForm.unit"
-                    placeholder="z.B. %, €, Stück"
-                />
-            </div>
+            <x-ui-input-textarea
+                name="keyResultDescription"
+                label="Beschreibung"
+                wire:model.live="keyResultDescription"
+                placeholder="Beschreibung des Key Result (optional)"
+                rows="3"
+            />
         </div>
 
         <x-slot name="footer">
@@ -438,82 +398,4 @@
         </x-slot>
     </x-ui-modal>
 
-    <!-- Key Result Edit Modal -->
-    <x-ui-modal
-        size="lg"
-        model="keyResultEditModalShow"
-    >
-        <x-slot name="header">
-            Key Result bearbeiten
-        </x-slot>
-
-        <div class="space-y-4">
-            <div class="space-y-4">
-                <x-ui-input-text
-                    name="keyResultForm.title"
-                    label="Titel"
-                    wire:model.live="keyResultForm.title"
-                    placeholder="Titel des Key Result eingeben..."
-                    required
-                />
-
-                <x-ui-input-textarea
-                    name="keyResultForm.description"
-                    label="Beschreibung"
-                    wire:model.live="keyResultForm.description"
-                    placeholder="Detaillierte Beschreibung des Key Result (optional)"
-                    rows="3"
-                />
-
-                <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text
-                        name="keyResultForm.target_value"
-                        label="Zielwert"
-                        wire:model.live="keyResultForm.target_value"
-                        placeholder="Zielwert eingeben..."
-                        required
-                    />
-                    <x-ui-input-text
-                        name="keyResultForm.current_value"
-                        label="Aktueller Wert"
-                        wire:model.live="keyResultForm.current_value"
-                        placeholder="Aktueller Wert (optional)"
-                    />
-                </div>
-
-                <x-ui-input-text
-                    name="keyResultForm.unit"
-                    label="Einheit"
-                    wire:model.live="keyResultForm.unit"
-                    placeholder="z.B. %, €, Stück"
-                />
-            </div>
-        </div>
-
-        <x-slot name="footer">
-            <div class="d-flex justify-between items-center gap-4">
-                <div class="flex-shrink-0">
-                    <x-ui-confirm-button 
-                        action="deleteKeyResultAndCloseModal" 
-                        text="Löschen" 
-                        confirmText="Wirklich löschen?" 
-                        variant="danger-outline"
-                        :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
-                    />
-                </div>
-                <div class="d-flex gap-2 flex-shrink-0">
-                    <x-ui-button 
-                        type="button" 
-                        variant="secondary-outline" 
-                        wire:click="closeKeyResultEditModal"
-                    >
-                        Abbrechen
-                    </x-ui-button>
-                    <x-ui-button type="button" variant="primary" wire:click="saveKeyResult">
-                        Speichern
-                    </x-ui-button>
-                </div>
-            </div>
-        </x-slot>
-    </x-ui-modal>
 </div>
