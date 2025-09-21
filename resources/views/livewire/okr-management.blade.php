@@ -133,12 +133,12 @@
                     <x-ui-input-checkbox
                         name="auto_transfer"
                         label="Automatisch übertragen"
-                        wire:model.live="auto_transfer"
+                        model="auto_transfer"
                     />
                     <x-ui-input-checkbox
                         name="is_template"
                         label="Als Template speichern"
-                        wire:model.live="is_template"
+                        model="is_template"
                     />
                 </div>
             </form>
