@@ -61,6 +61,8 @@ class OkrManagement extends Component
         return view('okr::livewire.okr-management', [
             'okrs' => $okrs,
             'users' => $users,
+            'sortField' => $this->sortField,
+            'sortDirection' => $this->sortDirection,
         ])->layout('platform::layouts.app');
     }
 
