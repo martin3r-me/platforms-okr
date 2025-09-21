@@ -185,9 +185,8 @@ class CycleShow extends Component
 
     public function editKeyResult($keyResultId)
     {
-        $keyResult = $this->cycle->objectives()->with('keyResults.performance')->get()
-            ->pluck('keyResults')->flatten()
-            ->find($keyResultId);
+        // Find the key result directly from the database
+        $keyResult = \Platform\Okr\Models\KeyResult::with('performance')->find($keyResultId);
         
         if ($keyResult) {
             $this->editingKeyResultId = $keyResult->id;
