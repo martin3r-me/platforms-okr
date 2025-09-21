@@ -230,6 +230,11 @@ class CycleShow extends Component
                 session()->flash('message', 'Key Result erfolgreich aktualisiert!');
             }
         } else {
+            if (!$this->editingKeyResultObjectiveId) {
+                session()->flash('error', 'Fehler: Objective ID fehlt!');
+                return;
+            }
+            
             $objective = $this->cycle->objectives()->findOrFail($this->editingKeyResultObjectiveId);
             $objective->keyResults()->create([
                 'title' => $this->keyResultForm['title'],
@@ -285,6 +290,38 @@ class CycleShow extends Component
             'unit' => '',
             'order' => 0,
         ];
+    }
+
+    // Sortable Methods
+    public function updateObjectiveOrder($items)
+    {
+        foreach ($items as $item) {
+            $objective = $this->cycle->objectives()->find($item['value']);
+            if ($objective) {
+                $objective->update(['order' => $item['order']]);
+            }
+        }
+        
+        $this->cycle->load('objectives.keyResults');
+        session()->flash('message', 'Objective-Reihenfolge aktualisiert!');
+    }
+
+    public function updateKeyResultOrder($items)
+    {
+        foreach ($items as $group) {
+            $objective = $this->cycle->objectives()->find($group['value']);
+            if ($objective && isset($group['items'])) {
+                foreach ($group['items'] as $item) {
+                    $keyResult = $objective->keyResults()->find($item['value']);
+                    if ($keyResult) {
+                        $keyResult->update(['order' => $item['order']]);
+                    }
+                }
+            }
+        }
+        
+        $this->cycle->load('objectives.keyResults');
+        session()->flash('message', 'Key Result-Reihenfolge aktualisiert!');
     }
 
     public function render()

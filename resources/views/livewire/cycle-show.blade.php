@@ -27,8 +27,20 @@
             </div>
         </div>
 
-        <!-- Haupt-Content (nimmt Restplatz, scrollt) -->
-        <div class="flex-grow-1 overflow-y-auto p-4">
+            <!-- Haupt-Content (nimmt Restplatz, scrollt) -->
+            <div class="flex-grow-1 overflow-y-auto p-4">
+                
+                @if(session()->has('message'))
+                    <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <p class="text-green-800">{{ session('message') }}</p>
+                    </div>
+                @endif
+
+                @if(session()->has('error'))
+                    <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <p class="text-red-800">{{ session('error') }}</p>
+                    </div>
+                @endif
             
             {{-- Cycle Details --}}
             <div class="mb-6">
@@ -74,70 +86,81 @@
                 </div>
 
                 @if($cycle->objectives->count() > 0)
-                    <x-ui-table compact="true">
-                        <x-ui-table-header>
-                            <x-ui-table-header-cell compact="true">Objective</x-ui-table-header-cell>
-                            <x-ui-table-header-cell compact="true">Key Results</x-ui-table-header-cell>
-                            <x-ui-table-header-cell compact="true" align="right">Aktionen</x-ui-table-header-cell>
-                        </x-ui-table-header>
-                        
-                        <x-ui-table-body>
-                            @foreach($cycle->objectives as $objective)
-                                <x-ui-table-row compact="true">
-                                    <x-ui-table-cell compact="true">
-                                        <div class="font-medium">{{ $objective->title }}</div>
+                    <div wire:sortable="updateObjectiveOrder" wire:sortable-group="updateKeyResultOrder" wire:sortable.options="{ animation: 150 }">
+                        @foreach($cycle->objectives->sortBy('order') as $objective)
+                            <div wire:sortable.item="{{ $objective->id }}" wire:key="objective-{{ $objective->id }}" class="mb-4 p-4 border border-muted rounded-lg bg-white">
+                                <div class="d-flex justify-between items-center mb-3">
+                                    <div class="flex-grow-1">
+                                        <div class="font-medium text-lg">{{ $objective->title }}</div>
                                         @if($objective->description)
-                                            <div class="text-xs text-muted">{{ Str::limit($objective->description, 50) }}</div>
+                                            <div class="text-sm text-muted">{{ Str::limit($objective->description, 100) }}</div>
                                         @endif
                                         <div class="text-xs text-muted">Order: {{ $objective->order }}</div>
-                                    </x-ui-table-cell>
-                                    <x-ui-table-cell compact="true">
-                                        <div class="space-y-1">
-                                            @foreach($objective->keyResults as $keyResult)
-                                                <div class="d-flex items-center gap-2 p-1 bg-muted-5 rounded text-xs">
-                                                    <div class="flex-grow-1">
-                                                        <div class="font-medium">{{ $keyResult->title }}</div>
-                                                        @if($keyResult->target_value)
-                                                            <div class="text-muted">Ziel: {{ $keyResult->target_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}</div>
-                                                        @endif
-                                                    </div>
-                                                    <x-ui-button 
-                                                        size="xs" 
-                                                        variant="secondary-outline" 
-                                                        wire:click="editKeyResult({{ $keyResult->id }})"
-                                                    >
-                                                        @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
-                                                    </x-ui-button>
-                                                </div>
-                                            @endforeach
-                                            @if($objective->keyResults->count() === 0)
-                                                <div class="text-xs text-muted">Keine Key Results</div>
-                                            @endif
-                                            <x-ui-button 
-                                                size="xs" 
-                                                variant="secondary-outline" 
-                                                wire:click="addKeyResult({{ $objective->id }})"
-                                            >
-                                                <div class="d-flex items-center gap-1">
-                                                    @svg('heroicon-o-plus', 'w-3 h-3')
-                                                    KR hinzufügen
-                                                </div>
-                                            </x-ui-button>
-                                        </div>
-                                    </x-ui-table-cell>
-                                    <x-ui-table-cell compact="true" align="right">
+                                    </div>
+                                    <div class="d-flex gap-2">
                                         <x-ui-button 
-                                            size="xs" 
+                                            size="sm" 
+                                            variant="secondary-outline" 
+                                            wire:click="addKeyResult({{ $objective->id }})"
+                                        >
+                                            <div class="d-flex items-center gap-1">
+                                                @svg('heroicon-o-plus', 'w-4 h-4')
+                                                KR hinzufügen
+                                            </div>
+                                        </x-ui-button>
+                                        <x-ui-button 
+                                            size="sm" 
                                             variant="secondary-outline" 
                                             wire:click="editObjective({{ $objective->id }})"
                                         >
-                                            @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
+                                            @svg('heroicon-o-cog-6-tooth', 'w-4 h-4')
                                         </x-ui-button>
-                                    </x-ui-table-cell>
-                                </x-ui-table-row>
-                            @endforeach
-                        </x-ui-table-body>
-                    </x-ui-table>
+                                        <div wire:sortable.handle class="cursor-move p-2 text-muted hover:text-primary">
+                                            @svg('heroicon-o-bars-3', 'w-4 h-4')
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if($objective->keyResults->count() > 0)
+                                    <div wire:sortable-group.item-group="{{ $objective->id }}" wire:sortable-group.options="{ animation: 100 }" class="space-y-2">
+                                        @foreach($objective->keyResults->sortBy('order') as $keyResult)
+                                            <div wire:sortable-group.item="{{ $keyResult->id }}" wire:key="keyresult-{{ $keyResult->id }}" class="d-flex items-center gap-2 p-3 bg-muted-5 rounded border">
+                                                <div wire:sortable-group.handle class="cursor-move p-1 text-muted hover:text-primary">
+                                                    @svg('heroicon-o-bars-3', 'w-3 h-3')
+                                                </div>
+                                                <div class="flex-grow-1">
+                                                    <div class="font-medium text-sm">{{ $keyResult->title }}</div>
+                                                    @if($keyResult->target_value)
+                                                        <div class="text-xs text-muted">
+                                                            Ziel: {{ $keyResult->target_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
+                                                            @if($keyResult->current_value)
+                                                                | Aktuell: {{ $keyResult->current_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                    @if($keyResult->description)
+                                                        <div class="text-xs text-muted">{{ Str::limit($keyResult->description, 60) }}</div>
+                                                    @endif
+                                                </div>
+                                                <x-ui-button 
+                                                    size="xs" 
+                                                    variant="secondary-outline" 
+                                                    wire:click="editKeyResult({{ $keyResult->id }})"
+                                                >
+                                                    @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
+                                                </x-ui-button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-center p-4 text-muted border-2 border-dashed border-muted rounded">
+                                        <div class="text-sm">Noch keine Key Results</div>
+                                        <div class="text-xs">Klicken Sie auf "KR hinzufügen"</div>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
                 @else
                     <div class="text-center p-8 text-muted">
                         <div class="text-lg mb-2">Noch keine Objectives vorhanden</div>
