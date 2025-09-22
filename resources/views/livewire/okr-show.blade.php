@@ -206,6 +206,62 @@
 
             <hr>
 
+            {{-- Teilnehmer verwalten --}}
+            <div class="mt-4">
+                <h4 class="font-semibold mb-2 text-secondary">Teilnehmer</h4>
+                <div class="d-flex items-end gap-2 mb-3">
+                    <div class="flex-grow-1">
+                        <x-ui-input-select
+                            name="memberUserId"
+                            label="Benutzer"
+                            :options="$this->users"
+                            optionValue="id"
+                            optionLabel="name"
+                            :nullable="true"
+                            nullLabel="– Benutzer wählen –"
+                            wire:model.live="memberUserId"
+                        />
+                    </div>
+                    <div class="min-w-40">
+                        <x-ui-input-select
+                            name="memberRole"
+                            label="Rolle"
+                            :options="['contributor' => 'Mitarbeit', 'viewer' => 'Lesend']"
+                            :nullable="false"
+                            wire:model.live="memberRole"
+                        />
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <x-ui-button variant="primary" size="sm" wire:click="addMember">Hinzufügen</x-ui-button>
+                </div>
+
+                @if($this->members->count() > 0)
+                    <div class="space-y-2">
+                        @foreach($this->members as $member)
+                            <div class="d-flex items-center justify-between p-2 bg-muted-5 rounded">
+                                <div class="text-sm">{{ $member->name }}</div>
+                                <div class="d-flex items-center gap-2">
+                                    <x-ui-input-select
+                                        name="memberRoleInline_{{ $member->id }}"
+                                        :options="['contributor' => 'Mitarbeit', 'viewer' => 'Lesend']"
+                                        :nullable="false"
+                                        wire:change="updateMemberRole({{ $member->id }}, $event.target.value)"
+                                    />
+                                    <x-ui-button variant="danger-outline" size="xs" wire:click="removeMember({{ $member->id }})">
+                                        Entfernen
+                                    </x-ui-button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="text-xs text-muted">Noch keine Teilnehmer hinzugefügt.</div>
+                @endif
+            </div>
+
+            <hr>
+
         </div>
     </div>
 

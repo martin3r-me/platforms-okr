@@ -25,6 +25,10 @@ class OkrShow extends Component
         'notes' => '',
     ];
 
+    // Member Management
+    public $memberUserId = '';
+    public $memberRole = 'contributor'; // contributor|viewer
+
     protected $rules = [
         'okr.title' => 'required|string|max:255',
         'okr.description' => 'nullable|string',
@@ -36,24 +40,33 @@ class OkrShow extends Component
         'cycleForm.cycle_template_id' => 'required|exists:okr_cycle_templates,id',
         'cycleForm.status' => 'required|in:draft,active,completed,ending_soon,past',
         'cycleForm.notes' => 'nullable|string',
+
+        'memberUserId' => 'nullable|exists:users,id',
+        'memberRole' => 'required|in:contributor,viewer',
     ];
 
     public function mount(Okr $okr)
     {
         $this->okr = $okr;
-        $this->okr->load(['user', 'manager', 'cycles.template']);
+        $this->okr->load(['user', 'manager', 'cycles.template', 'members']);
     }
 
     #[Computed]
     public function users()
     {
-        return User::where('current_team_id', auth()->user()->current_team_id)->get();
+        return User::where('current_team_id', auth()->user()->current_team_id)->orderBy('name')->get();
     }
 
     #[Computed]
     public function cycleTemplates()
     {
         return CycleTemplate::orderBy('starts_at')->get();
+    }
+
+    #[Computed]
+    public function members()
+    {
+        return $this->okr->members()->withPivot('role')->orderBy('name')->get();
     }
 
     public function updated($property)
@@ -80,6 +93,41 @@ class OkrShow extends Component
         session()->flash('message', 'OKR erfolgreich aktualisiert!');
     }
 
+    // Member Management
+    public function addMember()
+    {
+        $this->validate([
+            'memberUserId' => 'required|exists:users,id',
+            'memberRole' => 'required|in:contributor,viewer',
+        ]);
+        if ($this->okr->members()->where('user_id', $this->memberUserId)->exists()) {
+            $this->okr->members()->updateExistingPivot($this->memberUserId, ['role' => $this->memberRole]);
+        } else {
+            $this->okr->members()->attach($this->memberUserId, ['role' => $this->memberRole]);
+        }
+        $this->okr->load('members');
+        $this->memberUserId = '';
+        $this->memberRole = 'contributor';
+        session()->flash('message', 'Teilnehmer hinzugefügt/aktualisiert.');
+    }
+
+    public function removeMember($userId)
+    {
+        $this->okr->members()->detach($userId);
+        $this->okr->load('members');
+        session()->flash('message', 'Teilnehmer entfernt.');
+    }
+
+    public function updateMemberRole($userId, $role)
+    {
+        if (!in_array($role, ['contributor','viewer'])) {
+            return;
+        }
+        $this->okr->members()->updateExistingPivot($userId, ['role' => $role]);
+        $this->okr->load('members');
+        session()->flash('message', 'Teilnehmer-Rolle aktualisiert.');
+    }
+
     // Cycle Management
     public function addCycle()
     {
@@ -89,7 +137,6 @@ class OkrShow extends Component
 
     public function manageCycleObjectives($cycleId)
     {
-        // Navigate to cycle show page
         return redirect()->route('okr.cycles.show', ['cycle' => $cycleId]);
     }
 
@@ -144,7 +191,7 @@ class OkrShow extends Component
             session()->flash('message', 'Cycle erfolgreich hinzugefügt!');
         }
 
-        $this->okr->load('cycles.template'); // Refresh cycles
+        $this->okr->load('cycles.template');
         $this->closeCycleCreateModal();
         $this->closeCycleEditModal();
     }
@@ -154,7 +201,7 @@ class OkrShow extends Component
         $cycle = $this->okr->cycles()->findOrFail($this->editingCycleId);
         $cycle->delete();
         session()->flash('message', 'Cycle erfolgreich gelöscht!');
-        $this->okr->load('cycles.template'); // Refresh cycles
+        $this->okr->load('cycles.template');
         $this->closeCycleEditModal();
     }
 

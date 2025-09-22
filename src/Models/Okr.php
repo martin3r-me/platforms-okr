@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
@@ -82,7 +83,8 @@ class Okr extends Model
         // manager/self oder members
         return $query->where(function (Builder $q) use ($user) {
             $q->where('manager_user_id', $user->id)
-              ->orWhere('user_id', $user->id);
+              ->orWhere('user_id', $user->id)
+              ->orWhereHas('members', fn (Builder $m) => $m->where('users.id', $user->id));
         });
     }
 
@@ -130,4 +132,10 @@ class Okr extends Model
         );
     }
 
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'okr_okr_user')
+            ->withPivot('role')
+            ->withTimestamps();
+    }
 }
