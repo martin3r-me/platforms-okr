@@ -26,6 +26,8 @@ class Cycle extends Model
         'label',
         'type',
         'status',
+        'notes',
+        'description',
         'cycle_template_id',
     ];
 
