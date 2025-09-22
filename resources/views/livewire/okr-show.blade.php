@@ -239,17 +239,28 @@
                 @if($this->members->count() > 0)
                     <div class="space-y-2">
                         @foreach($this->members as $member)
-                            <div class="d-flex items-center justify-between p-2 bg-muted-5 rounded">
-                                <div class="text-sm">{{ $member->name }}</div>
+                            <div class="d-flex items-center justify-between p-2 bg-white rounded border text-xs">
                                 <div class="d-flex items-center gap-2">
-                                    <x-ui-input-select
-                                        name="memberRoleInline_{{ $member->id }}"
-                                        :options="['contributor' => 'Mitarbeit', 'viewer' => 'Lesend']"
-                                        :nullable="false"
+                                    <div class="w-6 h-6 rounded-full bg-primary-10 text-primary d-flex items-center justify-center font-semibold">
+                                        {{ strtoupper(Str::substr($member->name, 0, 2)) }}
+                                    </div>
+                                    <div class="d-flex items-center gap-2">
+                                        <span class="font-medium text-gray-800">{{ $member->name }}</span>
+                                        <x-ui-badge variant="secondary" size="xs">
+                                            {{ $member->pivot->role === 'contributor' ? 'Mitarbeit' : 'Lesend' }}
+                                        </x-ui-badge>
+                                    </div>
+                                </div>
+                                <div class="d-flex items-center gap-2">
+                                    <select
+                                        class="h-7 text-xs border rounded px-1 py-0.5 bg-white"
                                         wire:change="updateMemberRole({{ $member->id }}, $event.target.value)"
-                                    />
+                                    >
+                                        <option value="contributor" {{ $member->pivot->role === 'contributor' ? 'selected' : '' }}>Mitarbeit</option>
+                                        <option value="viewer" {{ $member->pivot->role === 'viewer' ? 'selected' : '' }}>Lesend</option>
+                                    </select>
                                     <x-ui-button variant="danger-outline" size="xs" wire:click="removeMember({{ $member->id }})">
-                                        Entfernen
+                                        @svg('heroicon-o-x-mark', 'w-3 h-3')
                                     </x-ui-button>
                                 </div>
                             </div>
