@@ -20,6 +20,9 @@ class Dashboard extends Component
     public $statusFilter = 'all'; // all, draft, active, completed, ending_soon, past
     public $managerFilter = '';
 
+    // Perspektive
+    public $perspective = 'personal'; // personal|team
+
     // Manager-Liste (Team)
     public $managers = [];
 
@@ -44,6 +47,11 @@ class Dashboard extends Component
         $this->loadData();
     }
 
+    public function updatedPerspective()
+    {
+        $this->loadData();
+    }
+
     public function loadData()
     {
         $user = auth()->user();
@@ -54,21 +62,32 @@ class Dashboard extends Component
             ->orderBy('name')
             ->get();
 
-        // OKRs sichtbar für User, mit Filtern
-        $okrsQuery = Okr::with(['cycles', 'objectives.keyResults'])
+        // Basis: sichtbare OKRs
+        $baseQuery = Okr::with(['cycles', 'objectives.keyResults', 'members'])
             ->visibleFor($user);
 
+        // Perspektive anwenden
+        if ($this->perspective === 'personal') {
+            $baseQuery->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('manager_user_id', $user->id)
+                  ->orWhereHas('members', function ($m) use ($user) {
+                      $m->where('users.id', $user->id);
+                  });
+            });
+        }
+
+        // Filter anwenden
         if ($this->statusFilter !== 'all') {
-            $okrsQuery->where('status', $this->statusFilter);
+            $baseQuery->where('status', $this->statusFilter);
         }
-
         if (!empty($this->managerFilter)) {
-            $okrsQuery->where('manager_user_id', $this->managerFilter);
+            $baseQuery->where('manager_user_id', $this->managerFilter);
         }
 
-        $this->okrs = $okrsQuery->get();
+        $this->okrs = $baseQuery->get();
 
-        // Aktueller Zyklus
+        // Aktueller Zyklus (teamweit)
         $this->currentCycle = Cycle::where('team_id', $teamId)
             ->where('status', 'current')
             ->with(['template', 'objectives.keyResults'])
@@ -88,8 +107,18 @@ class Dashboard extends Component
             ->orderBy('starts_at')
             ->get();
 
-        // Kennzahlen (auf Basis aller sichtbaren OKRs, ungefiltert nach Status)
-        $allVisible = Okr::visibleFor($user)->get();
+        // Kennzahlen je Perspektive
+        $metricsQuery = Okr::visibleFor($user);
+        if ($this->perspective === 'personal') {
+            $metricsQuery->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('manager_user_id', $user->id)
+                  ->orWhereHas('members', function ($m) use ($user) {
+                      $m->where('users.id', $user->id);
+                  });
+            });
+        }
+        $allVisible = $metricsQuery->get();
         $this->totalOkrs = $allVisible->count();
         $this->activeOkrs = $allVisible->where('status', 'active')->count();
         $this->endingSoonOkrs = $allVisible->where('status', 'ending_soon')->count();
