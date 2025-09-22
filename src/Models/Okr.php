@@ -2,6 +2,7 @@
 
 namespace Platform\Okr\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Platform\Core\Models\Team;
 use Platform\Core\Models\User;
 use Platform\ActivityLog\Traits\LogsActivity;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
+
 class Okr extends Model
 {
     protected $table = 'okr_okrs';
@@ -51,6 +53,36 @@ class Okr extends Model
             if (empty($okr->team_id)) {
                 $okr->team_id = Auth::user()?->current_team_id;
             }
+        });
+    }
+
+    /**
+     * Scope: Team-Filter
+     */
+    public function scopeForTeam(Builder $query, int $teamId): Builder
+    {
+        return $query->where('team_id', $teamId);
+    }
+
+    /**
+     * Scope: Sichtbar für User (owner/admin/manager/self/members)
+     */
+    public function scopeVisibleFor(Builder $query, User $user): Builder
+    {
+        $teamId = $user->current_team_id;
+        $query->where('team_id', $teamId);
+
+        // Owner/Admin sieht alles
+        $isOwner = method_exists($user, 'isTeamOwner') && $user->isTeamOwner($teamId);
+        $isAdmin = method_exists($user, 'hasTeamRole') && $user->hasTeamRole('admin', $teamId);
+        if ($isOwner || $isAdmin) {
+            return $query;
+        }
+
+        // manager/self oder members
+        return $query->where(function (Builder $q) use ($user) {
+            $q->where('manager_user_id', $user->id)
+              ->orWhere('user_id', $user->id);
         });
     }
 

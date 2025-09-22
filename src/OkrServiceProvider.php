@@ -2,20 +2,18 @@
 
 namespace Platform\Okr;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
-use Livewire\Livewire;
+use Illuminate\Support\ServiceProvider;
 use Platform\Core\PlatformCore;
 use Platform\Core\Routing\ModuleRouter;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
+use Platform\Okr\Models\Okr;
+use Platform\Okr\Policies\OkrPolicy;
 
 class OkrServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        // Commands registrieren
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \Platform\Okr\Console\Commands\GenerateQuarterCycleTemplates::class,
@@ -30,6 +28,9 @@ class OkrServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Policies
+        Gate::policy(Okr::class, OkrPolicy::class);
+
         // Schritt 1: Config laden
         $this->mergeConfigFrom(__DIR__.'/../config/okr.php', 'okr');
         
@@ -70,43 +71,5 @@ class OkrServiceProvider extends ServiceProvider
         // Schritt 6: Views & Livewire
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'okr');
         $this->registerLivewireComponents();
-    }
-
-    protected function registerLivewireComponents(): void
-    {
-        $basePath = __DIR__ . '/Livewire';
-        $baseNamespace = 'Platform\\Okr\\Livewire';
-        $prefix = 'okr';
-
-        if (!is_dir($basePath)) {
-            return;
-        }
-
-        $iterator = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($basePath)
-        );
-
-        foreach ($iterator as $file) {
-            if (!$file->isFile() || $file->getExtension() !== 'php') {
-                continue;
-            }
-
-            $relativePath = str_replace($basePath . DIRECTORY_SEPARATOR, '', $file->getPathname());
-            $classPath = str_replace(['/', '.php'], ['\\', ''], $relativePath);
-            $class = $baseNamespace . '\\' . $classPath;
-
-            if (!class_exists($class)) {
-                continue;
-            }
-
-            // okr.dashboard aus okr + dashboard.php
-            $aliasPath = str_replace(['\\', '/'], '.', Str::kebab(str_replace('.php', '', $relativePath)));
-            $alias = $prefix . '.' . $aliasPath;
-
-            // Debug: Ausgabe der registrierten Komponente
-            \Log::info("Registering Livewire component: {$alias} -> {$class}");
-
-            Livewire::component($alias, $class);
-        }
     }
 }
