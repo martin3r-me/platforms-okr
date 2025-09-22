@@ -79,13 +79,6 @@
                 <div class="d-flex justify-between items-center mb-4">
                     <h3 class="text-lg font-semibold text-secondary">Objectives & Key Results</h3>
                     <div class="d-flex gap-2">
-                        <button 
-                            type="button" 
-                            class="px-3 py-1 text-xs font-medium text-yellow-600 bg-yellow-100 border border-transparent rounded-md hover:bg-yellow-200"
-                            wire:click="testMethod"
-                        >
-                            Test
-                        </button>
                         <x-ui-button size="sm" variant="secondary-outline" wire:click="addObjective">
                             <div class="d-flex items-center gap-2">
                                 @svg('heroicon-o-plus', 'w-4 h-4')
@@ -483,20 +476,20 @@
 
         <x-slot name="footer">
             <div class="d-flex justify-end gap-2">
-                <button 
+                <x-ui-button 
                     type="button" 
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    variant="secondary-outline" 
                     wire:click="closeKeyResultCreateModal"
                 >
                     Abbrechen
-                </button>
-                <button 
+                </x-ui-button>
+                <x-ui-button 
                     type="button" 
-                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    variant="primary" 
                     wire:click="saveKeyResult"
                 >
                     Hinzufügen
-                </button>
+                </x-ui-button>
             </div>
         </x-slot>
     </x-ui-modal>
@@ -587,29 +580,20 @@
 
         <x-slot name="footer">
             <div class="d-flex justify-end gap-2">
-                <button 
+                <x-ui-button 
                     type="button" 
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    variant="secondary-outline" 
                     wire:click="closeKeyResultEditModal"
                 >
                     Abbrechen
-                </button>
-                <button 
+                </x-ui-button>
+                <x-ui-button 
                     type="button" 
-                    class="px-4 py-2 text-sm font-medium text-yellow-600 bg-yellow-100 border border-transparent rounded-md hover:bg-yellow-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
-                    wire:click="testMethod"
-                    wire:key="test-button"
-                >
-                    Test
-                </button>
-                <button 
-                    type="button" 
-                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    variant="primary" 
                     wire:click="saveKeyResult"
-                    wire:key="save-button"
                 >
                     Speichern
-                </button>
+                </x-ui-button>
             </div>
         </x-slot>
     </x-ui-modal>
