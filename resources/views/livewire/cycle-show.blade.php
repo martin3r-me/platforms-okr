@@ -94,11 +94,13 @@
                             <div wire:sortable.item="{{ $objective->id }}" wire:key="objective-{{ $objective->id }}" class="mb-4 p-4 border border-muted rounded-lg bg-white">
                                 <div class="d-flex justify-between items-center mb-3">
                                     <div class="flex-grow-1">
-                                        <div class="font-medium text-lg">{{ $objective->title }}</div>
+                                        <div class="d-flex items-center gap-2">
+                                            <div class="font-medium text-lg">{{ $objective->title }}</div>
+                                            <x-ui-badge variant="secondary" size="xs">{{ $objective->keyResults->count() }} KR</x-ui-badge>
+                                        </div>
                                         @if($objective->description)
-                                            <div class="text-sm text-muted">{{ Str::limit($objective->description, 100) }}</div>
+                                            <div class="text-sm text-muted mt-1">{{ Str::limit($objective->description, 100) }}</div>
                                         @endif
-                                        <div class="text-xs text-muted">Order: {{ $objective->order }}</div>
                                     </div>
                                     <div class="d-flex gap-2">
                                         <x-ui-button 
@@ -128,60 +130,54 @@
                                     <div wire:sortable-group.item-group="{{ $objective->id }}" wire:sortable-group.options="{ animation: 100 }" class="space-y-2">
                                         @foreach($objective->keyResults->sortBy('order') as $keyResult)
                                             <div wire:sortable-group.item="{{ $keyResult->id }}" wire:key="keyresult-{{ $keyResult->id }}" 
-                                                 class="d-flex items-center gap-2 p-3 bg-muted-5 rounded border cursor-pointer hover:bg-muted-10 transition-colors"
-                                                 wire:click="editKeyResult({{ $keyResult->id }})">
-                                                <div wire:sortable-group.handle class="cursor-move p-1 text-muted hover:text-primary">
-                                                    @svg('heroicon-o-bars-3', 'w-3 h-3')
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <div class="font-medium text-sm">{{ $keyResult->title }}</div>
-                                                    @if($keyResult->description)
-                                                        <div class="text-xs text-muted">{{ Str::limit($keyResult->description, 60) }}</div>
-                                                    @endif
-                                                    <div class="text-xs text-muted mt-1">
-                                                        <span class="font-medium">Ziel:</span>
-                                                        @if($keyResult->performance)
-                                                            {{ $keyResult->performance->target_value }}
-                                                            @if($keyResult->performance->type === 'percentage') % @endif
-                                                        @else
-                                                            Nicht gesetzt
-                                                        @endif
-                                                        @if($keyResult->performance && $keyResult->performance->current_value !== null)
-                                                            | <span class="font-medium">Aktuell:</span>
-                                                            @if($keyResult->performance->type === 'boolean')
-                                                                {{ $keyResult->performance->is_completed ? 'Ja' : 'Nein' }}
-                                                            @else
-                                                                {{ $keyResult->performance->current_value }}@if($keyResult->performance->type === 'percentage') % @endif
-                                                            @endif
-                                                        @else
-                                                            | <span class="font-medium">Aktuell:</span> <span class="text-muted">Nicht gesetzt</span>
+                                                 class="d-flex items-center justify-between gap-3 p-3 bg-white rounded border">
+                                                <div class="d-flex items-start gap-2 flex-grow-1">
+                                                    <div wire:sortable-group.handle class="cursor-move p-1 text-muted hover:text-primary mt-0.5">
+                                                        @svg('heroicon-o-bars-3', 'w-3 h-3')
+                                                    </div>
+                                                    <div class="flex-grow-1 cursor-pointer" wire:click="editKeyResult({{ $keyResult->id }})">
+                                                        <div class="font-medium text-sm">{{ $keyResult->title }}</div>
+                                                        @if($keyResult->description)
+                                                            <div class="text-xs text-muted">{{ Str::limit($keyResult->description, 60) }}</div>
                                                         @endif
                                                     </div>
-                                                    @if($keyResult->performance)
-                                                        <div class="text-xs text-muted mt-1">
-                                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                                                                @if($keyResult->performance->type === 'boolean') bg-purple-100 text-purple-800
-                                                                @elseif($keyResult->performance->type === 'percentage') bg-blue-100 text-blue-800
-                                                                @else bg-green-100 text-green-800
-                                                                @endif">
-                                                                {{ ucfirst($keyResult->performance->type) }}
-                                                            </span>
-                                                        </div>
-                                                    @else
-                                                        <div class="text-xs text-muted mt-1">
-                                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                                                                Kein Typ
-                                                            </span>
-                                                        </div>
-                                                    @endif
+                                                </div>
+                                                <div class="d-flex items-center gap-2 flex-shrink-0">
+                                                    @php
+                                                        $type = $keyResult->performance?->type;
+                                                        $typeVariant = $type === 'boolean' ? 'purple' : ($type === 'percentage' ? 'info' : 'success');
+                                                    @endphp
+                                                    <x-ui-badge :variant="$type ? $typeVariant : 'secondary'" size="xs">
+                                                        {{ $type ? ucfirst($type) : 'Ohne Typ' }}
+                                                    </x-ui-badge>
+
+                                                    <x-ui-badge variant="secondary" size="xs">
+                                                        Ziel: 
+                                                        @if($keyResult->performance)
+                                                            {{ $keyResult->performance->target_value }}@if($keyResult->performance->type === 'percentage') % @endif
+                                                        @else
+                                                            –
+                                                        @endif
+                                                    </x-ui-badge>
+
+                                                    <x-ui-badge :variant="$keyResult->performance?->type === 'boolean' ? ($keyResult->performance?->is_completed ? 'success' : 'danger') : 'secondary'" size="xs">
+                                                        @if($keyResult->performance)
+                                                            @if($keyResult->performance->type === 'boolean')
+                                                                {{ $keyResult->performance->is_completed ? 'Erledigt' : 'Offen' }}
+                                                            @else
+                                                                Aktuell: {{ $keyResult->performance->current_value }}@if($keyResult->performance->type === 'percentage') % @endif
+                                                            @endif
+                                                        @else
+                                                            Aktuell: –
+                                                        @endif
+                                                    </x-ui-badge>
                                                 </div>
                                             </div>
                                         @endforeach
                                     </div>
                                 @else
-                                    <div class="text-center p-4 text-muted border-2 border-dashed border-muted rounded">
-                                        <div class="text-sm">Noch keine Key Results</div>
-                                        <div class="text-xs">Klicken Sie auf "KR hinzufügen"</div>
+                                    <div class="text-center p-8 text-muted">
+                                        <div class="text-sm">Keine Key Results</div>
                                     </div>
                                 @endif
                             </div>
