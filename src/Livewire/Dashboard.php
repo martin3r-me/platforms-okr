@@ -12,46 +12,35 @@ class Dashboard extends Component
 {
     public $okrs;
     public $currentCycle;
-    public $activeCycles; // neu
+    public $activeCycles; // aktive Zyklen
     public $objectives;
     public $keyResults;
     public $availableTemplates;
 
     // Filter
-    public $statusFilter = 'all'; // all, draft, active, completed, ending_soon, past
+    public $statusFilter = 'all';
     public $managerFilter = '';
 
     // Perspektive
-    public $perspective = 'personal'; // personal|team
+    public $perspective = 'personal';
 
     // Manager-Liste (Team)
     public $managers = [];
 
-    // Metriken
-    public $totalOkrs = 0;
-    public $activeOkrs = 0;
-    public $endingSoonOkrs = 0;
-    public $completedOkrs = 0;
+    // Kennzahlen (aktiv)
+    public $activeCyclesCount = 0;
+    public $activeObjectivesCount = 0;
+    public $activeKeyResultsCount = 0;
+    public $activeOkrsCount = 0;
 
     public function mount()
     {
         $this->loadData();
     }
 
-    public function updatedStatusFilter()
-    {
-        $this->loadData();
-    }
-
-    public function updatedManagerFilter()
-    {
-        $this->loadData();
-    }
-
-    public function updatedPerspective()
-    {
-        $this->loadData();
-    }
+    public function updatedStatusFilter() { $this->loadData(); }
+    public function updatedManagerFilter() { $this->loadData(); }
+    public function updatedPerspective() { $this->loadData(); }
 
     public function loadData()
     {
@@ -67,7 +56,6 @@ class Dashboard extends Component
         $baseQuery = Okr::with(['cycles', 'objectives.keyResults', 'members'])
             ->visibleFor($user);
 
-        // Perspektive anwenden
         if ($this->perspective === 'personal') {
             $baseQuery->where(function ($q) use ($user) {
                 $q->where('user_id', $user->id)
@@ -78,7 +66,6 @@ class Dashboard extends Component
             });
         }
 
-        // Filter anwenden
         if ($this->statusFilter !== 'all') {
             $baseQuery->where('status', $this->statusFilter);
         }
@@ -110,28 +97,14 @@ class Dashboard extends Component
             ->orderByDesc('updated_at')
             ->get();
 
-        // Verfügbare Vorlagen
-        $this->availableTemplates = CycleTemplate::where('is_current', true)
-            ->orWhere('starts_at', '>', now())
-            ->orderBy('starts_at')
-            ->get();
+        // Kennzahlen auf Basis aktiver Zyklen
+        $this->activeCyclesCount = $this->activeCycles->count();
+        $this->activeObjectivesCount = $this->activeCycles->sum(fn ($c) => $c->objectives->count());
+        $this->activeKeyResultsCount = $this->activeCycles->sum(fn ($c) => $c->objectives->sum(fn ($o) => $o->keyResults->count()));
+        $this->activeOkrsCount = $this->activeCycles->pluck('okr_id')->unique()->count();
 
-        // Kennzahlen je Perspektive
-        $metricsQuery = Okr::visibleFor($user);
-        if ($this->perspective === 'personal') {
-            $metricsQuery->where(function ($q) use ($user) {
-                $q->where('user_id', $user->id)
-                  ->orWhere('manager_user_id', $user->id)
-                  ->orWhereHas('members', function ($m) use ($user) {
-                      $m->where('users.id', $user->id);
-                  });
-            });
-        }
-        $allVisible = $metricsQuery->get();
-        $this->totalOkrs = $allVisible->count();
-        $this->activeOkrs = $allVisible->where('status', 'active')->count();
-        $this->endingSoonOkrs = $allVisible->where('status', 'ending_soon')->count();
-        $this->completedOkrs = $allVisible->where('status', 'completed')->count();
+        // Verfügbare Vorlagen (derzeit nicht mehr im Dashboard sichtbar)
+        $this->availableTemplates = collect();
     }
 
     public function render()
