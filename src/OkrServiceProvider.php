@@ -5,6 +5,7 @@ namespace Platform\Okr;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use Platform\Core\PlatformCore;
 use Platform\Core\Routing\ModuleRouter;
 use Platform\Okr\Models\Okr;
@@ -71,5 +72,15 @@ class OkrServiceProvider extends ServiceProvider
         // Schritt 6: Views & Livewire
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'okr');
         $this->registerLivewireComponents();
+    }
+
+    private function registerLivewireComponents(): void
+    {
+        Livewire::component('okr.dashboard', \Platform\Okr\Livewire\Dashboard::class);
+        Livewire::component('okr.okr-management', \Platform\Okr\Livewire\OkrManagement::class);
+        Livewire::component('okr.okr-show', \Platform\Okr\Livewire\OkrShow::class);
+        Livewire::component('okr.cycle-show', \Platform\Okr\Livewire\CycleShow::class);
+        Livewire::component('okr.objective-show', \Platform\Okr\Livewire\ObjectiveShow::class);
+        Livewire::component('okr.sidebar', \Platform\Okr\Livewire\Sidebar::class);
     }
 }
