@@ -139,13 +139,19 @@
                                                         <div class="text-xs text-muted">{{ Str::limit($keyResult->description, 60) }}</div>
                                                     @endif
                                                     <div class="text-xs text-muted mt-1">
-                                                        <span class="font-medium">Ziel:</span> {{ $keyResult->target_value ?? 'Nicht gesetzt' }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
+                                                        <span class="font-medium">Ziel:</span>
+                                                        @if($keyResult->performance)
+                                                            {{ $keyResult->performance->target_value }}
+                                                            @if($keyResult->performance->type === 'percentage') % @endif
+                                                        @else
+                                                            Nicht gesetzt
+                                                        @endif
                                                         @if($keyResult->performance && $keyResult->performance->current_value !== null)
-                                                            | <span class="font-medium">Aktuell:</span> 
+                                                            | <span class="font-medium">Aktuell:</span>
                                                             @if($keyResult->performance->type === 'boolean')
                                                                 {{ $keyResult->performance->is_completed ? 'Ja' : 'Nein' }}
                                                             @else
-                                                                {{ $keyResult->performance->current_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
+                                                                {{ $keyResult->performance->current_value }}@if($keyResult->performance->type === 'percentage') % @endif
                                                             @endif
                                                         @else
                                                             | <span class="font-medium">Aktuell:</span> <span class="text-muted">Nicht gesetzt</span>

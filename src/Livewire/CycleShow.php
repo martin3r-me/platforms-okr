@@ -286,8 +286,8 @@ class CycleShow extends Component
                 $keyResult->update([
                     'title' => $this->keyResultTitle,
                     'description' => $this->keyResultDescription,
-                    'target_value' => $this->keyResultTargetValue,
-                    'unit' => $unit,
+                    // 'target_value' => $this->keyResultTargetValue, // handled by performance
+                    // 'unit' => $unit, // omit writing unit on KR to avoid missing column
                 ]);
 
                 // Update performance record
@@ -319,9 +319,9 @@ class CycleShow extends Component
                 $keyResult = $objective->keyResults()->create([
                     'title' => $this->keyResultTitle,
                     'description' => $this->keyResultDescription,
-                    'target_value' => $this->keyResultTargetValue,
-                    'current_value' => '0', // Default, wird über Performance verwaltet
-                    'unit' => $unit,
+                    // 'target_value' => $this->keyResultTargetValue, // handled by performance
+                    // 'current_value' => '0', // handled by performance
+                    // 'unit' => $unit, // omit writing unit on KR to avoid missing column
                     'order' => $nextOrder,
                     'team_id' => auth()->user()->current_team_id,
                     'user_id' => auth()->id(),
