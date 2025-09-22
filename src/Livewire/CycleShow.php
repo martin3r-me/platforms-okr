@@ -190,13 +190,15 @@ class CycleShow extends Component
             $this->editingKeyResultObjectiveId = $keyResult->objective_id;
             $this->keyResultTitle = $keyResult->title;
             $this->keyResultDescription = $keyResult->description ?? '';
-            $this->keyResultTargetValue = $keyResult->target_value ?? '';
-            $this->keyResultUnit = $keyResult->unit ?? '';
+            // Zielwert aus Performance wenn vorhanden
+            $this->keyResultTargetValue = $keyResult->performance?->target_value ?? '';
+            // Einheit wird aktuell nicht persistiert; leer lassen
+            $this->keyResultUnit = '';
             
             // Load performance data
             if ($keyResult->performance) {
                 $this->keyResultValueType = $keyResult->performance->type ?? 'absolute';
-                $this->keyResultCurrentValue = $keyResult->performance->current_value ?? '0';
+                $this->keyResultCurrentValue = (string)($keyResult->performance->current_value ?? '0');
             } else {
                 $this->keyResultValueType = 'absolute';
                 $this->keyResultCurrentValue = '0';

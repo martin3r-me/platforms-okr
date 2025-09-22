@@ -26,9 +26,6 @@ class KeyResult extends Model
         'manager_user_id',
         'title',
         'description',
-        'target_value',
-        'current_value',
-        'unit',
         'performance_score',
         'order',
     ];
@@ -76,7 +73,7 @@ class KeyResult extends Model
 
     public function performance(): HasOne
     {
-        return $this->hasOne(KeyResultPerformance::class);
+        return $this->hasOne(KeyResultPerformance::class)->latestOfMany();
     }
 
     public function performances(): HasMany
