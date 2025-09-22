@@ -12,6 +12,7 @@ class Dashboard extends Component
 {
     public $okrs;
     public $currentCycle;
+    public $activeCycles; // neu
     public $objectives;
     public $keyResults;
     public $availableTemplates;
@@ -90,16 +91,24 @@ class Dashboard extends Component
         // Aktueller Zyklus (teamweit)
         $this->currentCycle = Cycle::where('team_id', $teamId)
             ->where('status', 'current')
-            ->with(['template', 'objectives.keyResults'])
+            ->with(['template', 'objectives.keyResults.performance'])
             ->first();
 
         if ($this->currentCycle) {
-            $this->objectives = $this->currentCycle->objectives()->with('keyResults')->get();
-            $this->keyResults = $this->currentCycle->keyResults()->get();
+            $this->objectives = $this->currentCycle->objectives()->with('keyResults.performance')->get();
+            $this->keyResults = $this->currentCycle->keyResults()->with('performance')->get();
         } else {
             $this->objectives = collect();
             $this->keyResults = collect();
         }
+
+        // Aktive Zyklen (inkl. current) teamweit
+        $this->activeCycles = Cycle::where('team_id', $teamId)
+            ->whereIn('status', ['current', 'active'])
+            ->with(['template', 'okr', 'objectives.keyResults.performance'])
+            ->orderByRaw("FIELD(status, 'current','active')")
+            ->orderByDesc('updated_at')
+            ->get();
 
         // Verfügbare Vorlagen
         $this->availableTemplates = CycleTemplate::where('is_current', true)
