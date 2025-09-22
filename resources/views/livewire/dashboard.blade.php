@@ -1,29 +1,77 @@
 <div class="h-full overflow-y-auto p-6">
-    <div class="mb-6 d-flex items-end justify-between gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">OKR Dashboard</h1>
-            <p class="mt-1 text-sm text-gray-500">Übersicht über deine Objectives und Key Results</p>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div class="bg-white rounded-lg border p-3 text-center">
-                <div class="text-xs text-muted">OKRs gesamt</div>
-                <div class="text-xl font-semibold">{{ $totalOkrs }}</div>
+    <!-- Header mit Datum und Perspektive-Toggle -->
+    <div class="mb-6">
+        <div class="d-flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">OKR Dashboard</h1>
+                <p class="text-gray-600">{{ now()->translatedFormat('l') }}, {{ now()->format('d.m.Y') }}</p>
             </div>
-            <div class="bg-white rounded-lg border p-3 text-center">
-                <div class="text-xs text-muted">Aktiv</div>
-                <div class="text-xl font-semibold text-green-600">{{ $activeOkrs }}</div>
-            </div>
-            <div class="bg-white rounded-lg border p-3 text-center">
-                <div class="text-xs text-muted">Endet bald</div>
-                <div class="text-xl font-semibold text-yellow-600">{{ $endingSoonOkrs }}</div>
-            </div>
-            <div class="bg-white rounded-lg border p-3 text-center">
-                <div class="text-xs text-muted">Abgeschlossen</div>
-                <div class="text-xl font-semibold text-blue-600">{{ $completedOkrs }}</div>
+            <div class="d-flex items-center gap-4">
+                <!-- Perspektive-Toggle -->
+                <div class="d-flex bg-gray-100 rounded-lg p-1">
+                    <button 
+                        wire:click="$set('perspective', 'personal')"
+                        class="px-4 py-2 rounded-md text-sm font-medium transition"
+                        :class="'{{ $perspective }}' === 'personal' 
+                            ? 'bg-success text-on-success shadow-sm' 
+                            : 'text-gray-600 hover:text-gray-900'"
+                    >
+                        <div class="d-flex items-center gap-2">
+                            @svg('heroicon-o-user', 'w-4 h-4')
+                            <span>Persönlich</span>
+                        </div>
+                    </button>
+                    <button 
+                        wire:click="$set('perspective', 'team')"
+                        class="px-4 py-2 rounded-md text-sm font-medium transition"
+                        :class="'{{ $perspective }}' === 'team' 
+                            ? 'bg-success text-on-success shadow-sm' 
+                            : 'text-gray-600 hover:text-gray-900'"
+                    >
+                        <div class="d-flex items-center gap-2">
+                            @svg('heroicon-o-users', 'w-4 h-4')
+                            <span>Team</span>
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Kennzahlen-Kacheln (Planner-Stil) -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <x-ui-dashboard-tile
+            title="OKRs gesamt"
+            :count="$totalOkrs"
+            icon="flag"
+            variant="primary"
+            size="lg"
+            :href="route('okr.okrs.index')"
+        />
+        <x-ui-dashboard-tile
+            title="Aktive"
+            :count="$activeOkrs"
+            icon="bolt"
+            variant="success"
+            size="lg"
+        />
+        <x-ui-dashboard-tile
+            title="Endet bald"
+            :count="$endingSoonOkrs"
+            icon="clock"
+            variant="warning"
+            size="lg"
+        />
+        <x-ui-dashboard-tile
+            title="Abgeschlossen"
+            :count="$completedOkrs"
+            icon="check-circle"
+            variant="info"
+            size="lg"
+        />
+    </div>
+
+    <!-- Filterleiste -->
     <div class="mb-4 d-flex items-end gap-3">
         <div class="min-w-48">
             <x-ui-input-select
