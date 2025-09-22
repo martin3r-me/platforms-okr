@@ -113,7 +113,17 @@
                                 <div class="font-medium">{{ $cycle->okr?->title ?? 'OKR' }}</div>
                                 <div class="text-xs text-muted">{{ $cycle->template?->label }} • {{ $cycle->template?->starts_at?->format('d.m.Y') }} - {{ $cycle->template?->ends_at?->format('d.m.Y') }}</div>
                             </div>
-                            <x-ui-badge variant="info" size="xs">{{ ucfirst($cycle->status) }}</x-ui-badge>
+                            <div class="d-flex items-center gap-2">
+                                <x-ui-badge variant="info" size="xs">{{ ucfirst($cycle->status) }}</x-ui-badge>
+                                <x-ui-button 
+                                    size="sm" 
+                                    variant="primary" 
+                                    :href="route('okr.cycles.show', ['cycle' => $cycle->id])" 
+                                    wire:navigate
+                                >
+                                    Öffnen
+                                </x-ui-button>
+                            </div>
                         </div>
 
                         @if($cycle->objectives->count() > 0)
