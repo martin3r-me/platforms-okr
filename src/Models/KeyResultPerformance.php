@@ -11,6 +11,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
 
+/**
+ * OKR Key Result Performance Model
+ * 
+ * Repräsentiert Performance-Daten für Key Results.
+ * 
+ * @hint Performance-Daten enthalten Zielwerte, aktuelle Werte und Scores
+ * @hint Performance kann verschiedene Typen haben: boolean, percentage, absolute, calculated
+ * @hint Performance wird automatisch berechnet und zeigt Fortschritt an
+ */
 class KeyResultPerformance extends Model
 {
     protected $table = 'okr_key_result_performances';

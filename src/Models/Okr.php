@@ -15,6 +15,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
 
+/**
+ * OKR Model
+ * 
+ * Repräsentiert ein OKR (Objectives and Key Results) System.
+ * 
+ * @hint OKR ist das Hauptsystem für Zielsetzung und -verfolgung
+ * @hint Jedes OKR hat mehrere Cycles (Zeiträume)
+ * @hint OKRs können Templates sein für wiederkehrende Zyklen
+ */
 class Okr extends Model
 {
     protected $table = 'okr_okrs';

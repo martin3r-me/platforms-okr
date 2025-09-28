@@ -13,6 +13,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
 
+/**
+ * OKR Cycle Model
+ * 
+ * Repräsentiert einen OKR-Zyklus mit Objectives und Key Results.
+ * 
+ * @hint OKR-Zyklen sind Zeiträume für Zielsetzung und -verfolgung
+ * @hint Jeder Cycle gehört zu einem OKR und hat mehrere Objectives
+ * @hint Cycles haben Status: draft, active, completed, ending_soon, past
+ */
 class Cycle extends Model
 {
     protected $table = 'okr_cycles';
@@ -87,6 +96,12 @@ class Cycle extends Model
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Alle Objectives in diesem Cycle
+     * 
+     * @hint Objectives sind die Hauptziele des OKR-Zyklus
+     * @hint Jeder Objective hat mehrere Key Results
+     */
     public function objectives(): HasMany
     {
         return $this->hasMany(Objective::class)->orderBy('order');

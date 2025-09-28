@@ -13,6 +13,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
 
+/**
+ * OKR Key Result Model
+ * 
+ * Repräsentiert ein messbares Ergebnis (Key Result) für ein Objective.
+ * 
+ * @hint Key Results sind messbare Ergebnisse, die ein Objective erreichen
+ * @hint Jeder Key Result hat Performance-Daten (Zielwert, aktueller Wert)
+ * @hint Key Results können verschiedene Typen haben: absolute, percentage, boolean
+ */
 class KeyResult extends Model
 {
     protected $table = 'okr_key_results';

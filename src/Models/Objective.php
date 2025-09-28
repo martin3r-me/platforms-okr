@@ -12,6 +12,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
 
+/**
+ * OKR Objective Model
+ * 
+ * Repräsentiert ein Hauptziel (Objective) in einem OKR-Zyklus.
+ * 
+ * @hint Objectives sind die Hauptziele, die erreicht werden sollen
+ * @hint Jeder Objective hat mehrere Key Results als messbare Ergebnisse
+ * @hint Objectives können "Mountain" (ambitionierte Ziele) sein
+ */
 class Objective extends Model
 {
     protected $table = 'okr_objectives';
