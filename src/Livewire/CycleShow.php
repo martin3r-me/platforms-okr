@@ -50,6 +50,28 @@ class CycleShow extends Component
         $this->cycle->load(['okr', 'template', 'objectives.keyResults.performance']);
     }
 
+    public function rendered()
+    {
+        // Context an CursorSidebar senden
+        $this->dispatch('comms', [
+            'model' => get_class($this->cycle),                                // z. B. 'Platform\Okr\Models\Cycle'
+            'modelId' => $this->cycle->id,
+            'subject' => $this->cycle->okr->name ?? 'OKR Cycle',
+            'description' => $this->cycle->okr->description ?? '',
+            'url' => route('okr.cycles.show', $this->cycle),                  // absolute URL zum Cycle
+            'source' => 'okr.cycle.view',                                     // eindeutiger Quell-Identifier
+            'recipients' => [],                                               // falls vorhanden, sonst leer
+            'meta' => [
+                'status' => $this->cycle->status,
+                'objectives_count' => $this->cycle->objectives->count(),
+                'key_results_count' => $this->cycle->objectives->sum(function($obj) {
+                    return $obj->keyResults->count();
+                }),
+                'team_id' => $this->cycle->okr->team_id ?? null,
+            ],
+        ]);
+    }
+
     #[Computed]
     public function users()
     {
