@@ -60,7 +60,12 @@ class OkrShow extends Component
     #[Computed]
     public function cycleTemplates()
     {
-        return CycleTemplate::orderBy('starts_at')->get();
+        return CycleTemplate::orderBy('starts_at')->get()->map(function($template) {
+            return [
+                'id' => $template->id,
+                'label' => $template->label
+            ];
+        })->toArray();
     }
 
     #[Computed]
