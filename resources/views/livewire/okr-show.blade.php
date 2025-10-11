@@ -97,14 +97,12 @@
                                             <label class="text-sm font-medium text-[var(--ui-secondary)]">Einstellungen</label>
                                             <div class="space-y-2">
                                                 <x-ui-input-checkbox
-                                                    name="okr.auto_transfer"
-                                                    wire:model.live="okr.auto_transfer"
+                                                    model="okr.auto_transfer"
                                                     checked-label="Automatische Übertragung"
                                                 />
                                                 
                                                 <x-ui-input-checkbox
-                                                    name="okr.is_template"
-                                                    wire:model.live="okr.is_template"
+                                                    model="okr.is_template"
                                                     checked-label="Als Vorlage speichern"
                                                 />
                                             </div>
