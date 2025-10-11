@@ -15,10 +15,10 @@
             @svg('heroicon-o-flag', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">OKRs</span>
         </x-ui-sidebar-item>
-        <x-ui-sidebar-item wire:click="openCreateModal">
+        <button type="button" wire:click="openCreateModal" class="w-full flex items-center px-3 py-2 text-sm text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] rounded-md">
             @svg('heroicon-o-plus', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">OKR anlegen</span>
-        </x-ui-sidebar-item>
+        </button>
     </x-ui-sidebar-list>
 
     {{-- Collapsed: Icons-only für Allgemein --}}
