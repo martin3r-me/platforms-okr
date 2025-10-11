@@ -321,7 +321,7 @@
             <x-ui-input-select
                 name="cycleForm.cycle_template_id"
                 label="Zyklus-Vorlage"
-                :options="$this->cycleTemplates"
+                :options="$cycleTemplates"
                 optionValue="id"
                 optionLabel="label"
                 :nullable="true"

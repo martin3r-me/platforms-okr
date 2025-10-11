@@ -49,6 +49,9 @@ class OkrShow extends Component
     {
         $this->okr = $okr;
         $this->okr->load(['user', 'manager', 'cycles.template', 'members']);
+        
+        // Load cycle templates like in CRM
+        $this->cycleTemplates = CycleTemplate::orderBy('starts_at')->get();
     }
 
     #[Computed]
@@ -57,16 +60,7 @@ class OkrShow extends Component
         return User::where('current_team_id', auth()->user()->current_team_id)->orderBy('name')->get();
     }
 
-    #[Computed]
-    public function cycleTemplates()
-    {
-        return CycleTemplate::orderBy('starts_at')->get()->map(function($template) {
-            return [
-                'id' => $template->id,
-                'label' => $template->label
-            ];
-        })->toArray();
-    }
+    public $cycleTemplates = [];
 
     #[Computed]
     public function activities()
