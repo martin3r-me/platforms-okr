@@ -22,6 +22,15 @@
             label="OKRs"
             :active="request()->routeIs('okr.okrs.*')"
         />
+
+        {{-- OKR anlegen --}}
+        <x-ui-sidebar-item 
+            :href="route('okr.okrs.index')"
+            icon="heroicon-o-plus"
+            label="OKR anlegen"
+            :active="false"
+            wire:click="openCreateModal"
+        />
     </div>
 
     {{-- Abschnitt: OKRs --}}

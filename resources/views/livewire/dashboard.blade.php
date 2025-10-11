@@ -1,53 +1,96 @@
 <x-ui-page>
     <x-slot name="navbar">
         <x-ui-page-navbar title="OKR Dashboard" icon="heroicon-o-chart-bar">
-            <div class="flex items-center gap-4">
-                <!-- Perspektive-Toggle -->
+            <x-slot name="titleActions">
                 <x-ui-segmented-toggle 
-                    wire:model.live="perspective"
+                    model="perspective"
+                    :current="$perspective"
                     :options="[
-                        'personal' => ['label' => 'Persönlich', 'icon' => 'heroicon-o-user'],
-                        'team' => ['label' => 'Team', 'icon' => 'heroicon-o-users']
+                        ['value' => 'personal', 'label' => 'Persönlich', 'icon' => 'heroicon-o-user'],
+                        ['value' => 'team', 'label' => 'Team', 'icon' => 'heroicon-o-users'],
                     ]"
                     active-variant="secondary"
+                    size="sm"
                 />
-            </div>
+            </x-slot>
+            <div class="text-sm text-[var(--ui-muted)]">{{ now()->translatedFormat('l') }}, {{ now()->format('d.m.Y') }}</div>
         </x-ui-page-navbar>
     </x-slot>
 
-    <x-slot name="content">
+        {{-- Info Banner --}}
+        @if($perspective === 'personal')
+            <x-ui-info-banner 
+                icon="heroicon-o-user"
+                title="Persönliche OKR-Übersicht"
+                message="Deine persönlichen OKRs, Objectives und Key Results im aktuellen Zyklus."
+                variant="secondary"
+            />
+        @else
+            <x-ui-info-banner 
+                icon="heroicon-o-users"
+                title="Team OKR-Übersicht"
+                message="Alle OKRs des Teams in aktiven Zyklen und deren Fortschritt."
+                variant="secondary"
+            />
+        @endif
 
-        <!-- Kennzahlen-Kacheln: aktive Zyklen -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        {{-- Main Stats Grid --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <x-ui-dashboard-tile
+                title="Aktive OKRs"
+                :count="$activeOkrsCount"
+                subtitle="von {{ $totalOkrsCount ?? $activeOkrsCount }}"
+                icon="flag"
+                variant="secondary"
+                size="lg"
+            />
             <x-ui-dashboard-tile
                 title="Aktive Zyklen"
                 :count="$activeCyclesCount"
+                subtitle="laufende Zeiträume"
                 icon="calendar"
                 variant="secondary"
                 size="lg"
             />
             <x-ui-dashboard-tile
-                title="Objectives (aktiv)"
+                title="Objectives"
                 :count="$activeObjectivesCount"
+                subtitle="aktive Ziele"
                 icon="light-bulb"
                 variant="secondary"
                 size="lg"
             />
             <x-ui-dashboard-tile
-                title="Key Results (aktiv)"
+                title="Key Results"
                 :count="$activeKeyResultsCount"
+                subtitle="messbare Ergebnisse"
                 icon="chart-bar"
                 variant="secondary"
                 size="lg"
             />
-            <x-ui-dashboard-tile
-                title="OKRs (aktiv)"
-                :count="$activeOkrsCount"
-                icon="flag"
-                variant="secondary"
-                size="lg"
-            />
         </div>
+
+        {{-- Detail Stats --}}
+        <x-ui-detail-stats-grid cols="2" gap="6">
+            <x-slot:left>
+                <h3 class="text-lg font-semibold text-[var(--ui-secondary)] mb-4">OKR-Übersicht</h3>
+                <x-ui-form-grid :cols="2" :gap="3">
+                    <x-ui-dashboard-tile title="Entwürfe" :count="$draftOkrsCount ?? 0" icon="document-text" variant="neutral" size="sm" />
+                    <x-ui-dashboard-tile title="Aktiv" :count="$activeOkrsCount" icon="play" variant="success" size="sm" />
+                    <x-ui-dashboard-tile title="Abgeschlossen" :count="$completedOkrsCount ?? 0" icon="check-circle" variant="success" size="sm" />
+                    <x-ui-dashboard-tile title="Endet bald" :count="$endingSoonOkrsCount ?? 0" icon="exclamation-triangle" variant="warning" size="sm" />
+                </x-ui-form-grid>
+            </x-slot:left>
+            <x-slot:right>
+                <h3 class="text-lg font-semibold text-[var(--ui-secondary)] mb-4">Performance-Übersicht</h3>
+                <x-ui-form-grid :cols="2" :gap="3">
+                    <x-ui-dashboard-tile title="Durchschnitt Score" :count="round($averageScore ?? 0, 1)" icon="chart-bar" variant="info" size="sm" />
+                    <x-ui-dashboard-tile title="Erreichte Ziele" :count="$achievedObjectivesCount ?? 0" icon="check-circle" variant="success" size="sm" />
+                    <x-ui-dashboard-tile title="Offene KR" :count="$openKeyResultsCount ?? 0" icon="clock" variant="warning" size="sm" />
+                    <x-ui-dashboard-tile title="Erreichte KR" :count="$achievedKeyResultsCount ?? 0" icon="check-circle" variant="success" size="sm" />
+                </x-ui-form-grid>
+            </x-slot:right>
+        </x-ui-detail-stats-grid>
 
         <!-- Filterleiste -->
         <div class="mb-4 flex items-end gap-3">
@@ -81,9 +124,8 @@
             </div>
         </div>
 
-        @if($activeCycles && $activeCycles->count() > 0)
-            <div class="mt-2">
-                <h3 class="text-lg font-semibold text-[var(--ui-secondary)] mb-3">Aktive Zyklen</h3>
+        <x-ui-panel title="Aktive Zyklen" subtitle="Laufende OKR-Zyklen mit Objectives und Key Results">
+            @if($activeCycles && $activeCycles->count() > 0)
                 <div class="space-y-4">
                     @foreach($activeCycles as $cycle)
                         <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
@@ -143,15 +185,15 @@
                         </div>
                     @endforeach
                 </div>
-            </div>
-        @else
-            <div class="text-center py-12">
-                <div class="mx-auto h-12 w-12 text-[var(--ui-muted)]">
-                    @svg('heroicon-o-calendar')
+            @else
+                <div class="text-center py-12">
+                    <div class="mx-auto h-12 w-12 text-[var(--ui-muted)]">
+                        @svg('heroicon-o-calendar')
+                    </div>
+                    <h3 class="mt-2 text-sm font-medium text-[var(--ui-secondary)]">Kein aktiver Zyklus</h3>
+                    <p class="mt-1 text-sm text-[var(--ui-muted)]">Es ist aktuell kein OKR-Zyklus aktiv.</p>
                 </div>
-                <h3 class="mt-2 text-sm font-medium text-[var(--ui-secondary)]">Kein aktiver Zyklus</h3>
-                <p class="mt-1 text-sm text-[var(--ui-muted)]">Es ist aktuell kein OKR-Zyklus aktiv.</p>
-            </div>
-        @endif
-    </x-slot>
+            @endif
+        </x-ui-panel>
+    </x-ui-page-container>
 </x-ui-page>
