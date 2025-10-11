@@ -830,65 +830,47 @@
             Key Result bearbeiten
         </x-slot>
 
-        <div class="space-y-4">
-            <x-ui-input-text
-                name="keyResultTitle"
-                label="Titel"
-                wire:model.live="keyResultTitle"
-                placeholder="Titel des Key Result eingeben..."
-                required
-            />
+        <div class="space-y-6">
+            {{-- Titel und Beschreibung --}}
+            <div class="space-y-4">
+                <x-ui-input-text
+                    name="keyResultTitle"
+                    label="Titel"
+                    wire:model.live="keyResultTitle"
+                    placeholder="Titel des Key Result eingeben..."
+                    required
+                />
 
-            <x-ui-input-textarea
-                name="keyResultDescription"
-                label="Beschreibung"
-                wire:model.live="keyResultDescription"
-                placeholder="Beschreibung des Key Result (optional)"
-                rows="3"
-            />
+                <x-ui-input-textarea
+                    name="keyResultDescription"
+                    label="Beschreibung"
+                    wire:model.live="keyResultDescription"
+                    placeholder="Beschreibung des Key Result (optional)"
+                    rows="3"
+                />
+            </div>
 
-            <x-ui-input-select
-                name="keyResultValueType"
-                label="Wert-Typ"
-                :options="[
-                    'absolute' => 'Absolut (z.B. 100 Stück, 50.000€)',
-                    'percentage' => 'Prozent (z.B. 80%, 15%)',
-                    'boolean' => 'Ja/Nein (z.B. Erledigt, Implementiert)'
-                ]"
-                :nullable="false"
-                wire:model.live="keyResultValueType"
-                required
-            />
-
-            @if($keyResultValueType === 'boolean')
-                {{-- Boolean: Einfach Checkbox für aktuellen Zustand --}}
-                <div class="space-y-4">
-                    <div class="p-4 bg-[var(--ui-muted-5)] border border-[var(--ui-border)] rounded-lg">
-                        <div class="text-sm text-[var(--ui-secondary)] font-medium mb-2">Boolean Key Result</div>
-                        <div class="text-xs text-[var(--ui-muted)]">Ziel: Immer erreicht (1) | Aktuell: Wird durch Checkbox gesetzt</div>
+            {{-- Aktueller Wert Update --}}
+            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                        @svg('heroicon-o-chart-bar', 'w-4 h-4')
                     </div>
-                    
+                    <div>
+                        <h3 class="text-lg font-semibold text-[var(--ui-secondary)]">Performance Update</h3>
+                        <p class="text-sm text-[var(--ui-muted)]">Aktuellen Wert aktualisieren</p>
+                    </div>
+                </div>
+
+                @if($keyResultValueType === 'boolean')
+                    {{-- Boolean: Checkbox --}}
                     <x-ui-input-checkbox
                         model="keyResultCurrentValue"
                         label="Erreicht"
                         wire:model.live="keyResultCurrentValue"
                     />
-                </div>
-            @else
-                {{-- Andere Typen: Normale Eingabefelder --}}
-                <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text
-                        name="keyResultTargetValue"
-                        label="Zielwert"
-                        wire:model.live="keyResultTargetValue"
-                        :placeholder="match($keyResultValueType) {
-                            'percentage' => 'z.B. 80',
-                            'absolute' => 'z.B. 100',
-                            default => 'Zielwert eingeben...'
-                        }"
-                        required
-                    />
-
+                @else
+                    {{-- Andere Typen: Aktueller Wert --}}
                     <x-ui-input-text
                         name="keyResultCurrentValue"
                         label="Aktueller Wert"
@@ -896,25 +878,44 @@
                         :placeholder="match($keyResultValueType) {
                             'percentage' => 'z.B. 45',
                             'absolute' => 'z.B. 60',
-                            default => 'Aktueller Wert (optional)'
+                            default => 'Aktueller Wert eingeben...'
                         }"
+                        required
                     />
-                </div>
-            @endif
+                @endif
+            </div>
 
-            @if($keyResultValueType === 'absolute')
-                <x-ui-input-text
-                    name="keyResultUnit"
-                    label="Einheit"
-                    wire:model.live="keyResultUnit"
-                    placeholder="z.B. Stück, €, Kunden, etc."
-                />
-            @endif
-
-            @if($keyResultValueType === 'boolean')
-                <div class="p-3 bg-[var(--ui-muted-5)] border border-[var(--ui-border)] rounded-lg">
-                    <div class="text-sm text-[var(--ui-secondary)]">
-                        <strong>Boolean-Werte:</strong> Verwende "Ja", "Nein", "Erledigt", "Nicht erledigt", "Implementiert", etc.
+            {{-- Performance Historie --}}
+            @php
+                $editingKeyResult = null;
+                if($this->editingKeyResultId) {
+                    $editingKeyResult = \Platform\Okr\Models\KeyResult::with('performances')->find($this->editingKeyResultId);
+                }
+            @endphp
+            
+            @if($editingKeyResult && $editingKeyResult->performances->count() > 1)
+                <div class="bg-white rounded-lg border border-[var(--ui-border)]/40 p-4">
+                    <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">Performance Historie</h4>
+                    <div class="space-y-2">
+                        @foreach($editingKeyResult->performances->sortByDesc('created_at') as $performance)
+                            <div class="flex items-center justify-between py-2 px-3 bg-[var(--ui-muted-5)] rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-xs text-[var(--ui-muted)]">
+                                        {{ $performance->created_at->format('d.m.Y H:i') }}
+                                    </div>
+                                    <div class="text-sm text-[var(--ui-secondary)]">
+                                        {{ $performance->current_value }}@if($performance->type === 'percentage')% @endif
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    @if($performance->is_completed)
+                                        <x-ui-badge variant="success" size="xs">Erreicht</x-ui-badge>
+                                    @else
+                                        <x-ui-badge variant="secondary" size="xs">In Arbeit</x-ui-badge>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @endif
@@ -934,7 +935,7 @@
                     variant="secondary" 
                     wire:click="saveKeyResult"
                 >
-                    Speichern
+                    Performance aktualisieren
                 </x-ui-button>
             </div>
         </x-slot>
