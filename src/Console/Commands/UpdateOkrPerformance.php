@@ -10,6 +10,8 @@ use Platform\Okr\Models\KeyResult;
 use Platform\Okr\Models\ObjectivePerformance;
 use Platform\Okr\Models\CyclePerformance;
 use Platform\Okr\Models\OkrPerformance;
+use Platform\Okr\Models\TeamPerformance;
+use Platform\Core\Models\Team;
 
 class UpdateOkrPerformance extends Command
 {
@@ -23,6 +25,7 @@ class UpdateOkrPerformance extends Command
         $this->updateObjectivePerformances();
         $this->updateCyclePerformances();
         $this->updateOkrPerformances();
+        $this->updateTeamPerformances();
         
         $this->info('OKR performance update completed successfully!');
         return 0;
@@ -289,5 +292,79 @@ class UpdateOkrPerformance extends Command
         }
         
         $this->info("Updated {$okrs->count()} OKR performances");
+    }
+
+    private function updateTeamPerformances(): void
+    {
+        $this->info('Updating Team performances...');
+        
+        $teams = Team::all();
+        $today = today();
+
+        foreach ($teams as $team) {
+            // Get all OKRs for this team
+            $okrs = Okr::where('team_id', $team->id)->get();
+            
+            // Get active cycles
+            $activeCycles = Cycle::where('team_id', $team->id)
+                ->whereIn('status', ['current', 'active'])
+                ->get();
+
+            // Get all objectives and key results from active cycles
+            $objectives = $activeCycles->flatMap->objectives;
+            $keyResults = $objectives->flatMap->keyResults;
+
+            // Calculate metrics
+            $averageScore = $okrs->where('performance_score', '!=', null)->avg('performance_score') ?? 0;
+            $successfulOkrs = $okrs->where('performance_score', '>=', 80)->count();
+            
+            $achievedObjectives = $objectives->where('status', 'completed')->count();
+            $achievedKeyResults = $keyResults->where('status', 'completed')->count();
+            $openKeyResults = $keyResults->where('status', '!=', 'completed')->count();
+
+            // Calculate trends (vs. previous snapshot)
+            $previousPerformance = TeamPerformance::forTeam($team->id)
+                ->where('performance_date', '<', $today)
+                ->latest()
+                ->first();
+
+            $scoreTrend = 0;
+            $okrTrend = 0;
+            $achievementTrend = 0;
+
+            if ($previousPerformance) {
+                $scoreTrend = $averageScore - $previousPerformance->average_score;
+                $okrTrend = $okrs->count() - $previousPerformance->total_okrs;
+                $achievementTrend = $achievedObjectives - $previousPerformance->achieved_objectives;
+            }
+
+            // Create or update team performance
+            TeamPerformance::updateOrCreate(
+                [
+                    'team_id' => $team->id,
+                    'performance_date' => $today,
+                ],
+                [
+                    'average_score' => $averageScore,
+                    'total_okrs' => $okrs->count(),
+                    'active_okrs' => $okrs->where('status', 'active')->count(),
+                    'successful_okrs' => $successfulOkrs,
+                    'draft_okrs' => $okrs->where('status', 'draft')->count(),
+                    'completed_okrs' => $okrs->where('status', 'completed')->count(),
+                    'total_objectives' => $objectives->count(),
+                    'achieved_objectives' => $achievedObjectives,
+                    'total_key_results' => $keyResults->count(),
+                    'achieved_key_results' => $achievedKeyResults,
+                    'open_key_results' => $openKeyResults,
+                    'active_cycles' => $activeCycles->count(),
+                    'current_cycles' => $activeCycles->where('status', 'current')->count(),
+                    'score_trend' => $scoreTrend,
+                    'okr_trend' => $okrTrend,
+                    'achievement_trend' => $achievementTrend,
+                ]
+            );
+        }
+        
+        $this->info("Updated {$teams->count()} Team performances");
     }
 }

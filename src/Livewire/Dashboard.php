@@ -6,6 +6,7 @@ use Livewire\Component;
 use Platform\Okr\Models\Okr;
 use Platform\Okr\Models\Cycle;
 use Platform\Okr\Models\CycleTemplate;
+use Platform\Okr\Models\TeamPerformance;
 use Platform\Core\Models\User;
 
 class Dashboard extends Component
@@ -61,6 +62,17 @@ class Dashboard extends Component
         $this->managers = User::where('current_team_id', $teamId)
             ->orderBy('name')
             ->get();
+
+        // Performance-Snapshot laden (falls vorhanden)
+        $performanceSnapshot = TeamPerformance::forTeam($teamId)
+            ->today()
+            ->first();
+
+        if ($performanceSnapshot) {
+            $this->loadFromSnapshot($performanceSnapshot);
+        } else {
+            $this->calculateOnTheFly($user, $teamId);
+        }
 
         // Basis: sichtbare OKRs
         $baseQuery = Okr::with(['cycles', 'objectives.keyResults', 'members'])
@@ -121,6 +133,7 @@ class Dashboard extends Component
         
         // Performance-Statistiken
         $this->averageScore = $this->okrs->where('performance_score', '!=', null)->avg('performance_score') ?? 0;
+        $this->successfulOkrsCount = $this->okrs->where('performance_score', '>=', 80)->count();
         
         // Objectives und Key Results Statistiken
         $allObjectives = $this->activeCycles->flatMap->objectives;
@@ -132,6 +145,70 @@ class Dashboard extends Component
 
         // Verfügbare Vorlagen (derzeit nicht mehr im Dashboard sichtbar)
         $this->availableTemplates = collect();
+    }
+
+    private function loadFromSnapshot(TeamPerformance $snapshot): void
+    {
+        // Performance-Metriken aus Snapshot
+        $this->averageScore = $snapshot->average_score;
+        $this->successfulOkrsCount = $snapshot->successful_okrs;
+        $this->totalOkrsCount = $snapshot->total_okrs;
+        $this->activeOkrsCount = $snapshot->active_okrs;
+        $this->draftOkrsCount = $snapshot->draft_okrs;
+        $this->completedOkrsCount = $snapshot->completed_okrs;
+        
+        // Objectives & Key Results
+        $this->achievedObjectivesCount = $snapshot->achieved_objectives;
+        $this->achievedKeyResultsCount = $snapshot->achieved_key_results;
+        $this->openKeyResultsCount = $snapshot->open_key_results;
+        
+        // Zyklen
+        $this->activeCyclesCount = $snapshot->active_cycles;
+        
+        // Trends (falls verfügbar)
+        $this->scoreTrend = $snapshot->score_trend;
+        $this->okrTrend = $snapshot->okr_trend;
+        $this->achievementTrend = $snapshot->achievement_trend;
+    }
+
+    private function calculateOnTheFly(User $user, int $teamId): void
+    {
+        // Fallback: On-the-fly Berechnung (wie bisher)
+        $this->okrs = Okr::with(['cycles', 'objectives.keyResults', 'members'])
+            ->visibleFor($user)
+            ->get();
+
+        // Aktive Zyklen
+        $this->activeCycles = Cycle::where('team_id', $teamId)
+            ->whereIn('status', ['current', 'active'])
+            ->with(['template', 'okr', 'objectives.keyResults.performance'])
+            ->orderByRaw("FIELD(status, 'current','active')")
+            ->orderByDesc('updated_at')
+            ->get();
+
+        // Kennzahlen auf Basis aktiver Zyklen
+        $this->activeCyclesCount = $this->activeCycles->count();
+        $this->activeObjectivesCount = $this->activeCycles->sum(fn ($c) => $c->objectives->count());
+        $this->activeKeyResultsCount = $this->activeCycles->sum(fn ($c) => $c->objectives->sum(fn ($o) => $o->keyResults->count()));
+        $this->activeOkrsCount = $this->activeCycles->pluck('okr_id')->unique()->count();
+
+        // Dashboard-Statistiken berechnen
+        $this->totalOkrsCount = $this->okrs->count();
+        $this->draftOkrsCount = $this->okrs->where('status', 'draft')->count();
+        $this->completedOkrsCount = $this->okrs->where('status', 'completed')->count();
+        $this->endingSoonOkrsCount = $this->okrs->where('status', 'ending_soon')->count();
+        
+        // Performance-Statistiken
+        $this->averageScore = $this->okrs->where('performance_score', '!=', null)->avg('performance_score') ?? 0;
+        $this->successfulOkrsCount = $this->okrs->where('performance_score', '>=', 80)->count();
+        
+        // Objectives und Key Results Statistiken
+        $allObjectives = $this->activeCycles->flatMap->objectives;
+        $allKeyResults = $allObjectives->flatMap->keyResults;
+        
+        $this->achievedObjectivesCount = $allObjectives->where('status', 'completed')->count();
+        $this->openKeyResultsCount = $allKeyResults->where('status', '!=', 'completed')->count();
+        $this->achievedKeyResultsCount = $allKeyResults->where('status', 'completed')->count();
     }
 
     public function render()

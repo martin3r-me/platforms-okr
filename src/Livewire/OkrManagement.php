@@ -45,7 +45,10 @@ class OkrManagement extends Component
 
     public function render()
     {
+        $teamId = auth()->user()->current_team_id;
+        
         $okrs = Okr::with(['user', 'manager', 'cycles'])
+            ->where('team_id', $teamId)
             ->when($this->sortField === 'user_name', function($query) {
                 $query->join('users', 'okr_okrs.user_id', '=', 'users.id')
                       ->orderBy('users.name', $this->sortDirection);
@@ -59,13 +62,28 @@ class OkrManagement extends Component
             })
             ->paginate(10);
             
-        $users = User::where('current_team_id', auth()->user()->current_team_id)->get();
+        $users = User::where('current_team_id', $teamId)->get();
+        
+        // Team-basierte Statistiken
+        $allOkrs = Okr::where('team_id', $teamId)->get();
+        $totalOkrs = $allOkrs->count();
+        $activeOkrs = $allOkrs->where('status', 'active')->count();
+        $templateOkrs = $allOkrs->where('is_template', true)->count();
+        $averageScore = $allOkrs->avg('performance_score') ?? 0;
+        $successfulOkrs = $allOkrs->where('performance_score', '>=', 80)->count();
+        $autoTransferOkrs = $allOkrs->where('auto_transfer', true)->count();
 
         return view('okr::livewire.okr-management', [
             'okrs' => $okrs,
             'users' => $users,
             'sortField' => $this->sortField,
             'sortDirection' => $this->sortDirection,
+            'totalOkrs' => $totalOkrs,
+            'activeOkrs' => $activeOkrs,
+            'templateOkrs' => $templateOkrs,
+            'averageScore' => $averageScore,
+            'successfulOkrs' => $successfulOkrs,
+            'autoTransferOkrs' => $autoTransferOkrs,
         ])->layout('platform::layouts.app');
     }
 

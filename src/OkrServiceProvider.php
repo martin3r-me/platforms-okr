@@ -91,7 +91,7 @@ class OkrServiceProvider extends ServiceProvider
 
     private function schedulePerformanceUpdates(): void
     {
-        // Tägliche Performance Updates um 02:00 Uhr
+        // Tägliche Performance Updates um 02:00 Uhr (inkl. Team Performance)
         Schedule::command('okr:update-performance')
             ->dailyAt('02:00')
             ->withoutOverlapping()

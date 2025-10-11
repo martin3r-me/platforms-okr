@@ -39,7 +39,7 @@
                         @svg('heroicon-o-flag', 'w-5 h-5 text-[var(--ui-primary)]')
                     </div>
                     <div>
-                        <div class="text-2xl font-bold text-[var(--ui-secondary)]">{{ $okrs->total() }}</div>
+                        <div class="text-2xl font-bold text-[var(--ui-secondary)]">{{ $totalOkrs }}</div>
                         <div class="text-xs text-[var(--ui-muted)]">Gesamt OKRs</div>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                         @svg('heroicon-o-play', 'w-5 h-5 text-green-600')
                     </div>
                     <div>
-                        <div class="text-2xl font-bold text-[var(--ui-secondary)]">{{ $okrs->where('status', 'active')->count() }}</div>
+                        <div class="text-2xl font-bold text-[var(--ui-secondary)]">{{ $activeOkrs }}</div>
                         <div class="text-xs text-[var(--ui-muted)]">Aktiv</div>
                     </div>
                 </div>
@@ -61,7 +61,7 @@
                         @svg('heroicon-o-document-text', 'w-5 h-5 text-blue-600')
                     </div>
                     <div>
-                        <div class="text-2xl font-bold text-[var(--ui-secondary)]">{{ $okrs->where('is_template', true)->count() }}</div>
+                        <div class="text-2xl font-bold text-[var(--ui-secondary)]">{{ $templateOkrs }}</div>
                         <div class="text-xs text-[var(--ui-muted)]">Templates</div>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                         @svg('heroicon-o-chart-bar', 'w-5 h-5 text-purple-600')
                     </div>
                     <div>
-                        <div class="text-2xl font-bold text-[var(--ui-secondary)]">{{ round($okrs->avg('performance_score') ?? 0, 1) }}%</div>
+                        <div class="text-2xl font-bold text-[var(--ui-secondary)]">{{ round($averageScore, 1) }}%</div>
                         <div class="text-xs text-[var(--ui-muted)]">Ø Score</div>
                     </div>
                 </div>
@@ -323,15 +323,15 @@
                     <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Statistiken</h3>
                     <div class="space-y-3">
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
-                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $okrs->total() }}</div>
+                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalOkrs }}</div>
                             <div class="text-xs text-[var(--ui-muted)]">Gesamt OKRs</div>
                         </div>
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
-                            <div class="text-2xl font-bold text-green-600">{{ $okrs->where('status', 'active')->count() }}</div>
+                            <div class="text-2xl font-bold text-green-600">{{ $activeOkrs }}</div>
                             <div class="text-xs text-[var(--ui-muted)]">Aktiv</div>
                         </div>
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
-                            <div class="text-2xl font-bold text-blue-600">{{ $okrs->where('is_template', true)->count() }}</div>
+                            <div class="text-2xl font-bold text-blue-600">{{ $templateOkrs }}</div>
                             <div class="text-xs text-[var(--ui-muted)]">Templates</div>
                         </div>
                     </div>
@@ -390,15 +390,15 @@
                     <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Performance</h3>
                     <div class="space-y-3">
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-[var(--ui-primary)]">{{ round($okrs->avg('performance_score') ?? 0, 1) }}%</div>
+                            <div class="text-lg font-bold text-[var(--ui-primary)]">{{ round($averageScore, 1) }}%</div>
                             <div class="text-xs text-[var(--ui-muted)]">Durchschnitt Score</div>
                         </div>
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-green-600">{{ $okrs->where('performance_score', '>=', 80)->count() }}</div>
+                            <div class="text-lg font-bold text-green-600">{{ $successfulOkrs }}</div>
                             <div class="text-xs text-[var(--ui-muted)]">Erfolgreich (≥80%)</div>
                         </div>
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-blue-600">{{ $okrs->where('auto_transfer', true)->count() }}</div>
+                            <div class="text-lg font-bold text-blue-600">{{ $autoTransferOkrs }}</div>
                             <div class="text-xs text-[var(--ui-muted)]">Auto-Transfer</div>
                         </div>
                     </div>
