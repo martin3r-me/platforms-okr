@@ -233,19 +233,18 @@
                                 <div wire:sortable-group.item-group="{{ $objective->id }}" wire:sortable-group.options="{ animation: 100 }" class="space-y-3">
                                     @foreach($objective->keyResults->sortBy('order') as $keyResult)
                                         <div wire:sortable-group.item="{{ $keyResult->id }}" wire:key="keyresult-{{ $keyResult->id }}" 
-                                             class="flex items-center justify-between gap-3 p-4 bg-white rounded border border-[var(--ui-border)]/40 hover:border-[var(--ui-border)]/60 transition-colors">
-                                            <div class="flex items-start gap-3 flex-grow-1">
-                                                <div wire:sortable-group.handle class="cursor-move p-1 text-[var(--ui-muted)] hover:text-[var(--ui-primary)] mt-0.5">
-                                                    @svg('heroicon-o-bars-3', 'w-3 h-3')
-                                                </div>
-                                                <div class="flex-grow-1 cursor-pointer" wire:click="editKeyResult({{ $keyResult->id }})">
-                                                    <div class="font-medium text-sm text-[var(--ui-secondary)]">{{ $keyResult->title }}</div>
-                                                    @if($keyResult->description)
-                                                        <div class="text-xs text-[var(--ui-muted)] mt-1">{{ Str::limit($keyResult->description, 60) }}</div>
-                                                    @endif
-                                                </div>
+                                             class="flex items-center gap-3 p-4 bg-white rounded border border-[var(--ui-border)]/40 hover:border-[var(--ui-border)]/60 transition-colors cursor-pointer" 
+                                             wire:click="editKeyResult({{ $keyResult->id }})">
+                                            <div wire:sortable-group.handle class="cursor-move p-1 text-[var(--ui-muted)] hover:text-[var(--ui-primary)] flex-shrink-0" wire:click.stop>
+                                                @svg('heroicon-o-bars-3', 'w-3 h-3')
                                             </div>
-                                            <div class="flex items-center gap-2 flex-shrink-0">
+                                            <div class="flex-grow-1 min-w-0">
+                                                <div class="font-medium text-sm text-[var(--ui-secondary)]">{{ $keyResult->title }}</div>
+                                                @if($keyResult->description)
+                                                    <div class="text-xs text-[var(--ui-muted)] mt-1">{{ Str::limit($keyResult->description, 60) }}</div>
+                                                @endif
+                                            </div>
+                                            <div class="flex items-center gap-3 flex-shrink-0" wire:click.stop>
                                                 @php
                                                     $type = $keyResult->performance?->type;
                                                     $target = $keyResult->performance?->target_value ?? 0;
@@ -262,83 +261,51 @@
                                                         $progressPercent = $isCompleted ? 100 : 0;
                                                     } elseif ($type === 'percentage' || $type === 'absolute') {
                                                         if ($target > $startValue) {
-                                                            // Fortschritt von Startwert zum Ziel
                                                             $progressRange = $target - $startValue;
                                                             $currentProgress = $current - $startValue;
                                                             $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
                                                         } elseif ($target < $startValue) {
-                                                            // Rückwärts-Fortschritt (Ziel ist niedriger als Start)
                                                             $progressRange = $startValue - $target;
                                                             $currentProgress = $startValue - $current;
                                                             $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
                                                         } else {
-                                                            // Start = Ziel
                                                             $progressPercent = $current >= $target ? 100 : 0;
                                                         }
                                                     }
-                                                    
-                                                    // Berechne Distanz zum Ziel
-                                                    $distanceToTarget = $target - $current;
                                                 @endphp
                                                 
-                                                <x-ui-badge variant="secondary" size="xs">
-                                                    {{ $type ? ucfirst($type) : 'Ohne Typ' }}
-                                                </x-ui-badge>
-
                                                 @if($keyResult->performance)
-                                                    <div class="flex items-center gap-2">
-                                                        <div class="text-xs text-[var(--ui-muted)]">
-                                                            Ziel: {{ $target }}@if($type === 'percentage')% @endif
-                                                        </div>
-                                                        <div class="text-xs text-[var(--ui-muted)]">
-                                                            Aktuell: {{ $current }}@if($type === 'percentage')% @endif
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    {{-- Fortschrittsbalken --}}
-                                                    <div class="w-16">
-                                                        <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-1.5">
-                                                            <div class="bg-[var(--ui-primary)] h-1.5 rounded-full transition-all duration-300" 
-                                                                 style="width: {{ $progressPercent }}%"></div>
-                                                        </div>
-                                                        <div class="text-xs text-[var(--ui-muted)] text-center mt-0.5">{{ $progressPercent }}%</div>
-                                                    </div>
-                                                    
-                                                    {{-- Status Badge und Toggle für Boolean --}}
+                                                    {{-- Boolean Key Results --}}
                                                     @if($type === 'boolean')
-                                                        <div class="flex items-center gap-2">
-                                                            <x-ui-badge variant="{{ $isCompleted ? 'success' : 'secondary' }}" size="xs">
-                                                                {{ $isCompleted ? 'Erledigt' : 'Offen' }}
-                                                            </x-ui-badge>
-                                                            @if(!$isCompleted)
-                                                                <x-ui-button 
-                                                                    type="button" 
-                                                                    variant="success" 
-                                                                    size="xs"
-                                                                    wire:click="toggleBooleanKeyResult({{ $keyResult->id }})"
-                                                                >
-                                                                    @svg('heroicon-o-check', 'w-3 h-3')
-                                                                    Erledigen
-                                                                </x-ui-button>
-                                                            @else
-                                                                <x-ui-button 
-                                                                    type="button" 
-                                                                    variant="secondary" 
-                                                                    size="xs"
-                                                                    wire:click="toggleBooleanKeyResult({{ $keyResult->id }})"
-                                                                >
-                                                                    @svg('heroicon-o-x-mark', 'w-3 h-3')
-                                                                    Rückgängig
-                                                                </x-ui-button>
-                                                            @endif
-                                                        </div>
+                                                        <x-ui-button 
+                                                            type="button" 
+                                                            variant="{{ $isCompleted ? 'success' : 'secondary-outline' }}" 
+                                                            size="sm"
+                                                            wire:click="toggleBooleanKeyResult({{ $keyResult->id }})"
+                                                        >
+                                                            @svg('heroicon-o-check', 'w-4 h-4')
+                                                            {{ $isCompleted ? 'Erledigt' : 'Erledigen' }}
+                                                        </x-ui-button>
                                                     @else
-                                                        <x-ui-badge variant="{{ $isCompleted ? 'success' : ($progressPercent >= 80 ? 'warning' : 'secondary') }}" size="xs">
-                                                            {{ $isCompleted ? 'Erreicht' : ($progressPercent >= 80 ? 'Fast erreicht' : 'In Arbeit') }}
-                                                        </x-ui-badge>
+                                                        {{-- Andere Key Results --}}
+                                                        <div class="flex items-center gap-3">
+                                                            {{-- Progress Bar --}}
+                                                            <div class="w-20">
+                                                                <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-2">
+                                                                    <div class="bg-[var(--ui-primary)] h-2 rounded-full transition-all duration-300" 
+                                                                         style="width: {{ $progressPercent }}%"></div>
+                                                                </div>
+                                                                <div class="text-xs text-[var(--ui-muted)] text-center mt-1">{{ $progressPercent }}%</div>
+                                                            </div>
+                                                            
+                                                            {{-- Status Badge --}}
+                                                            <x-ui-badge variant="{{ $isCompleted ? 'success' : ($progressPercent >= 80 ? 'warning' : 'secondary') }}" size="sm">
+                                                                {{ $isCompleted ? 'Erreicht' : ($progressPercent >= 80 ? 'Fast erreicht' : 'In Arbeit') }}
+                                                            </x-ui-badge>
+                                                        </div>
                                                     @endif
                                                 @else
-                                                    <x-ui-badge variant="secondary" size="xs">Keine Performance</x-ui-badge>
+                                                    <x-ui-badge variant="secondary" size="sm">Keine Performance</x-ui-badge>
                                                 @endif
                                             </div>
                                         </div>
