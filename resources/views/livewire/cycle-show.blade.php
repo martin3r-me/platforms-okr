@@ -864,6 +864,10 @@
 
                 {{-- Aktuelle Performance Info --}}
                 @php
+                    $editingKeyResult = null;
+                    if($this->editingKeyResultId) {
+                        $editingKeyResult = \Platform\Okr\Models\KeyResult::with('performance')->find($this->editingKeyResultId);
+                    }
                     $currentPerformance = $editingKeyResult?->performance;
                 @endphp
                 @if($currentPerformance)
@@ -915,9 +919,9 @@
 
             {{-- Performance Historie --}}
             @php
-                $editingKeyResult = null;
-                if($this->editingKeyResultId) {
-                    $editingKeyResult = \Platform\Okr\Models\KeyResult::with('performances')->find($this->editingKeyResultId);
+                // $editingKeyResult ist bereits oben definiert
+                if($editingKeyResult) {
+                    $editingKeyResult->load('performances');
                 }
             @endphp
             
