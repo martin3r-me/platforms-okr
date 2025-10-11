@@ -505,32 +505,47 @@
                 required
             />
 
-            <div class="grid grid-cols-2 gap-4">
-                <x-ui-input-text
-                    name="keyResultTargetValue"
-                    label="Zielwert"
-                    wire:model.live="keyResultTargetValue"
-                    :placeholder="match($keyResultValueType) {
-                        'percentage' => 'z.B. 80',
-                        'boolean' => 'z.B. Ja oder Nein',
-                        'absolute' => 'z.B. 100',
-                        default => 'Zielwert eingeben...'
-                    }"
-                    required
-                />
+            @if($keyResultValueType === 'boolean')
+                {{-- Boolean: Einfach Checkbox für aktuellen Zustand --}}
+                <div class="space-y-4">
+                    <div class="p-4 bg-[var(--ui-muted-5)] border border-[var(--ui-border)] rounded-lg">
+                        <div class="text-sm text-[var(--ui-secondary)] font-medium mb-2">Boolean Key Result</div>
+                        <div class="text-xs text-[var(--ui-muted)]">Ziel: Immer erreicht (1) | Aktuell: Wird durch Checkbox gesetzt</div>
+                    </div>
+                    
+                    <x-ui-input-checkbox
+                        model="keyResultCurrentValue"
+                        label="Erreicht"
+                        wire:model.live="keyResultCurrentValue"
+                    />
+                </div>
+            @else
+                {{-- Andere Typen: Normale Eingabefelder --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <x-ui-input-text
+                        name="keyResultTargetValue"
+                        label="Zielwert"
+                        wire:model.live="keyResultTargetValue"
+                        :placeholder="match($keyResultValueType) {
+                            'percentage' => 'z.B. 80',
+                            'absolute' => 'z.B. 100',
+                            default => 'Zielwert eingeben...'
+                        }"
+                        required
+                    />
 
-                <x-ui-input-text
-                    name="keyResultCurrentValue"
-                    label="Aktueller Wert"
-                    wire:model.live="keyResultCurrentValue"
-                    :placeholder="match($keyResultValueType) {
-                        'percentage' => 'z.B. 45',
-                        'boolean' => 'z.B. Nein',
-                        'absolute' => 'z.B. 60',
-                        default => 'Aktueller Wert (optional)'
-                    }"
-                />
-            </div>
+                    <x-ui-input-text
+                        name="keyResultCurrentValue"
+                        label="Aktueller Wert"
+                        wire:model.live="keyResultCurrentValue"
+                        :placeholder="match($keyResultValueType) {
+                            'percentage' => 'z.B. 45',
+                            'absolute' => 'z.B. 60',
+                            default => 'Aktueller Wert (optional)'
+                        }"
+                    />
+                </div>
+            @endif
 
             @if($keyResultValueType === 'absolute')
                 <x-ui-input-text
@@ -609,32 +624,47 @@
                 required
             />
 
-            <div class="grid grid-cols-2 gap-4">
-                <x-ui-input-text
-                    name="keyResultTargetValue"
-                    label="Zielwert"
-                    wire:model.live="keyResultTargetValue"
-                    :placeholder="match($keyResultValueType) {
-                        'percentage' => 'z.B. 80',
-                        'boolean' => 'z.B. Ja oder Nein',
-                        'absolute' => 'z.B. 100',
-                        default => 'Zielwert eingeben...'
-                    }"
-                    required
-                />
+            @if($keyResultValueType === 'boolean')
+                {{-- Boolean: Einfach Checkbox für aktuellen Zustand --}}
+                <div class="space-y-4">
+                    <div class="p-4 bg-[var(--ui-muted-5)] border border-[var(--ui-border)] rounded-lg">
+                        <div class="text-sm text-[var(--ui-secondary)] font-medium mb-2">Boolean Key Result</div>
+                        <div class="text-xs text-[var(--ui-muted)]">Ziel: Immer erreicht (1) | Aktuell: Wird durch Checkbox gesetzt</div>
+                    </div>
+                    
+                    <x-ui-input-checkbox
+                        model="keyResultCurrentValue"
+                        label="Erreicht"
+                        wire:model.live="keyResultCurrentValue"
+                    />
+                </div>
+            @else
+                {{-- Andere Typen: Normale Eingabefelder --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <x-ui-input-text
+                        name="keyResultTargetValue"
+                        label="Zielwert"
+                        wire:model.live="keyResultTargetValue"
+                        :placeholder="match($keyResultValueType) {
+                            'percentage' => 'z.B. 80',
+                            'absolute' => 'z.B. 100',
+                            default => 'Zielwert eingeben...'
+                        }"
+                        required
+                    />
 
-                <x-ui-input-text
-                    name="keyResultCurrentValue"
-                    label="Aktueller Wert"
-                    wire:model.live="keyResultCurrentValue"
-                    :placeholder="match($keyResultValueType) {
-                        'percentage' => 'z.B. 45',
-                        'boolean' => 'z.B. Nein',
-                        'absolute' => 'z.B. 60',
-                        default => 'Aktueller Wert (optional)'
-                    }"
-                />
-            </div>
+                    <x-ui-input-text
+                        name="keyResultCurrentValue"
+                        label="Aktueller Wert"
+                        wire:model.live="keyResultCurrentValue"
+                        :placeholder="match($keyResultValueType) {
+                            'percentage' => 'z.B. 45',
+                            'absolute' => 'z.B. 60',
+                            default => 'Aktueller Wert (optional)'
+                        }"
+                    />
+                </div>
+            @endif
 
             @if($keyResultValueType === 'absolute')
                 <x-ui-input-text
