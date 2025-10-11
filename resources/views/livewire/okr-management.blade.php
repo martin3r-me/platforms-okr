@@ -171,7 +171,7 @@
                                         <span class="text-xs text-[var(--ui-muted)]">{{ $totalCycles }} Cycles</span>
                                     </div>
                                     <div class="flex items-center gap-1">
-                                        @svg('heroicon-o-target', 'w-3 h-3 text-[var(--ui-muted)]')
+                                        @svg('heroicon-o-flag', 'w-3 h-3 text-[var(--ui-muted)]')
                                         <span class="text-xs text-[var(--ui-muted)]">{{ $totalObjectives }} Objectives</span>
                                     </div>
                                 </div>
