@@ -55,14 +55,34 @@
                         <div class="text-xs text-[var(--ui-muted)]">{{ $okr->manager?->name ?? '–' }}</div>
                     </x-ui-table-cell>
                     <x-ui-table-cell compact="true">
-                        @if($okr->performance_score !== null)
-                            <x-ui-badge variant="secondary" size="sm">{{ $okr->performance_score }}%</x-ui-badge>
+                        @php
+                            $okrPerformance = $okr->performance;
+                            $totalCycles = $okr->cycles->count();
+                            $totalObjectives = $okr->cycles->sum(fn($cycle) => $cycle->objectives->count());
+                            $totalKeyResults = $okr->cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->count()));
+                            $completedKeyResults = $okr->cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count()));
+                        @endphp
+                        
+                        @if($okrPerformance)
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-2">
+                                    <x-ui-badge variant="{{ $okrPerformance->performance_score >= 80 ? 'success' : ($okrPerformance->performance_score >= 50 ? 'warning' : 'secondary') }}" size="sm">
+                                        {{ $okrPerformance->performance_score }}%
+                                    </x-ui-badge>
+                                </div>
+                                <div class="text-xs text-[var(--ui-muted)]">
+                                    {{ $completedKeyResults }}/{{ $totalKeyResults }} KR
+                                </div>
+                            </div>
                         @else
                             <span class="text-xs text-[var(--ui-muted)]">–</span>
                         @endif
                     </x-ui-table-cell>
                     <x-ui-table-cell compact="true">
-                        <div class="text-xs text-[var(--ui-muted)]">{{ $okr->cycles->count() }} Cycles</div>
+                        <div class="space-y-1">
+                            <div class="text-xs text-[var(--ui-muted)]">{{ $totalCycles }} Cycles</div>
+                            <div class="text-xs text-[var(--ui-muted)]">{{ $totalObjectives }} Objectives</div>
+                        </div>
                     </x-ui-table-cell>
                     <x-ui-table-cell compact="true" align="right">
                         <x-ui-button 

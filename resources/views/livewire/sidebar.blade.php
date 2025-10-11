@@ -100,6 +100,45 @@
                     </div>
                 </div>
 
+                <!-- Performance Statistiken -->
+                <div class="space-y-4">
+                    <div class="border-l-4 border-[var(--ui-primary)] pl-4">
+                        <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-2">Performance Statistiken</h4>
+                        <p class="text-xs text-[var(--ui-muted)]">Aktuelle Performance-Übersicht</p>
+                    </div>
+                    
+                    @php
+                        $totalOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->count();
+                        $activeOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->where('status', 'active')->count();
+                        $completedOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->where('status', 'completed')->count();
+                        $averageScore = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->avg('performance_score') ?? 0;
+                    @endphp
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalOkrs }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">OKRs</div>
+                        </div>
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                            <div class="text-2xl font-bold text-green-600">{{ $activeOkrs }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Aktiv</div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                            <div class="text-2xl font-bold text-blue-600">{{ $completedOkrs }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Abgeschlossen</div>
+                        </div>
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                            <div class="text-2xl font-bold {{ $averageScore >= 80 ? 'text-green-600' : ($averageScore >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                {{ round($averageScore, 1) }}%
+                            </div>
+                            <div class="text-xs text-[var(--ui-muted)]">Ø Score</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Performance & Management -->
                 <div class="space-y-4">
                     <div class="border-l-4 border-[var(--ui-primary)] pl-4">

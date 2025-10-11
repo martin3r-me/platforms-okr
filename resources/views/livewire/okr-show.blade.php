@@ -265,6 +265,57 @@
                     </div>
                 </div>
 
+                {{-- OKR Performance --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">OKR Performance</h3>
+                    <div class="space-y-3">
+                        @php
+                            $okrPerformance = $okr->performance;
+                            $totalCycles = $okr->cycles->count();
+                            $totalObjectives = $okr->cycles->sum(fn($cycle) => $cycle->objectives->count());
+                            $totalKeyResults = $okr->cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->count()));
+                            $completedKeyResults = $okr->cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count()));
+                        @endphp
+                        
+                        @if($okrPerformance)
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Gesamt Performance</span>
+                                    <span class="text-sm font-bold {{ $okrPerformance->performance_score >= 80 ? 'text-green-600' : ($okrPerformance->performance_score >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                        {{ $okrPerformance->performance_score }}%
+                                    </span>
+                                </div>
+                                <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-2">
+                                    <div class="h-2 rounded-full transition-all duration-300 {{ $okrPerformance->performance_score >= 80 ? 'bg-green-500' : ($okrPerformance->performance_score >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}" 
+                                         style="width: {{ $okrPerformance->performance_score }}%"></div>
+                                </div>
+                            </div>
+                        @endif
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                                <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalCycles }}</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Cycles</div>
+                            </div>
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                                <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalObjectives }}</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Objectives</div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                                <div class="text-2xl font-bold text-green-600">{{ $completedKeyResults }}</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Erreichte KR</div>
+                            </div>
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                                <div class="text-2xl font-bold text-orange-600">{{ $totalKeyResults - $completedKeyResults }}</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Offene KR</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- OKR Info --}}
                 <div>
                     <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">OKR Details</h3>
