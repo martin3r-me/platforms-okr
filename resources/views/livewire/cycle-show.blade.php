@@ -217,14 +217,29 @@
                                                     $current = $keyResult->performance?->current_value ?? 0;
                                                     $isCompleted = $keyResult->performance?->is_completed ?? false;
                                                     
-                                                    // Berechne Fortschritt in Prozent
+                                                    // Hole den ersten Performance-Wert als Ausgangswert
+                                                    $firstPerformance = $keyResult->performances()->orderBy('created_at', 'asc')->first();
+                                                    $startValue = $firstPerformance?->current_value ?? 0;
+                                                    
+                                                    // Berechne Fortschritt in Prozent basierend auf Ausgangswert
                                                     $progressPercent = 0;
                                                     if ($type === 'boolean') {
                                                         $progressPercent = $isCompleted ? 100 : 0;
-                                                    } elseif ($type === 'percentage') {
-                                                        $progressPercent = min(100, round(($current / $target) * 100));
-                                                    } elseif ($type === 'absolute' && $target > 0) {
-                                                        $progressPercent = min(100, round(($current / $target) * 100));
+                                                    } elseif ($type === 'percentage' || $type === 'absolute') {
+                                                        if ($target > $startValue) {
+                                                            // Fortschritt von Startwert zum Ziel
+                                                            $progressRange = $target - $startValue;
+                                                            $currentProgress = $current - $startValue;
+                                                            $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
+                                                        } elseif ($target < $startValue) {
+                                                            // Rückwärts-Fortschritt (Ziel ist niedriger als Start)
+                                                            $progressRange = $startValue - $target;
+                                                            $currentProgress = $startValue - $current;
+                                                            $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
+                                                        } else {
+                                                            // Start = Ziel
+                                                            $progressPercent = $current >= $target ? 100 : 0;
+                                                        }
                                                     }
                                                     
                                                     // Berechne Distanz zum Ziel
@@ -355,10 +370,27 @@
                                                     $current = $keyResult->performance->current_value ?? 0;
                                                     $type = $keyResult->performance->type;
                                                     
+                                                    // Hole den ersten Performance-Wert als Ausgangswert
+                                                    $firstPerformance = $keyResult->performances()->orderBy('created_at', 'asc')->first();
+                                                    $startValue = $firstPerformance?->current_value ?? 0;
+                                                    
                                                     if($type === 'boolean') {
                                                         $totalProgress += $keyResult->performance->is_completed ? 100 : 0;
                                                     } elseif($type === 'percentage' || $type === 'absolute') {
-                                                        $totalProgress += $target > 0 ? min(100, round(($current / $target) * 100)) : 0;
+                                                        if ($target > $startValue) {
+                                                            // Fortschritt von Startwert zum Ziel
+                                                            $progressRange = $target - $startValue;
+                                                            $currentProgress = $current - $startValue;
+                                                            $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
+                                                        } elseif ($target < $startValue) {
+                                                            // Rückwärts-Fortschritt
+                                                            $progressRange = $startValue - $target;
+                                                            $currentProgress = $startValue - $current;
+                                                            $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
+                                                        } else {
+                                                            $progressPercent = $current >= $target ? 100 : 0;
+                                                        }
+                                                        $totalProgress += $progressPercent;
                                                     }
                                                     $keyResultsWithProgress++;
                                                 }
