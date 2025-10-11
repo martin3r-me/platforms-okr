@@ -1,16 +1,21 @@
-<div class="p-3">
-    <h1 class="text-2xl font-bold mb-4">OKRs</h1>
+<x-ui-page>
+    <x-slot name="navbar">
+        <x-ui-page-navbar title="OKRs" icon="heroicon-o-flag">
+            <x-ui-button variant="secondary" wire:click="openCreateModal">
+                @svg('heroicon-o-plus', 'w-4 h-4')
+                <span class="ml-2">Neues OKR</span>
+            </x-ui-button>
+        </x-ui-page-navbar>
+    </x-slot>
 
-    <div class="d-flex justify-between mb-4">
-        <x-ui-input-text 
-            name="search" 
-            placeholder="Suche OKRs..." 
-            class="w-64"
-        />
-        <x-ui-button variant="primary" wire:click="openCreateModal">
-            Neues OKR
-        </x-ui-button>
-    </div>
+    <x-slot name="content">
+        <div class="mb-4">
+            <x-ui-input-text 
+                name="search" 
+                placeholder="Suche OKRs..." 
+                class="w-64"
+            />
+        </div>
     
     <x-ui-table compact="true">
         <x-ui-table-header>
@@ -31,32 +36,32 @@
                     :href="route('okr.okrs.show', ['okr' => $okr->id])"
                 >
                     <x-ui-table-cell compact="true">
-                        <div class="font-medium">{{ $okr->title }}</div>
+                        <div class="font-medium text-[var(--ui-secondary)]">{{ $okr->title }}</div>
                         @if($okr->is_template)
-                            <x-ui-badge variant="info" size="xs">Template</x-ui-badge>
+                            <x-ui-badge variant="secondary" size="xs">Template</x-ui-badge>
                         @endif
                         @if($okr->auto_transfer)
-                            <x-ui-badge variant="success" size="xs">Auto-Transfer</x-ui-badge>
+                            <x-ui-badge variant="secondary" size="xs">Auto-Transfer</x-ui-badge>
                         @endif
                     </x-ui-table-cell>
                     <x-ui-table-cell compact="true">
-                        <div class="text-xs text-muted">{{ Str::limit($okr->description, 50) }}</div>
+                        <div class="text-xs text-[var(--ui-muted)]">{{ Str::limit($okr->description, 50) }}</div>
                     </x-ui-table-cell>
                     <x-ui-table-cell compact="true">
-                        <div class="text-xs text-muted">{{ $okr->user?->name ?? 'Unbekannt' }}</div>
+                        <div class="text-xs text-[var(--ui-muted)]">{{ $okr->user?->name ?? 'Unbekannt' }}</div>
                     </x-ui-table-cell>
                     <x-ui-table-cell compact="true">
-                        <div class="text-xs text-muted">{{ $okr->manager?->name ?? '–' }}</div>
+                        <div class="text-xs text-[var(--ui-muted)]">{{ $okr->manager?->name ?? '–' }}</div>
                     </x-ui-table-cell>
                     <x-ui-table-cell compact="true">
                         @if($okr->performance_score !== null)
-                            <x-ui-badge variant="info" size="sm">{{ $okr->performance_score }}%</x-ui-badge>
+                            <x-ui-badge variant="secondary" size="sm">{{ $okr->performance_score }}%</x-ui-badge>
                         @else
-                            <span class="text-xs text-muted">–</span>
+                            <span class="text-xs text-[var(--ui-muted)]">–</span>
                         @endif
                     </x-ui-table-cell>
                     <x-ui-table-cell compact="true">
-                        <div class="text-xs text-muted">{{ $okr->cycles->count() }} Cycles</div>
+                        <div class="text-xs text-[var(--ui-muted)]">{{ $okr->cycles->count() }} Cycles</div>
                     </x-ui-table-cell>
                     <x-ui-table-cell compact="true" align="right">
                         <x-ui-button 
@@ -124,26 +129,26 @@
                     />
                 </div>
 
-                <div class="d-flex items-center gap-4">
-                    <div class="d-flex items-center gap-2">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
                         <input 
                             type="checkbox" 
                             id="auto_transfer"
                             wire:model.live="auto_transfer"
-                            class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                            class="w-4 h-4 text-[var(--ui-primary)] bg-[var(--ui-muted-5)] border-[var(--ui-border)] rounded focus:ring-[var(--ui-primary)] focus:ring-2"
                         >
-                        <label for="auto_transfer" class="text-sm font-medium text-gray-700">
+                        <label for="auto_transfer" class="text-sm font-medium text-[var(--ui-secondary)]">
                             Automatisch übertragen
                         </label>
                     </div>
-                    <div class="d-flex items-center gap-2">
+                    <div class="flex items-center gap-2">
                         <input 
                             type="checkbox" 
                             id="is_template"
                             wire:model.live="is_template"
-                            class="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+                            class="w-4 h-4 text-[var(--ui-primary)] bg-[var(--ui-muted-5)] border-[var(--ui-border)] rounded focus:ring-[var(--ui-primary)] focus:ring-2"
                         >
-                        <label for="is_template" class="text-sm font-medium text-gray-700">
+                        <label for="is_template" class="text-sm font-medium text-[var(--ui-secondary)]">
                             Als Template speichern
                         </label>
                     </div>
@@ -152,18 +157,19 @@
         </div>
 
         <x-slot name="footer">
-            <div class="d-flex justify-end gap-2">
+            <div class="flex justify-end gap-2">
                 <x-ui-button 
                     type="button" 
-                    variant="secondary-outline" 
+                    variant="secondary-ghost" 
                     wire:click="closeCreateModal"
                 >
                     Abbrechen
                 </x-ui-button>
-                <x-ui-button type="button" variant="primary" wire:click="createOkr">
+                <x-ui-button type="button" variant="secondary" wire:click="createOkr">
                     OKR anlegen
                 </x-ui-button>
             </div>
         </x-slot>
     </x-ui-modal>
-</div>
+    </x-slot>
+</x-ui-page>

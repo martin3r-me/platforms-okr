@@ -5,64 +5,37 @@
     
     {{-- Abschnitt: Allgemein --}}
     <div>
-        <h4 x-show="!collapsed" class="p-3 text-sm italic text-secondary uppercase">Allgemein</h4>
+        <h4 x-show="!collapsed" class="p-3 text-sm italic text-[var(--ui-muted)] uppercase">Allgemein</h4>
 
         {{-- Dashboard --}}
-        <a href="{{ route('okr.dashboard') }}"
-           class="relative d-flex items-center p-2 my-1 rounded-md font-medium transition"
-           :class="[
-               window.location.pathname === '/' || 
-               window.location.pathname.endsWith('/okr') || 
-               window.location.pathname.endsWith('/okr/') ||
-               (window.location.pathname.split('/').length === 1 && window.location.pathname === '/')
-                   ? 'bg-primary text-on-primary shadow-md'
-                   : 'text-black hover:bg-primary-10 hover:text-primary hover:shadow-md',
-               collapsed ? 'justify-center' : 'gap-3'
-           ]"
-           wire:navigate>
-            <x-heroicon-o-chart-bar class="w-6 h-6 flex-shrink-0"/>
-            <span x-show="!collapsed" class="truncate">Dashboard</span>
-        </a>
+        <x-ui-sidebar-item 
+            :href="route('okr.dashboard')"
+            icon="heroicon-o-chart-bar"
+            label="Dashboard"
+            :active="request()->routeIs('okr.dashboard')"
+        />
 
-            {{-- OKRs --}}
-            <a href="{{ route('okr.okrs.index') }}"
-               class="relative d-flex items-center p-2 my-1 rounded-md font-medium transition"
-               :class="[
-                   window.location.pathname.includes('/okrs') || 
-                   window.location.pathname.endsWith('/okrs') ||
-                   window.location.pathname.endsWith('/okrs/')
-                       ? 'bg-primary text-on-primary shadow-md'
-                       : 'text-black hover:bg-primary-10 hover:text-primary hover:shadow-md',
-                   collapsed ? 'justify-center' : 'gap-3'
-               ]"
-               wire:navigate>
-                <x-heroicon-o-flag class="w-6 h-6 flex-shrink-0"/>
-                <span x-show="!collapsed" class="truncate">OKRs</span>
-            </a>
+        {{-- OKRs --}}
+        <x-ui-sidebar-item 
+            :href="route('okr.okrs.index')"
+            icon="heroicon-o-flag"
+            label="OKRs"
+            :active="request()->routeIs('okr.okrs.*')"
+        />
     </div>
 
     {{-- Abschnitt: OKRs --}}
     @if($okrs->count() > 0)
         <div x-show="!collapsed">
-            <h4 class="p-3 text-sm italic text-secondary uppercase">OKRs</h4>
+            <h4 class="p-3 text-sm italic text-[var(--ui-muted)] uppercase">OKRs</h4>
 
             @foreach($okrs as $okr)
-                <a href="{{ route('okr.okrs.show', ['okr' => $okr]) }}"
-                   class="relative d-flex items-center p-2 my-1 rounded-md font-medium transition gap-3"
-                   :class="[
-                       window.location.pathname.includes('/okrs/{{ $okr->id }}/') || 
-                       window.location.pathname.includes('/okrs/{{ $okr->uuid }}/') ||
-                       window.location.pathname.endsWith('/okrs/{{ $okr->id }}') ||
-                       window.location.pathname.endsWith('/okrs/{{ $okr->uuid }}') ||
-                       (window.location.pathname.split('/').length === 2 && window.location.pathname.endsWith('/{{ $okr->id }}')) ||
-                       (window.location.pathname.split('/').length === 2 && window.location.pathname.endsWith('/{{ $okr->uuid }}'))
-                           ? 'bg-primary text-on-primary shadow-md'
-                           : 'text-black hover:bg-primary-10 hover:text-primary hover:shadow-md'
-                   ]"
-                   wire:navigate>
-                    <x-heroicon-o-flag class="w-6 h-6 flex-shrink-0"/>
-                    <span class="truncate">{{ $okr->title }}</span>
-                </a>
+                <x-ui-sidebar-item 
+                    :href="route('okr.okrs.show', ['okr' => $okr])"
+                    icon="heroicon-o-flag"
+                    :label="$okr->title"
+                    :active="request()->routeIs('okr.okrs.show', ['okr' => $okr->id]) || request()->routeIs('okr.okrs.show', ['okr' => $okr->uuid])"
+                />
             @endforeach
         </div>
     @endif
