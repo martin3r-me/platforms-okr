@@ -230,8 +230,8 @@
         </div>
     </x-ui-page-container>
 
-    <x-slot name="settings">
-        <x-ui-page-sidebar title="Einstellungen" width="w-80" :defaultOpen="false" storeKey="settingsOpen" side="left">
+    <x-slot name="sidebar">
+        <x-ui-page-sidebar title="Navigation & Details" width="w-80" :defaultOpen="true">
             <div class="p-4 space-y-6">
                 {{-- Team Info --}}
                 <div>
