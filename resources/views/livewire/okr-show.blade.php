@@ -307,9 +307,11 @@
             <x-ui-input-select
                 name="cycleForm.cycle_template_id"
                 label="Zyklus-Vorlage"
-                :options="$this->cycleTemplates->map(fn($template) => ['value' => $template->id, 'label' => $template->name])->toArray()"
+                :options="$this->cycleTemplates"
+                optionValue="id"
+                optionLabel="name"
+                :nullable="false"
                 wire:model="cycleForm.cycle_template_id"
-                required
             />
             
             <x-ui-input-select
@@ -322,8 +324,10 @@
                     ['value' => 'ending_soon', 'label' => 'Endet bald'],
                     ['value' => 'past', 'label' => 'Vergangen']
                 ]"
+                optionValue="value"
+                optionLabel="label"
+                :nullable="false"
                 wire:model="cycleForm.status"
-                required
             />
             
             <x-ui-input-textarea
