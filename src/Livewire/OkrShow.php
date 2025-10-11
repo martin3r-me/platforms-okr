@@ -64,6 +64,12 @@ class OkrShow extends Component
     }
 
     #[Computed]
+    public function activities()
+    {
+        return $this->okr->activities()->latest()->limit(10)->get();
+    }
+
+    #[Computed]
     public function members()
     {
         return $this->okr->members()->withPivot('role')->orderBy('name')->get();
