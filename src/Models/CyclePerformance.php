@@ -12,6 +12,8 @@ class CyclePerformance extends Model
 {
     use HasFactory;
 
+    protected $table = 'okr_cycle_performances';
+
     protected $fillable = [
         'cycle_id',
         'team_id',
