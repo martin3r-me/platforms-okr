@@ -23,20 +23,6 @@
                         </div>
                     </x-ui-button>
                 @endif
-                <x-ui-confirm-button 
-                    variant="danger-ghost" 
-                    size="sm"
-                    wire:click="deleteCycle"
-                    confirm-title="Zyklus löschen"
-                    confirm-message="Der Zyklus wird unwiderruflich gelöscht. Alle Objectives, Key Results und Performance-Daten werden ebenfalls entfernt."
-                    confirm-button-text="Zyklus löschen"
-                    cancel-button-text="Abbrechen"
-                >
-                    <div class="flex items-center gap-2">
-                        @svg('heroicon-o-trash', 'w-4 h-4')
-                        Zyklus löschen
-                    </div>
-                </x-ui-confirm-button>
             </x-slot>
         </x-ui-page-navbar>
     </x-slot>
@@ -545,6 +531,21 @@
                             @svg('heroicon-o-plus', 'w-4 h-4')
                             <span class="ml-1">Objective hinzufügen</span>
                         </x-ui-button>
+                        
+                        <x-ui-confirm-button 
+                            variant="danger" 
+                            wire:click="deleteCycle"
+                            confirm-title="Zyklus löschen"
+                            confirm-message="Der Zyklus wird unwiderruflich gelöscht. Alle Objectives, Key Results und Performance-Daten werden ebenfalls entfernt."
+                            confirm-button-text="Zyklus löschen"
+                            cancel-button-text="Abbrechen"
+                            class="w-full"
+                        >
+                            <div class="flex items-center gap-2">
+                                @svg('heroicon-o-trash', 'w-4 h-4')
+                                <span class="ml-1">Zyklus löschen</span>
+                            </div>
+                        </x-ui-confirm-button>
                     </div>
                 </div>
             </div>
