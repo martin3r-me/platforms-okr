@@ -426,4 +426,3 @@
         </x-slot>
     </x-ui-modal>
 </x-ui-page>
-</x-ui-page>
