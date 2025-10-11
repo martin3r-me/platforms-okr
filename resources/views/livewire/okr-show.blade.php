@@ -28,6 +28,17 @@
     </x-slot>
 
     <x-slot name="content">
+        {{-- DEBUG BOX --}}
+        <div class="p-4 bg-red-100 border border-red-300 rounded mb-4">
+            <h3 class="font-bold text-red-800">DEBUG INFO:</h3>
+            <p>OKR ID: {{ $okr->id ?? 'NOT SET' }}</p>
+            <p>OKR Title: {{ $okr->title ?? 'NOT SET' }}</p>
+            <p>OKR Description: {{ $okr->description ?? 'NOT SET' }}</p>
+            <p>Cycles Count: {{ $okr->cycles->count() ?? 'NOT SET' }}</p>
+            <p>Users Count: {{ $this->users->count() ?? 'NOT SET' }}</p>
+            <p>Activities Count: {{ $this->activities->count() ?? 'NOT SET' }}</p>
+        </div>
+        
         <div class="flex h-full">
             <!-- Linke Spalte -->
             <div class="flex-grow-1 flex flex-col">
