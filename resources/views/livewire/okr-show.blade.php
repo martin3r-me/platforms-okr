@@ -1,40 +1,9 @@
-<x-ui-page>
-    <x-slot name="navbar">
-        <x-ui-page-navbar :title="$okr->title ?? 'OKR nicht gefunden'" icon="heroicon-o-flag">
-            <div class="flex items-center gap-2">
-                <x-ui-button 
-                    variant="secondary-ghost" 
-                    size="sm"
-                    :href="route('okr.okrs.index')" 
-                    wire:navigate
-                >
-                    @svg('heroicon-o-arrow-left', 'w-4 h-4')
-                    <span class="ml-1">OKRs</span>
-                </x-ui-button>
-                @if($this->isDirty)
-                    <x-ui-button 
-                        variant="secondary" 
-                        size="sm"
-                        wire:click="save"
-                    >
-                        <div class="flex items-center gap-2">
-                            @svg('heroicon-o-check', 'w-4 h-4')
-                            Speichern
-                        </div>
-                    </x-ui-button>
-                @endif
-            </div>
-        </x-ui-page-navbar>
-    </x-slot>
-
-    <x-slot name="content">
-        {{-- ULTRA SIMPLE TEST --}}
-        <div class="p-8 bg-blue-100">
-            <h1 class="text-3xl font-bold text-blue-800">OKR SHOW WORKS!</h1>
-            <p class="text-lg">OKR ID: {{ $okr->id }}</p>
-            <p class="text-lg">OKR Title: {{ $okr->title }}</p>
-            <p class="text-lg">OKR Description: {{ $okr->description }}</p>
-        </div>
+{{-- ABSOLUTE MINIMAL TEST - NUR EIN DIV --}}
+<div style="background: red; color: white; padding: 20px; font-size: 24px;">
+    <h1>LIVEWIRE FUNKTIONIERT!</h1>
+    <p>OKR ID: {{ $okr->id ?? 'KEINE ID' }}</p>
+    <p>OKR Title: {{ $okr->title ?? 'KEIN TITLE' }}</p>
+</div>
         
         <div class="flex h-full">
             <!-- Linke Spalte -->
