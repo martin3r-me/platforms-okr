@@ -316,20 +316,22 @@
     </x-slot>
 
     {{-- Cycle Create Modal - Step by step --}}
-    <x-ui-modal wire:model="cycleCreateModalShow" title="Zyklus hinzufügen">
-        <div class="space-y-4">
-            <p class="text-gray-600">Modal wird step-by-step implementiert...</p>
-        </div>
-        
-        <x-slot name="footer">
-            <div class="flex justify-end space-x-3">
-                <x-ui-button variant="secondary" wire:click="closeCycleCreateModal">
-                    Abbrechen
-                </x-ui-button>
-                <x-ui-button variant="primary" wire:click="closeCycleCreateModal">
-                    Test
-                </x-ui-button>
+    @if($cycleCreateModalShow)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" x-data="{ open: @entangle('cycleCreateModalShow') }" x-show="open">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-semibold mb-4">Zyklus hinzufügen</h3>
+                <div class="space-y-4">
+                    <p class="text-gray-600">Modal wird step-by-step implementiert...</p>
+                </div>
+                <div class="flex justify-end space-x-3 mt-6">
+                    <x-ui-button variant="secondary" wire:click="closeCycleCreateModal">
+                        Abbrechen
+                    </x-ui-button>
+                    <x-ui-button variant="primary" wire:click="closeCycleCreateModal">
+                        Test
+                    </x-ui-button>
+                </div>
             </div>
-        </x-slot>
-    </x-ui-modal>
+        </div>
+    @endif
 </x-ui-page>
