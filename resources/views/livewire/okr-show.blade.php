@@ -324,6 +324,17 @@
                 wire:model="cycleForm.notes"
                 placeholder="Optionale Notizen zum Zyklus"
             />
+            <x-ui-input-select
+                name="cycleForm.cycle_template_id"
+                label="Rechtsform"
+                :options="$cycleTemplates"
+                optionValue="id"
+                optionLabel="label"
+                :nullable="false"
+                nullLabel="– Template auswählen –"
+                wire:model.live="cycleForm.cycle_template_id"
+                :errorKey="'cycleForm.cycle_template_id'"
+            />
         </div>
         
         <x-slot name="footer">
