@@ -318,7 +318,23 @@
     {{-- Cycle Create Modal - Step by step --}}
     <x-ui-modal wire:model="modalShow" title="Zyklus hinzufügen">
         <div class="space-y-4">
-            <p class="text-gray-600">Modal wird step-by-step implementiert...</p>
+            <div>
+                <label class="block text-sm font-medium text-[var(--ui-secondary)] mb-2">Status</label>
+                <select wire:model="cycleForm.status" class="w-full px-3 py-2 border border-[var(--ui-border)] rounded-lg focus:ring-2 focus:ring-[var(--ui-primary)] focus:border-[var(--ui-primary)]">
+                    <option value="draft">Entwurf</option>
+                    <option value="active">Aktiv</option>
+                    <option value="completed">Abgeschlossen</option>
+                    <option value="ending_soon">Endet bald</option>
+                    <option value="past">Vergangen</option>
+                </select>
+            </div>
+            
+            <x-ui-input-text
+                name="cycleForm.notes"
+                label="Notizen"
+                wire:model="cycleForm.notes"
+                placeholder="Optionale Notizen zum Zyklus"
+            />
         </div>
         
         <x-slot name="footer">
