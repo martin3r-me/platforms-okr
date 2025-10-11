@@ -375,7 +375,7 @@
 
     {{-- Right Sidebar --}}
     <x-slot name="activity">
-        <x-ui-page-sidebar title="Aktivitäten" width="w-80" :defaultOpen="false">
+        <x-ui-page-sidebar title="Aktivitäten" width="w-80" side="right" :defaultOpen="false">
             <div class="p-6 space-y-6">
                 {{-- Recent Activities --}}
                 <div>
