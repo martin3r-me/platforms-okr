@@ -28,12 +28,12 @@
     </x-slot>
 
     <x-slot name="content">
-        {{-- DEBUG: OKR Show View --}}
-        <div class="p-4 bg-red-100 border border-red-300 rounded mb-4">
-            <h3 class="font-bold text-red-800">DEBUG INFO:</h3>
-            <p>OKR ID: {{ $okr->id ?? 'NOT SET' }}</p>
-            <p>OKR Title: {{ $okr->title ?? 'NOT SET' }}</p>
-            <p>OKR Description: {{ $okr->description ?? 'NOT SET' }}</p>
+        {{-- ULTRA SIMPLE TEST --}}
+        <div class="p-8 bg-blue-100">
+            <h1 class="text-3xl font-bold text-blue-800">OKR SHOW WORKS!</h1>
+            <p class="text-lg">OKR ID: {{ $okr->id }}</p>
+            <p class="text-lg">OKR Title: {{ $okr->title }}</p>
+            <p class="text-lg">OKR Description: {{ $okr->description }}</p>
         </div>
         
         <div class="flex h-full">
