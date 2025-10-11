@@ -36,98 +36,148 @@
                 <div class="flex-grow-1 overflow-y-auto p-4">
                     
                     {{-- OKR Details --}}
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-4 text-[var(--ui-secondary)]">OKR Details</h3>
-                <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text 
-                        name="okr.title"
-                        label="Titel"
-                        wire:model.live.debounce.500ms="okr.title"
-                        placeholder="Titel des OKR eingeben..."
-                        required
-                        :errorKey="'okr.title'"
-                    />
-                    <x-ui-input-select
-                        name="okr.manager_user_id"
-                        label="Verantwortlicher Manager"
-                        :options="$this->users"
-                        optionValue="id"
-                        optionLabel="name"
-                        :nullable="true"
-                        nullLabel="– Manager auswählen –"
-                        wire:model.live="okr.manager_user_id"
-                    />
-                </div>
-                <div class="mt-4">
-                    <x-ui-input-textarea 
-                        name="okr.description"
-                        label="Beschreibung"
-                        wire:model.live.debounce.500ms="okr.description"
-                        placeholder="Detaillierte Beschreibung des OKR (optional)"
-                        rows="4"
-                        :errorKey="'okr.description'"
-                    />
-                </div>
-                <div class="grid grid-cols-2 gap-4 mt-4">
-                    <x-ui-input-number
-                        name="okr.performance_score"
-                        label="Performance Score (%)"
-                        wire:model.live.debounce.500ms="okr.performance_score"
-                        min="0"
-                        max="100"
-                        :errorKey="'okr.performance_score'"
-                    />
-                    <div class="d-flex items-center gap-4">
-                        <x-ui-input-checkbox
-                            model="okr.auto_transfer"
-                            checked-label="Automatisch übertragen"
-                        />
-                        <x-ui-input-checkbox
-                            model="okr.is_template"
-                            checked-label="Als Template speichern"
-                        />
-                    </div>
-                </div>
-            </div>
-
-                    {{-- Cycles --}}
-                    <div class="mb-6">
-                        <h3 class="text-lg font-semibold mb-4 text-[var(--ui-secondary)]">Cycles</h3>
-                        <div class="space-y-2">
-                            @foreach($okr->cycles as $cycle)
-                                <div class="flex items-center gap-2 p-2 bg-[var(--ui-muted-5)] rounded cursor-pointer border border-[var(--ui-border)]/40" wire:click="manageCycleObjectives({{ $cycle->id }})">
-                                    <div class="flex-grow-1">
-                                        <div class="text-sm font-medium text-[var(--ui-secondary)]">
-                                            {{ $cycle->template?->label ?? 'Unbekannter Cycle' }}
+                    <div class="mb-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                                @svg('heroicon-o-flag', 'w-4 h-4')
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">OKR Details</h3>
+                                <p class="text-sm text-[var(--ui-muted)]">Grundinformationen und Einstellungen</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-6">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <x-ui-input-text 
+                                        name="okr.title"
+                                        label="OKR-Titel"
+                                        wire:model.live.debounce.500ms="okr.title"
+                                        placeholder="z.B. Kundenbetreuung verbessern"
+                                        required
+                                        :errorKey="'okr.title'"
+                                        class="text-lg"
+                                    />
+                                    
+                                    <x-ui-input-select
+                                        name="okr.manager_user_id"
+                                        label="Verantwortlicher Manager"
+                                        :options="$this->users"
+                                        optionValue="id"
+                                        optionLabel="name"
+                                        :nullable="true"
+                                        nullLabel="– Manager auswählen –"
+                                        wire:model.live="okr.manager_user_id"
+                                    />
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <x-ui-input-number
+                                        name="okr.performance_score"
+                                        label="Performance Score (%)"
+                                        wire:model.live.debounce.500ms="okr.performance_score"
+                                        min="0"
+                                        max="100"
+                                        :errorKey="'okr.performance_score'"
+                                    />
+                                    
+                                    <div class="space-y-3">
+                                        <div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-[var(--ui-border)]/40">
+                                            <x-ui-input-checkbox
+                                                model="okr.auto_transfer"
+                                                checked-label="Automatisch übertragen"
+                                            />
                                         </div>
-                                        <div class="text-xs text-[var(--ui-muted)]">
-                                            {{ $cycle->template?->starts_at?->format('d.m.Y') }} - {{ $cycle->template?->ends_at?->format('d.m.Y') }}
-                                            @if($cycle->objectives->count() > 0)
-                                                • {{ $cycle->objectives->count() }} Objectives
-                                            @endif
+                                        <div class="flex items-center gap-3 p-3 bg-white rounded-lg border border-[var(--ui-border)]/40">
+                                            <x-ui-input-checkbox
+                                                model="okr.is_template"
+                                                checked-label="Als Template speichern"
+                                            />
                                         </div>
-                                    </div>
-                                    <div class="flex gap-1">
-                                        <x-ui-badge variant="secondary" size="xs">{{ ucfirst($cycle->status) }}</x-ui-badge>
-                                        <x-ui-button 
-                                            size="xs" 
-                                            variant="secondary-ghost" 
-                                            wire:click.stop="editCycle({{ $cycle->id }})"
-                                        >
-                                            @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
-                                        </x-ui-button>
                                     </div>
                                 </div>
-                            @endforeach
-                            @if($okr->cycles->count() === 0)
-                                <p class="text-sm text-[var(--ui-muted)]">Noch keine Cycles vorhanden.</p>
-                            @endif
+                            </div>
+                            
+                            <div class="mt-6">
+                                <x-ui-input-textarea 
+                                    name="okr.description"
+                                    label="Beschreibung"
+                                    wire:model.live.debounce.500ms="okr.description"
+                                    placeholder="Detaillierte Beschreibung der Ziele und Erwartungen..."
+                                    rows="4"
+                                    :errorKey="'okr.description'"
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Cycles --}}
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                                    @svg('heroicon-o-calendar', 'w-4 h-4')
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">OKR-Zyklen</h3>
+                                    <p class="text-sm text-[var(--ui-muted)]">Zeiträume und Objectives</p>
+                                </div>
+                            </div>
                             <x-ui-button size="sm" variant="secondary" wire:click="addCycle">
                                 <div class="flex items-center gap-2">
                                     @svg('heroicon-o-plus', 'w-4 h-4')
                                     Cycle hinzufügen
                                 </div>
                             </x-ui-button>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            @foreach($okr->cycles as $cycle)
+                                <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4 hover:bg-[var(--ui-muted-4)] transition-colors cursor-pointer" wire:click="manageCycleObjectives({{ $cycle->id }})">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex-grow-1">
+                                            <div class="flex items-center gap-3 mb-2">
+                                                <h4 class="text-lg font-semibold text-[var(--ui-secondary)]">
+                                                    {{ $cycle->template?->label ?? 'Unbekannter Cycle' }}
+                                                </h4>
+                                                <x-ui-badge variant="secondary" size="sm">{{ ucfirst($cycle->status) }}</x-ui-badge>
+                                            </div>
+                                            <div class="text-sm text-[var(--ui-muted)] mb-2">
+                                                {{ $cycle->template?->starts_at?->format('d.m.Y') }} - {{ $cycle->template?->ends_at?->format('d.m.Y') }}
+                                                @if($cycle->objectives->count() > 0)
+                                                    • {{ $cycle->objectives->count() }} Objectives
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <x-ui-button 
+                                                size="sm" 
+                                                variant="secondary-ghost" 
+                                                wire:click.stop="editCycle({{ $cycle->id }})"
+                                            >
+                                                @svg('heroicon-o-cog-6-tooth', 'w-4 h-4')
+                                            </x-ui-button>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                            
+                            @if($okr->cycles->count() === 0)
+                                <div class="text-center py-12 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
+                                    <div class="w-12 h-12 bg-[var(--ui-muted-4)] rounded-lg flex items-center justify-center mx-auto mb-4">
+                                        @svg('heroicon-o-calendar', 'w-6 h-6 text-[var(--ui-muted)]')
+                                    </div>
+                                    <h4 class="text-lg font-medium text-[var(--ui-secondary)] mb-2">Keine Zyklen vorhanden</h4>
+                                    <p class="text-sm text-[var(--ui-muted)] mb-4">Erstelle den ersten OKR-Zyklus für dieses OKR</p>
+                                    <x-ui-button size="sm" variant="secondary" wire:click="addCycle">
+                                        <div class="flex items-center gap-2">
+                                            @svg('heroicon-o-plus', 'w-4 h-4')
+                                            Ersten Cycle hinzufügen
+                                        </div>
+                                    </x-ui-button>
+                                </div>
+                            @endif
                         </div>
                     </div>
                     </div>
