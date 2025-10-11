@@ -16,7 +16,7 @@ class OkrShow extends Component
     public $isDirty = false;
 
     // Cycle Modal Properties
-    public $cycleCreateModalShow = false;
+    public $modalShow = false;
     public $cycleEditModalShow = false;
     public $editingCycleId = null;
     public $cycleForm = [
@@ -149,12 +149,12 @@ class OkrShow extends Component
     public function openCycleCreateModal()
     {
         $this->resetCycleForm();
-        $this->cycleCreateModalShow = true;
+        $this->modalShow = true;
     }
 
     public function closeCycleCreateModal()
     {
-        $this->cycleCreateModalShow = false;
+        $this->modalShow = false;
         $this->resetCycleForm();
     }
 

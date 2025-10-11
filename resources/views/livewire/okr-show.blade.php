@@ -316,7 +316,7 @@
     </x-slot>
 
     {{-- Cycle Create Modal - Step by step --}}
-    <x-ui-modal wire:model="cycleCreateModalShow" title="Zyklus hinzufügen">
+    <x-ui-modal wire:model="modalShow" title="Zyklus hinzufügen">
         <div class="space-y-4">
             <p class="text-gray-600">Modal wird step-by-step implementiert...</p>
         </div>
