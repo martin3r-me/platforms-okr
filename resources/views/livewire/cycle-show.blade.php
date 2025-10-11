@@ -165,9 +165,37 @@
                                     <div class="flex items-center gap-3">
                                         <div class="font-medium text-lg text-[var(--ui-secondary)]">{{ $objective->title }}</div>
                                         <x-ui-badge variant="secondary" size="sm">{{ $objective->keyResults->count() }} KR</x-ui-badge>
+                                        @php
+                                            $objKeyResults = $objective->keyResults;
+                                            $objCompleted = $objKeyResults->where('performance.is_completed', true)->count();
+                                            $objTotal = $objKeyResults->count();
+                                            $objProgress = $objTotal > 0 ? round(($objCompleted / $objTotal) * 100) : 0;
+                                        @endphp
+                                        <x-ui-badge 
+                                            variant="{{ $objProgress >= 80 ? 'success' : ($objProgress >= 50 ? 'warning' : 'secondary') }}" 
+                                            size="sm"
+                                        >
+                                            {{ $objProgress }}%
+                                        </x-ui-badge>
                                     </div>
                                     @if($objective->description)
                                         <div class="text-sm text-[var(--ui-muted)] mt-2">{{ Str::limit($objective->description, 100) }}</div>
+                                    @endif
+                                    
+                                    {{-- Objective Performance Bar --}}
+                                    @if($objTotal > 0)
+                                        <div class="mt-3">
+                                            <div class="flex items-center justify-between mb-1">
+                                                <span class="text-xs text-[var(--ui-muted)]">Objective Performance</span>
+                                                <span class="text-xs font-medium {{ $objProgress >= 80 ? 'text-green-600' : ($objProgress >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                                    {{ $objCompleted }}/{{ $objTotal }} erreicht
+                                                </span>
+                                            </div>
+                                            <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-1.5">
+                                                <div class="h-1.5 rounded-full transition-all duration-300 {{ $objProgress >= 80 ? 'bg-green-500' : ($objProgress >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}" 
+                                                     style="width: {{ $objProgress }}%"></div>
+                                            </div>
+                                        </div>
                                     @endif
                                 </div>
                                 <div class="flex gap-2">

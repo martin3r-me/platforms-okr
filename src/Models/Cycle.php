@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
@@ -105,6 +106,16 @@ class Cycle extends Model
     public function objectives(): HasMany
     {
         return $this->hasMany(Objective::class)->orderBy('order');
+    }
+
+    public function performances(): HasMany
+    {
+        return $this->hasMany(CyclePerformance::class);
+    }
+
+    public function performance(): HasOne
+    {
+        return $this->hasOne(CyclePerformance::class)->latest();
     }
 
     public function keyResults(): HasManyThrough

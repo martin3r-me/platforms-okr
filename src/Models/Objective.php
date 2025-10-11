@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
 
@@ -89,5 +90,15 @@ class Objective extends Model
     public function keyResults(): HasMany
     {
         return $this->hasMany(KeyResult::class)->orderBy('order');
+    }
+
+    public function performances(): HasMany
+    {
+        return $this->hasMany(ObjectivePerformance::class);
+    }
+
+    public function performance(): HasOne
+    {
+        return $this->hasOne(ObjectivePerformance::class)->latest();
     }
 }

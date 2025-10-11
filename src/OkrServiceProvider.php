@@ -4,6 +4,7 @@ namespace Platform\Okr;
 
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Platform\Core\PlatformCore;
@@ -23,6 +24,7 @@ class OkrServiceProvider extends ServiceProvider
                 \Platform\Okr\Console\Commands\MaintainCycleTemplates::class,
                 \Platform\Okr\Console\Commands\SeedOkrData::class,
                 \Platform\Okr\Console\Commands\SeedOkrLookupData::class,
+                \Platform\Okr\Console\Commands\UpdateOkrPerformance::class,
             ]);
         }
     }
@@ -72,6 +74,9 @@ class OkrServiceProvider extends ServiceProvider
         // Schritt 6: Views & Livewire
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'okr');
         $this->registerLivewireComponents();
+        
+        // Schritt 7: Scheduler für Performance Updates
+        $this->schedulePerformanceUpdates();
     }
 
     private function registerLivewireComponents(): void
@@ -82,5 +87,14 @@ class OkrServiceProvider extends ServiceProvider
         Livewire::component('okr.cycle-show', \Platform\Okr\Livewire\CycleShow::class);
         Livewire::component('okr.objective-show', \Platform\Okr\Livewire\ObjectiveShow::class);
         Livewire::component('okr.sidebar', \Platform\Okr\Livewire\Sidebar::class);
+    }
+
+    private function schedulePerformanceUpdates(): void
+    {
+        // Tägliche Performance Updates um 02:00 Uhr
+        Schedule::command('okr:update-performance')
+            ->dailyAt('02:00')
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 }

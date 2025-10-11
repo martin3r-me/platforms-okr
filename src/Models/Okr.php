@@ -9,7 +9,9 @@ use Platform\ActivityLog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
@@ -122,6 +124,16 @@ class Okr extends Model
     public function cycles(): HasMany
     {
         return $this->hasMany(Cycle::class);
+    }
+
+    public function performances(): HasMany
+    {
+        return $this->hasMany(OkrPerformance::class);
+    }
+
+    public function performance(): HasOne
+    {
+        return $this->hasOne(OkrPerformance::class)->latest();
     }
 
     public function objectives(): HasMany
