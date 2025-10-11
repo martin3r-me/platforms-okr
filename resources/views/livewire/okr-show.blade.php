@@ -318,6 +318,33 @@
     {{-- Cycle Create Modal - Step by step --}}
     <x-ui-modal wire:model="modalShow" title="Zyklus hinzufügen">
         <div class="space-y-4">
+            <x-ui-input-select
+                name="cycleForm.cycle_template_id"
+                label="Zyklus-Vorlage"
+                :options="$this->cycleTemplates"
+                optionValue="id"
+                optionLabel="label"
+                :nullable="true"
+                nullLabel="– Vorlage auswählen –"
+                wire:model="cycleForm.cycle_template_id"
+            />
+            
+            <x-ui-input-select
+                name="cycleForm.status"
+                label="Status"
+                :options="[
+                    ['value' => 'draft', 'label' => 'Entwurf'],
+                    ['value' => 'active', 'label' => 'Aktiv'],
+                    ['value' => 'completed', 'label' => 'Abgeschlossen'],
+                    ['value' => 'ending_soon', 'label' => 'Endet bald'],
+                    ['value' => 'past', 'label' => 'Vergangen']
+                ]"
+                optionValue="value"
+                optionLabel="label"
+                :nullable="false"
+                wire:model="cycleForm.status"
+            />
+            
             <x-ui-input-text
                 name="cycleForm.notes"
                 label="Notizen"
