@@ -301,53 +301,18 @@
         </x-ui-page-sidebar>
     </x-slot>
 
-    {{-- Cycle Create Modal --}}
-    <x-ui-modal wire:model="cycleCreateModalShow" title="Zyklus hinzufügen">
-        <div class="space-y-4">
-            <x-ui-input-select
-                name="cycleForm.cycle_template_id"
-                label="Zyklus-Vorlage"
-                :options="$this->cycleTemplates"
-                optionValue="id"
-                optionLabel="name"
-                :nullable="false"
-                wire:model="cycleForm.cycle_template_id"
-            />
-            
-            <x-ui-input-select
-                name="cycleForm.status"
-                label="Status"
-                :options="[
-                    ['value' => 'draft', 'label' => 'Entwurf'],
-                    ['value' => 'active', 'label' => 'Aktiv'],
-                    ['value' => 'completed', 'label' => 'Abgeschlossen'],
-                    ['value' => 'ending_soon', 'label' => 'Endet bald'],
-                    ['value' => 'past', 'label' => 'Vergangen']
-                ]"
-                optionValue="value"
-                optionLabel="label"
-                :nullable="false"
-                wire:model="cycleForm.status"
-            />
-            
-            <x-ui-input-textarea
-                name="cycleForm.notes"
-                label="Notizen"
-                wire:model="cycleForm.notes"
-                placeholder="Optionale Notizen zum Zyklus"
-                rows="3"
-            />
-        </div>
-        
-        <x-slot name="footer">
-            <div class="flex justify-end space-x-3">
-                <x-ui-button variant="secondary" wire:click="closeCycleCreateModal">
-                    Abbrechen
-                </x-ui-button>
-                <x-ui-button variant="primary" wire:click="saveCycle">
-                    Zyklus erstellen
-                </x-ui-button>
+    {{-- Cycle Create Modal - Temporarily disabled --}}
+    @if($cycleCreateModalShow)
+        <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+                <h3 class="text-lg font-semibold mb-4">Zyklus hinzufügen</h3>
+                <p class="text-gray-600 mb-4">Modal wird später implementiert</p>
+                <div class="flex justify-end">
+                    <button wire:click="closeCycleCreateModal" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">
+                        Schließen
+                    </button>
+                </div>
             </div>
-        </x-slot>
-    </x-ui-modal>
+        </div>
+    @endif
 </x-ui-page>
