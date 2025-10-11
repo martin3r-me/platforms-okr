@@ -23,6 +23,20 @@
                         </div>
                     </x-ui-button>
                 @endif
+                <x-ui-confirm-button 
+                    variant="danger-ghost" 
+                    size="sm"
+                    wire:click="deleteCycle"
+                    confirm-title="Zyklus löschen"
+                    confirm-message="Der Zyklus wird unwiderruflich gelöscht. Alle Objectives, Key Results und Performance-Daten werden ebenfalls entfernt."
+                    confirm-button-text="Zyklus löschen"
+                    cancel-button-text="Abbrechen"
+                >
+                    <div class="flex items-center gap-2">
+                        @svg('heroicon-o-trash', 'w-4 h-4')
+                        Zyklus löschen
+                    </div>
+                </x-ui-confirm-button>
             </x-slot>
         </x-ui-page-navbar>
     </x-slot>
@@ -1141,4 +1155,5 @@
             </div>
         </x-slot>
     </x-ui-modal>
+
 </x-ui-page>

@@ -35,6 +35,7 @@ class CycleShow extends Component
     public $keyResultCurrentValue = '';
     public $keyResultUnit = '';
 
+
     protected $rules = [
         'cycle.status' => 'required|in:draft,active,completed,ending_soon,past',
         'cycle.notes' => 'nullable|string',
@@ -439,6 +440,27 @@ class CycleShow extends Component
         
         $this->cycle->load('objectives.keyResults.performance');
         session()->flash('message', 'Key Result-Reihenfolge aktualisiert!');
+    }
+
+    /**
+     * Delete Cycle
+     */
+    public function deleteCycle()
+    {
+        try {
+            $okrId = $this->cycle->okr_id;
+            $cycleTitle = $this->cycle->template?->label ?? 'Unbekannter Cycle';
+            
+            // Delete the cycle (cascade will handle related data)
+            $this->cycle->delete();
+            
+            // Redirect to OKR show page
+            return redirect()->route('okr.okrs.show', ['okr' => $okrId])
+                ->with('message', "Zyklus '{$cycleTitle}' wurde erfolgreich gelöscht.");
+                
+        } catch (\Exception $e) {
+            session()->flash('error', 'Fehler beim Löschen des Zyklus: ' . $e->getMessage());
+        }
     }
 
     public function render()
