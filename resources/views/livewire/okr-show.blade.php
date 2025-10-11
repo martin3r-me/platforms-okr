@@ -326,12 +326,12 @@
             />
             <x-ui-input-select
                 name="cycleForm.cycle_template_id"
-                label="Rechtsform"
+                label="Zyklus-Vorlage"
                 :options="$cycleTemplates"
                 optionValue="id"
                 optionLabel="label"
-                :nullable="false"
-                nullLabel="– Template auswählen –"
+                :nullable="true"
+                nullLabel="– Vorlage auswählen –"
                 wire:model.live="cycleForm.cycle_template_id"
                 :errorKey="'cycleForm.cycle_template_id'"
             />
@@ -342,7 +342,7 @@
                 <x-ui-button variant="secondary" wire:click="closeCycleCreateModal">
                     Abbrechen
                 </x-ui-button>
-                <x-ui-button variant="primary" wire:click="saveCycle">
+                <x-ui-button variant="primary" wire:click="createCycle">
                     Zyklus erstellen
                 </x-ui-button>
             </div>

@@ -207,6 +207,25 @@ class OkrShow extends Component
         $this->closeCycleEditModal();
     }
 
+    public function createCycle()
+    {
+        $this->validate([
+            'cycleForm.cycle_template_id' => 'required|exists:okr_cycle_templates,id',
+            'cycleForm.notes' => 'nullable|string',
+        ]);
+
+        $this->okr->cycles()->create([
+            'cycle_template_id' => $this->cycleForm['cycle_template_id'],
+            'status' => 'draft',
+            'notes' => $this->cycleForm['notes'],
+            'user_id' => auth()->id(),
+        ]);
+
+        session()->flash('message', 'Zyklus erfolgreich erstellt!');
+        $this->okr->load('cycles.template');
+        $this->closeCycleCreateModal();
+    }
+
     public function deleteCycleAndCloseModal()
     {
         $cycle = $this->okr->cycles()->findOrFail($this->editingCycleId);
