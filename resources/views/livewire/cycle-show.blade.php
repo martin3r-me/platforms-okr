@@ -304,11 +304,34 @@
                                                         <div class="text-xs text-[var(--ui-muted)] text-center mt-0.5">{{ $progressPercent }}%</div>
                                                     </div>
                                                     
-                                                    {{-- Status Badge --}}
+                                                    {{-- Status Badge und Toggle für Boolean --}}
                                                     @if($type === 'boolean')
-                                                        <x-ui-badge variant="{{ $isCompleted ? 'success' : 'secondary' }}" size="xs">
-                                                            {{ $isCompleted ? 'Erledigt' : 'Offen' }}
-                                                        </x-ui-badge>
+                                                        <div class="flex items-center gap-2">
+                                                            <x-ui-badge variant="{{ $isCompleted ? 'success' : 'secondary' }}" size="xs">
+                                                                {{ $isCompleted ? 'Erledigt' : 'Offen' }}
+                                                            </x-ui-badge>
+                                                            @if(!$isCompleted)
+                                                                <x-ui-button 
+                                                                    type="button" 
+                                                                    variant="success" 
+                                                                    size="xs"
+                                                                    wire:click="toggleBooleanKeyResult({{ $keyResult->id }})"
+                                                                >
+                                                                    @svg('heroicon-o-check', 'w-3 h-3')
+                                                                    Erledigen
+                                                                </x-ui-button>
+                                                            @else
+                                                                <x-ui-button 
+                                                                    type="button" 
+                                                                    variant="secondary" 
+                                                                    size="xs"
+                                                                    wire:click="toggleBooleanKeyResult({{ $keyResult->id }})"
+                                                                >
+                                                                    @svg('heroicon-o-x-mark', 'w-3 h-3')
+                                                                    Rückgängig
+                                                                </x-ui-button>
+                                                            @endif
+                                                        </div>
                                                     @else
                                                         <x-ui-badge variant="{{ $isCompleted ? 'success' : ($progressPercent >= 80 ? 'warning' : 'secondary') }}" size="xs">
                                                             {{ $isCompleted ? 'Erreicht' : ($progressPercent >= 80 ? 'Fast erreicht' : 'In Arbeit') }}

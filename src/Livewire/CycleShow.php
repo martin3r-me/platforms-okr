@@ -332,6 +332,46 @@ class CycleShow extends Component
     }
 
     /**
+     * Toggle Boolean Key Result Status (Erledigt/Offen)
+     */
+    public function toggleBooleanKeyResult($keyResultId)
+    {
+        try {
+            $keyResult = \Platform\Okr\Models\KeyResult::findOrFail($keyResultId);
+            
+            if (!$keyResult->performance) {
+                session()->flash('error', 'Keine Performance-Daten gefunden!');
+                return;
+            }
+            
+            if ($keyResult->performance->type !== 'boolean') {
+                session()->flash('error', 'Diese Funktion ist nur für Boolean Key Results verfügbar!');
+                return;
+            }
+            
+            // Neuen Status (gegenteil von aktuell)
+            $newStatus = !$keyResult->performance->is_completed;
+            
+            // Neue Performance-Version erstellen
+            $keyResult->performances()->create([
+                'type' => 'boolean',
+                'target_value' => 1.0, // Boolean Ziel ist immer 1
+                'current_value' => $newStatus ? 1.0 : 0.0,
+                'is_completed' => $newStatus,
+                'performance_score' => $newStatus ? 1.0 : 0.0,
+                'team_id' => auth()->user()->current_team_id,
+                'user_id' => auth()->id(),
+            ]);
+            
+            $this->cycle->load('objectives.keyResults.performance');
+            session()->flash('message', $newStatus ? 'Key Result als erledigt markiert!' : 'Key Result als offen markiert!');
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Fehler beim Umschalten: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Update nur den aktuellen Wert (Performance-Update ohne Zielwert-Änderung)
      */
     public function updateKeyResultPerformance($keyResultId, $newCurrentValue)
