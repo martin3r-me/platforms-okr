@@ -194,6 +194,7 @@ class CycleShow extends Component
     public function closeKeyResultCreateModal()
     {
         $this->keyResultCreateModalShow = false;
+        $this->editingKeyResultObjectiveId = null;
         $this->keyResultTitle = '';
         $this->keyResultDescription = '';
         $this->keyResultValueType = 'absolute';
@@ -251,70 +252,39 @@ class CycleShow extends Component
 
     public function saveKeyResult()
     {
-        \Log::info('saveKeyResult method called');
+        // Einfache Validierung
+        if (empty($this->keyResultTitle)) {
+            session()->flash('error', 'Titel ist erforderlich!');
+            return;
+        }
+        
+        if (empty($this->keyResultValueType)) {
+            session()->flash('error', 'Wert-Typ ist erforderlich!');
+            return;
+        }
+        
+        if (empty($this->keyResultTargetValue)) {
+            session()->flash('error', 'Zielwert ist erforderlich!');
+            return;
+        }
+
+        if (!$this->editingKeyResultObjectiveId) {
+            session()->flash('error', 'Fehler: Objective ID fehlt!');
+            return;
+        }
         
         try {
-            // Debug: Log current values
-            \Log::info('Key Result Save Debug', [
-                'editingKeyResultId' => $this->editingKeyResultId,
-                'editingKeyResultObjectiveId' => $this->editingKeyResultObjectiveId,
-                'keyResultTitle' => $this->keyResultTitle,
-                'keyResultTargetValue' => $this->keyResultTargetValue,
-                'keyResultCurrentValue' => $this->keyResultCurrentValue,
-                'keyResultValueType' => $this->keyResultValueType,
-                'keyResultUnit' => $this->keyResultUnit,
-            ]);
-
-            // Einfache Validation ohne Laravel Validation
-            if (empty($this->keyResultTitle)) {
-                session()->flash('error', 'Titel ist erforderlich!');
-                return;
-            }
-            
-            if (empty($this->keyResultValueType)) {
-                session()->flash('error', 'Wert-Typ ist erforderlich!');
-                return;
-            }
-            
-            if (empty($this->keyResultTargetValue)) {
-                session()->flash('error', 'Zielwert ist erforderlich!');
-                return;
-            }
-            
-            if (!in_array($this->keyResultValueType, ['absolute', 'percentage', 'boolean'])) {
-                session()->flash('error', 'Ungültiger Wert-Typ!');
-                return;
-            }
-
-            if (!$this->editingKeyResultObjectiveId) {
-                session()->flash('error', 'Fehler: Objective ID fehlt!');
-                return;
-            }
-            
             $objective = $this->cycle->objectives()->findOrFail($this->editingKeyResultObjectiveId);
             
-            // Set default unit based on value type
-            $unit = $this->keyResultUnit;
-            if (empty($unit)) {
-                $unit = match($this->keyResultValueType) {
-                    'percentage' => '%',
-                    'boolean' => '',
-                    'absolute' => 'Stück',
-                    default => ''
-                };
-            }
-
             if ($this->editingKeyResultId) {
                 // Update existing Key Result
                 $keyResult = $objective->keyResults()->findOrFail($this->editingKeyResultId);
                 $keyResult->update([
                     'title' => $this->keyResultTitle,
                     'description' => $this->keyResultDescription,
-                    // 'target_value' => $this->keyResultTargetValue, // handled by performance
-                    // 'unit' => $unit, // omit writing unit on KR to avoid missing column
                 ]);
 
-                // Update performance record
+                // Update or create performance record
                 if ($keyResult->performance) {
                     $keyResult->performance->update([
                         'type' => $this->keyResultValueType,
@@ -343,9 +313,6 @@ class CycleShow extends Component
                 $keyResult = $objective->keyResults()->create([
                     'title' => $this->keyResultTitle,
                     'description' => $this->keyResultDescription,
-                    // 'target_value' => $this->keyResultTargetValue, // handled by performance
-                    // 'current_value' => '0', // handled by performance
-                    // 'unit' => $unit, // omit writing unit on KR to avoid missing column
                     'order' => $nextOrder,
                     'team_id' => auth()->user()->current_team_id,
                     'user_id' => auth()->id(),
@@ -369,7 +336,6 @@ class CycleShow extends Component
             $this->cycle->load('objectives.keyResults.performance');
             
         } catch (\Exception $e) {
-            \Log::error('Key Result Save Error: ' . $e->getMessage());
             session()->flash('error', 'Fehler beim Speichern: ' . $e->getMessage());
         }
     }
