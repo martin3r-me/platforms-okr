@@ -905,30 +905,70 @@
                             
                             // Berechne Fortschritt basierend auf Startwert
                             $progressPercent = 0;
+                            $isNegativeProgress = false;
+                            
                             if ($type === 'boolean') {
                                 $progressPercent = $currentPerformance->is_completed ? 100 : 0;
                             } elseif ($type === 'percentage' || $type === 'absolute') {
                                 if ($target > $startValue) {
+                                    // Positive Entwicklung: Start → Ziel
                                     $progressRange = $target - $startValue;
                                     $currentProgress = $current - $startValue;
                                     $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
                                 } elseif ($target < $startValue) {
+                                    // Negative Entwicklung: Start → Ziel (z.B. 100 → 50)
                                     $progressRange = $startValue - $target;
                                     $currentProgress = $startValue - $current;
                                     $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
+                                    $isNegativeProgress = true;
                                 } else {
+                                    // Start = Ziel
                                     $progressPercent = $current >= $target ? 100 : 0;
+                                }
+                            }
+                            
+                            // Bestimme Fortschrittsfarbe
+                            $progressColor = 'bg-[var(--ui-primary)]';
+                            $progressTextColor = 'text-[var(--ui-primary)]';
+                            
+                            if ($isNegativeProgress) {
+                                if ($progressPercent >= 80) {
+                                    $progressColor = 'bg-green-500';
+                                    $progressTextColor = 'text-green-600';
+                                } elseif ($progressPercent >= 50) {
+                                    $progressColor = 'bg-yellow-500';
+                                    $progressTextColor = 'text-yellow-600';
+                                } else {
+                                    $progressColor = 'bg-red-500';
+                                    $progressTextColor = 'text-red-600';
+                                }
+                            } else {
+                                if ($progressPercent >= 80) {
+                                    $progressColor = 'bg-green-500';
+                                    $progressTextColor = 'text-green-600';
+                                } elseif ($progressPercent >= 50) {
+                                    $progressColor = 'bg-yellow-500';
+                                    $progressTextColor = 'text-yellow-600';
+                                } else {
+                                    $progressColor = 'bg-red-500';
+                                    $progressTextColor = 'text-red-600';
                                 }
                             }
                         @endphp
                         
                         <div class="mt-3 pt-3 border-t border-[var(--ui-border)]/40">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="text-xs text-[var(--ui-muted)]">Fortschritt</span>
-                                <span class="text-xs font-medium text-[var(--ui-primary)]">{{ $progressPercent }}%</span>
+                                <span class="text-xs text-[var(--ui-muted)]">
+                                    @if($isNegativeProgress)
+                                        Reduktion
+                                    @else
+                                        Fortschritt
+                                    @endif
+                                </span>
+                                <span class="text-xs font-medium {{ $progressTextColor }}">{{ $progressPercent }}%</span>
                             </div>
                             <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-1.5">
-                                <div class="bg-[var(--ui-primary)] h-1.5 rounded-full transition-all duration-300" style="width: {{ $progressPercent }}%"></div>
+                                <div class="{{ $progressColor }} h-1.5 rounded-full transition-all duration-300" style="width: {{ $progressPercent }}%"></div>
                             </div>
                         </div>
                     </div>
@@ -1001,21 +1041,34 @@
         </div>
 
         <x-slot name="footer">
-            <div class="flex justify-end gap-2">
-                <x-ui-button 
-                    type="button" 
-                    variant="secondary-ghost" 
-                    wire:click="closeKeyResultEditModal"
-                >
-                    Abbrechen
-                </x-ui-button>
-                <x-ui-button 
-                    type="button" 
-                    variant="secondary" 
-                    wire:click="saveKeyResult"
-                >
-                    Performance aktualisieren
-                </x-ui-button>
+            <div class="flex justify-between items-center">
+                <div class="text-xs text-[var(--ui-muted)]">
+                    @if($editingKeyResult && $editingKeyResult->performances->count() > 1)
+                        {{ $editingKeyResult->performances->count() }} Performance-Updates vorhanden
+                    @else
+                        Erste Performance-Änderung
+                    @endif
+                </div>
+                <div class="flex gap-3">
+                    <x-ui-button 
+                        type="button" 
+                        variant="secondary-ghost" 
+                        size="sm"
+                        wire:click="closeKeyResultEditModal"
+                    >
+                        @svg('heroicon-o-x-mark', 'w-4 h-4')
+                        <span class="ml-1">Abbrechen</span>
+                    </x-ui-button>
+                    <x-ui-button 
+                        type="button" 
+                        variant="primary" 
+                        size="sm"
+                        wire:click="saveKeyResult"
+                    >
+                        @svg('heroicon-o-check', 'w-4 h-4')
+                        <span class="ml-1">Performance aktualisieren</span>
+                    </x-ui-button>
+                </div>
             </div>
         </x-slot>
     </x-ui-modal>
