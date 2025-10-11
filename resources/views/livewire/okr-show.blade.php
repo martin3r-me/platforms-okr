@@ -1,6 +1,6 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar :title="$okr->title" icon="heroicon-o-flag">
+        <x-ui-page-navbar :title="$okr->title ?? 'OKR nicht gefunden'" icon="heroicon-o-flag">
             <div class="flex items-center gap-2">
                 <x-ui-button 
                     variant="secondary-ghost" 
@@ -28,6 +28,14 @@
     </x-slot>
 
     <x-slot name="content">
+        {{-- DEBUG: OKR Show View --}}
+        <div class="p-4 bg-red-100 border border-red-300 rounded mb-4">
+            <h3 class="font-bold text-red-800">DEBUG INFO:</h3>
+            <p>OKR ID: {{ $okr->id ?? 'NOT SET' }}</p>
+            <p>OKR Title: {{ $okr->title ?? 'NOT SET' }}</p>
+            <p>OKR Description: {{ $okr->description ?? 'NOT SET' }}</p>
+        </div>
+        
         <div class="flex h-full">
             <!-- Linke Spalte -->
             <div class="flex-grow-1 flex flex-col">
