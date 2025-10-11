@@ -80,7 +80,7 @@ class UpdateOkrPerformance extends Command
             $isCompleted = $completionPercentage >= 100;
             
             // Debug: Check user_id values
-            $userId = $objective->cycle->okr->user_id ?? $objective->cycle->user_id ?? 1; // Fallback to user 1
+            $userId = $objective->cycle->okr->user_id ?? $objective->cycle->user_id ?? \Platform\Core\Models\User::first()?->id ?? 1;
             
             ObjectivePerformance::create([
                 'objective_id' => $objective->id,
@@ -164,7 +164,7 @@ class UpdateOkrPerformance extends Command
             $isCompleted = $completionPercentage >= 100;
             
             // Debug: Check user_id values
-            $userId = $cycle->okr->user_id ?? $cycle->user_id ?? 1; // Fallback to user 1
+            $userId = $cycle->okr->user_id ?? $cycle->user_id ?? \Platform\Core\Models\User::first()?->id ?? 1;
             
             CyclePerformance::create([
                 'cycle_id' => $cycle->id,
@@ -266,7 +266,7 @@ class UpdateOkrPerformance extends Command
             $isCompleted = $completionPercentage >= 100;
             
             // Debug: Check user_id values
-            $userId = $okr->user_id ?? 1; // Fallback to user 1
+            $userId = $okr->user_id ?? \Platform\Core\Models\User::first()?->id ?? 1;
             
             OkrPerformance::create([
                 'okr_id' => $okr->id,
