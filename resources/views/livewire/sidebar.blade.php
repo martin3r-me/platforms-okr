@@ -109,8 +109,8 @@
                     
                     @php
                         $totalOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->count();
-                        $activeOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->where('status', 'active')->count();
-                        $completedOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->where('status', 'completed')->count();
+                        $activeOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->whereNull('performance_score')->count();
+                        $completedOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->where('performance_score', '>=', 100)->count();
                         $averageScore = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->avg('performance_score') ?? 0;
                     @endphp
                     
