@@ -45,7 +45,8 @@
         </x-ui-page-navbar>
     </x-slot>
 
-    <x-ui-page-container spacing="space-y-8">
+    <x-slot name="content">
+        <x-ui-page-container spacing="space-y-8">
         {{-- Flash Messages --}}
         @if(session()->has('message'))
             <div class="p-4 bg-[var(--ui-muted-5)] border border-[var(--ui-border)] rounded-lg">
@@ -261,7 +262,8 @@
                 </div>
             @endif
         </div>
-    </x-ui-page-container>
+        </x-ui-page-container>
+    </x-slot>
 
     <x-slot name="sidebar">
         <x-ui-page-sidebar title="Navigation & Details" width="w-80" :defaultOpen="true">
