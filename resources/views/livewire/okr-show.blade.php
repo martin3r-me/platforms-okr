@@ -166,7 +166,8 @@
             @if($okr->cycles->count() > 0)
                 <div class="space-y-4">
                     @foreach($okr->cycles as $cycle)
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4 hover:border-[var(--ui-border)]/60 transition-colors">
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4 hover:border-[var(--ui-border)]/60 transition-colors cursor-pointer" 
+                             wire:click="openCycle({{ $cycle->id }})">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3">
                                     <div class="w-6 h-6 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded flex items-center justify-center text-xs font-semibold">
@@ -185,7 +186,7 @@
                                     <x-ui-button 
                                         variant="secondary-ghost" 
                                         size="sm"
-                                        wire:click="editCycle({{ $cycle->id }})"
+                                        wire:click.stop="editCycle({{ $cycle->id }})"
                                     >
                                         @svg('heroicon-o-pencil', 'w-4 h-4')
                                     </x-ui-button>

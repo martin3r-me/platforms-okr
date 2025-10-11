@@ -226,6 +226,11 @@ class OkrShow extends Component
         $this->closeCycleCreateModal();
     }
 
+    public function openCycle($cycleId)
+    {
+        $this->redirect(route('okr.cycles.show', ['cycle' => $cycleId]), navigate: true);
+    }
+
     public function deleteCycleAndCloseModal()
     {
         $cycle = $this->okr->cycles()->findOrFail($this->editingCycleId);
