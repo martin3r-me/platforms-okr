@@ -17,6 +17,7 @@
         </x-ui-page-navbar>
     </x-slot>
 
+    <x-slot name="content">
         {{-- Info Banner --}}
         @if($perspective === 'personal')
             <x-ui-info-banner 
@@ -195,5 +196,5 @@
                 </div>
             @endif
         </x-ui-panel>
-    </x-ui-page-container>
+    </x-slot>
 </x-ui-page>
