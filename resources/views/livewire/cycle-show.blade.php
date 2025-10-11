@@ -850,7 +850,7 @@
                 />
             </div>
 
-            {{-- Aktueller Wert Update --}}
+            {{-- Performance Info und Update --}}
             <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
@@ -858,30 +858,58 @@
                     </div>
                     <div>
                         <h3 class="text-lg font-semibold text-[var(--ui-secondary)]">Performance Update</h3>
-                        <p class="text-sm text-[var(--ui-muted)]">Aktuellen Wert aktualisieren</p>
+                        <p class="text-sm text-[var(--ui-muted)]">Neuen aktuellen Wert hinzufügen</p>
                     </div>
                 </div>
 
+                {{-- Aktuelle Performance Info --}}
+                @php
+                    $currentPerformance = $editingKeyResult?->performance;
+                @endphp
+                @if($currentPerformance)
+                    <div class="bg-white rounded-lg border border-[var(--ui-border)]/40 p-3 mb-4">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-[var(--ui-muted)]">Zielwert:</div>
+                            <div class="text-sm font-medium text-[var(--ui-secondary)]">
+                                {{ $currentPerformance->target_value }}@if($currentPerformance->type === 'percentage')% @endif
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <div class="text-sm text-[var(--ui-muted)]">Aktueller Wert:</div>
+                            <div class="text-sm font-medium text-[var(--ui-primary)]">
+                                {{ $currentPerformance->current_value }}@if($currentPerformance->type === 'percentage')% @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Neuer Wert Eingabe --}}
                 @if($keyResultValueType === 'boolean')
-                    {{-- Boolean: Checkbox --}}
-                    <x-ui-input-checkbox
-                        model="keyResultCurrentValue"
-                        label="Erreicht"
-                        wire:model.live="keyResultCurrentValue"
-                    />
+                    {{-- Boolean: Toggle für neuen Status --}}
+                    <div class="space-y-3">
+                        <div class="text-sm font-medium text-[var(--ui-secondary)]">Neuer Status:</div>
+                        <x-ui-input-checkbox
+                            model="keyResultCurrentValue"
+                            label="Erreicht"
+                            wire:model.live="keyResultCurrentValue"
+                        />
+                    </div>
                 @else
-                    {{-- Andere Typen: Aktueller Wert --}}
-                    <x-ui-input-text
-                        name="keyResultCurrentValue"
-                        label="Aktueller Wert"
-                        wire:model.live="keyResultCurrentValue"
-                        :placeholder="match($keyResultValueType) {
-                            'percentage' => 'z.B. 45',
-                            'absolute' => 'z.B. 60',
-                            default => 'Aktueller Wert eingeben...'
-                        }"
-                        required
-                    />
+                    {{-- Andere Typen: Neuer aktueller Wert --}}
+                    <div class="space-y-3">
+                        <div class="text-sm font-medium text-[var(--ui-secondary)]">Neuer aktueller Wert:</div>
+                        <x-ui-input-text
+                            name="keyResultCurrentValue"
+                            label=""
+                            wire:model.live="keyResultCurrentValue"
+                            :placeholder="match($keyResultValueType) {
+                                'percentage' => 'z.B. 45',
+                                'absolute' => 'z.B. 60',
+                                default => 'Neuen Wert eingeben...'
+                            }"
+                            required
+                        />
+                    </div>
                 @endif
             </div>
 
