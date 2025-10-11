@@ -8,7 +8,7 @@
         </x-ui-page-navbar>
     </x-slot>
 
-    <x-slot name="content">
+    <x-ui-page-container>
 
         <div class="mb-4">
             <x-ui-input-text 
@@ -192,7 +192,7 @@
             </div>
         </x-slot>
     </x-ui-modal>
-    </x-slot>
+    </x-ui-page-container>
 
     {{-- Left Sidebar --}}
     <x-slot name="sidebar">
