@@ -53,10 +53,22 @@
                                 {{ $okr->manager->name }}
                             </span>
                         @endif
-                        @if($okr->performance_score)
+                        @php
+                            $okrPerformance = $okr->performance;
+                        @endphp
+                        @if($okrPerformance)
                             <span class="flex items-center gap-2">
                                 @svg('heroicon-o-chart-bar', 'w-4 h-4')
-                                {{ $okr->performance_score }}%
+                                <span class="font-medium {{ $okrPerformance->performance_score >= 80 ? 'text-green-600' : ($okrPerformance->performance_score >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                    {{ $okrPerformance->performance_score }}%
+                                </span>
+                            </span>
+                        @elseif($okr->performance_score)
+                            <span class="flex items-center gap-2">
+                                @svg('heroicon-o-chart-bar', 'w-4 h-4')
+                                <span class="font-medium text-[var(--ui-muted)]">
+                                    {{ $okr->performance_score }}%
+                                </span>
                             </span>
                         @endif
                     </div>
@@ -110,19 +122,7 @@
                         :errorKey="'okr.description'"
                     />
                     
-                    <div class="grid grid-cols-2 gap-4">
-                        <x-ui-input-number
-                            name="okr.performance_score"
-                            label="Performance Score"
-                            wire:model.live.debounce.500ms="okr.performance_score"
-                            placeholder="0"
-                            min="0"
-                            max="100"
-                            step="0.1"
-                            :errorKey="'okr.performance_score'"
-                        />
-                        
-                        <div class="space-y-2">
+                    <div class="space-y-2">
                             <label class="text-sm font-medium text-[var(--ui-secondary)]">Einstellungen</label>
                             <div class="space-y-2">
                                 <x-ui-input-checkbox
@@ -166,6 +166,13 @@
             @if($okr->cycles->count() > 0)
                 <div class="space-y-4">
                     @foreach($okr->cycles as $cycle)
+                        @php
+                            $cyclePerformance = $cycle->performance;
+                            $totalObjectives = $cycle->objectives->count();
+                            $totalKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->count());
+                            $completedKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count());
+                            $cycleProgress = $totalKeyResults > 0 ? round(($completedKeyResults / $totalKeyResults) * 100) : 0;
+                        @endphp
                         <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4 hover:border-[var(--ui-border)]/60 transition-colors cursor-pointer" 
                              wire:click="openCycle({{ $cycle->id }})">
                             <div class="flex items-center justify-between">
@@ -179,9 +186,27 @@
                                             {{ $cycle->starts_at ? $cycle->starts_at->format('d.m.Y') : 'Kein Startdatum' }} - 
                                             {{ $cycle->ends_at ? $cycle->ends_at->format('d.m.Y') : 'Kein Enddatum' }}
                                         </p>
+                                        <p class="text-xs text-[var(--ui-muted)]">
+                                            {{ $totalObjectives }} Objectives • {{ $totalKeyResults }} Key Results
+                                        </p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2">
+                                <div class="flex items-center gap-3">
+                                    @if($cyclePerformance)
+                                        <div class="text-right">
+                                            <div class="text-sm font-medium {{ $cyclePerformance->performance_score >= 80 ? 'text-green-600' : ($cyclePerformance->performance_score >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                                {{ $cyclePerformance->performance_score }}%
+                                            </div>
+                                            <div class="text-xs text-[var(--ui-muted)]">Performance</div>
+                                        </div>
+                                    @else
+                                        <div class="text-right">
+                                            <div class="text-sm font-medium {{ $cycleProgress >= 80 ? 'text-green-600' : ($cycleProgress >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                                {{ $cycleProgress }}%
+                                            </div>
+                                            <div class="text-xs text-[var(--ui-muted)]">Fortschritt</div>
+                                        </div>
+                                    @endif
                                     <x-ui-badge variant="secondary">{{ ucfirst($cycle->status) }}</x-ui-badge>
                                     <x-ui-button 
                                         variant="secondary-ghost" 
@@ -400,4 +425,5 @@
             </div>
         </x-slot>
     </x-ui-modal>
+</x-ui-page>
 </x-ui-page>

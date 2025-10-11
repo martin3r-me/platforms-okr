@@ -68,23 +68,30 @@
                     </div>
                     
                     {{-- Quick Stats --}}
-                    <div class="grid grid-cols-3 gap-4 mt-6">
+                    @php
+                        $cyclePerformance = $cycle->performance;
+                        $totalObjectives = $cycle->objectives->count();
+                        $totalKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->count());
+                        $completedKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count());
+                        $progress = $totalKeyResults > 0 ? round(($completedKeyResults / $totalKeyResults) * 100) : 0;
+                        $performanceScore = $cyclePerformance ? $cyclePerformance->performance_score : $progress;
+                    @endphp
+                    <div class="grid grid-cols-4 gap-4 mt-6">
                         <div class="text-center p-4 bg-white rounded-lg border border-[var(--ui-border)]/40">
-                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $cycle->objectives->count() }}</div>
+                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalObjectives }}</div>
                             <div class="text-xs text-[var(--ui-muted)]">Objectives</div>
                         </div>
                         <div class="text-center p-4 bg-white rounded-lg border border-[var(--ui-border)]/40">
-                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $cycle->objectives->sum(fn($obj) => $obj->keyResults->count()) }}</div>
+                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalKeyResults }}</div>
                             <div class="text-xs text-[var(--ui-muted)]">Key Results</div>
                         </div>
                         <div class="text-center p-4 bg-white rounded-lg border border-[var(--ui-border)]/40">
-                            @php
-                                $totalKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->count());
-                                $completedKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count());
-                                $progress = $totalKeyResults > 0 ? round(($completedKeyResults / $totalKeyResults) * 100) : 0;
-                            @endphp
-                            <div class="text-2xl font-bold text-green-600">{{ $progress }}%</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Fortschritt</div>
+                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $completedKeyResults }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Abgeschlossen</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg border border-[var(--ui-border)]/40">
+                            <div class="text-2xl font-bold {{ $performanceScore >= 80 ? 'text-green-600' : ($performanceScore >= 50 ? 'text-yellow-600' : 'text-red-600') }}">{{ $performanceScore }}%</div>
+                            <div class="text-xs text-[var(--ui-muted)]">{{ $cyclePerformance ? 'Performance' : 'Fortschritt' }}</div>
                         </div>
                     </div>
                 </div>
@@ -375,89 +382,65 @@
                     </div>
                 </div>
 
-                {{-- Cycle Statistiken --}}
+                {{-- Cycle Performance --}}
                 <div>
-                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Cycle Statistiken</h3>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Cycle Performance</h3>
                     <div class="space-y-3">
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-[var(--ui-secondary)]">Fortschritt</span>
-                                <span class="text-sm text-[var(--ui-muted)]">
-                                    @php
-                                        $totalKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->count());
-                                        $completedKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count());
-                                        $progress = $totalKeyResults > 0 ? round(($completedKeyResults / $totalKeyResults) * 100) : 0;
-                                        
-                                        // Berechne durchschnittlichen Fortschritt aller Key Results
-                                        $totalProgress = 0;
-                                        $keyResultsWithProgress = 0;
-                                        foreach($cycle->objectives as $objective) {
-                                            foreach($objective->keyResults as $keyResult) {
-                                                if($keyResult->performance) {
-                                                    $target = $keyResult->performance->target_value ?? 0;
-                                                    $current = $keyResult->performance->current_value ?? 0;
-                                                    $type = $keyResult->performance->type;
-                                                    
-                                                    // Hole den ersten Performance-Wert als Ausgangswert
-                                                    $firstPerformance = $keyResult->performances()->orderBy('created_at', 'asc')->first();
-                                                    $startValue = $firstPerformance?->current_value ?? 0;
-                                                    
-                                                    if($type === 'boolean') {
-                                                        $totalProgress += $keyResult->performance->is_completed ? 100 : 0;
-                                                    } elseif($type === 'percentage' || $type === 'absolute') {
-                                                        if ($target > $startValue) {
-                                                            // Fortschritt von Startwert zum Ziel
-                                                            $progressRange = $target - $startValue;
-                                                            $currentProgress = $current - $startValue;
-                                                            $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
-                                                        } elseif ($target < $startValue) {
-                                                            // Rückwärts-Fortschritt
-                                                            $progressRange = $startValue - $target;
-                                                            $currentProgress = $startValue - $current;
-                                                            $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
-                                                        } else {
-                                                            $progressPercent = $current >= $target ? 100 : 0;
-                                                        }
-                                                        $totalProgress += $progressPercent;
-                                                    }
-                                                    $keyResultsWithProgress++;
-                                                }
-                                            }
-                                        }
-                                        $averageProgress = $keyResultsWithProgress > 0 ? round($totalProgress / $keyResultsWithProgress) : 0;
-                                    @endphp
-                                    {{ $averageProgress }}% (Ø)
-                                </span>
+                        @php
+                            $cyclePerformance = $cycle->performance;
+                            $totalObjectives = $cycle->objectives->count();
+                            $totalKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->count());
+                            $completedKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count());
+                            $progress = $totalKeyResults > 0 ? round(($completedKeyResults / $totalKeyResults) * 100) : 0;
+                            $performanceScore = $cyclePerformance ? $cyclePerformance->performance_score : $progress;
+                        @endphp
+                        
+                        @if($cyclePerformance)
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Gesamt Performance</span>
+                                    <span class="text-sm font-bold {{ $cyclePerformance->performance_score >= 80 ? 'text-green-600' : ($cyclePerformance->performance_score >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                        {{ $cyclePerformance->performance_score }}%
+                                    </span>
+                                </div>
+                                <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-2 mb-2">
+                                    <div class="h-2 rounded-full {{ $cyclePerformance->performance_score >= 80 ? 'bg-green-500' : ($cyclePerformance->performance_score >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}" 
+                                         style="width: {{ $cyclePerformance->performance_score }}%"></div>
+                                </div>
+                                <div class="text-xs text-[var(--ui-muted)]">
+                                    {{ $cyclePerformance->completed_objectives }}/{{ $cyclePerformance->total_objectives }} Objectives • 
+                                    {{ $cyclePerformance->completed_key_results }}/{{ $cyclePerformance->total_key_results }} Key Results
+                                </div>
                             </div>
-                            <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-2">
-                                <div class="bg-[var(--ui-primary)] h-2 rounded-full transition-all duration-300" style="width: {{ $averageProgress }}%"></div>
+                        @else
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Fortschritt</span>
+                                    <span class="text-sm font-bold {{ $progress >= 80 ? 'text-green-600' : ($progress >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                        {{ $progress }}%
+                                    </span>
+                                </div>
+                                <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-2 mb-2">
+                                    <div class="h-2 rounded-full {{ $progress >= 80 ? 'bg-green-500' : ($progress >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}" 
+                                         style="width: {{ $progress }}%"></div>
+                                </div>
+                                <div class="text-xs text-[var(--ui-muted)]">
+                                    {{ $completedKeyResults }}/{{ $totalKeyResults }} Key Results abgeschlossen
+                                </div>
                             </div>
-                            <div class="text-xs text-[var(--ui-muted)] mt-1">
-                                {{ $completedKeyResults }}/{{ $totalKeyResults }} erreicht
-                            </div>
-                        </div>
-
+                        @endif
+                        
                         <div class="grid grid-cols-2 gap-3">
                             <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
-                                <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $cycle->objectives->count() }}</div>
+                                <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $totalObjectives }}</div>
                                 <div class="text-xs text-[var(--ui-muted)]">Objectives</div>
                             </div>
                             <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
-                                <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $cycle->objectives->sum(fn($obj) => $obj->keyResults->count()) }}</div>
+                                <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $totalKeyResults }}</div>
                                 <div class="text-xs text-[var(--ui-muted)]">Key Results</div>
                             </div>
                         </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
-                                <div class="text-2xl font-bold text-green-600">{{ $completedKeyResults }}</div>
-                                <div class="text-xs text-[var(--ui-muted)]">Erreicht</div>
-                            </div>
-                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
-                                <div class="text-2xl font-bold text-orange-600">{{ $totalKeyResults - $completedKeyResults }}</div>
-                                <div class="text-xs text-[var(--ui-muted)]">Offen</div>
-                            </div>
-                        </div>
+                        
 
                         {{-- Objective Performance --}}
                         @if($cycle->objectives->count() > 0)
