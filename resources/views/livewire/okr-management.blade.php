@@ -298,7 +298,6 @@
             </div>
         </x-slot>
     </x-ui-modal>
-    </x-ui-page-container>
 
     {{-- Left Sidebar --}}
     <x-slot name="sidebar">
