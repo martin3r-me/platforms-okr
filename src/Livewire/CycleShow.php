@@ -35,6 +35,8 @@ class CycleShow extends Component
     public $keyResultCurrentValue = '';
     public $keyResultUnit = '';
 
+    // Delete Modal Properties
+    public $deleteModalShow = false;
 
     protected $rules = [
         'cycle.status' => 'required|in:draft,active,completed,ending_soon,past',
@@ -440,6 +442,22 @@ class CycleShow extends Component
         
         $this->cycle->load('objectives.keyResults.performance');
         session()->flash('message', 'Key Result-Reihenfolge aktualisiert!');
+    }
+
+    /**
+     * Open Delete Modal
+     */
+    public function openDeleteModal()
+    {
+        $this->deleteModalShow = true;
+    }
+
+    /**
+     * Close Delete Modal
+     */
+    public function closeDeleteModal()
+    {
+        $this->deleteModalShow = false;
     }
 
     /**
