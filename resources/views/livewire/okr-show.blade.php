@@ -173,7 +173,7 @@
                                         {{ $loop->iteration }}
                                     </div>
                                     <div>
-                                        <h4 class="font-medium text-[var(--ui-secondary)]">{{ $cycle->cycleTemplate->name ?? 'Unbekannter Zyklus' }}</h4>
+                                        <h4 class="font-medium text-[var(--ui-secondary)]">{{ $cycle->template->label ?? 'Unbekannter Zyklus' }}</h4>
                                         <p class="text-sm text-[var(--ui-muted)]">
                                             {{ $cycle->starts_at ? $cycle->starts_at->format('d.m.Y') : 'Kein Startdatum' }} - 
                                             {{ $cycle->ends_at ? $cycle->ends_at->format('d.m.Y') : 'Kein Enddatum' }}
