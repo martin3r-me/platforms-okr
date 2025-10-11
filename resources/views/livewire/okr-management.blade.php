@@ -237,22 +237,30 @@
                     <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Filter</h3>
                     <div class="space-y-3">
                         <div>
-                            <label class="text-xs font-medium text-[var(--ui-secondary)] mb-1 block">Status</label>
-                            <select class="w-full text-xs px-2 py-1 border border-[var(--ui-border)] rounded">
-                                <option value="all">Alle</option>
-                                <option value="draft">Entwurf</option>
-                                <option value="active">Aktiv</option>
-                                <option value="completed">Abgeschlossen</option>
-                            </select>
+                            <x-ui-input-select
+                                name="statusFilter"
+                                label="Status"
+                                :options="[
+                                    'all' => 'Alle',
+                                    'draft' => 'Entwurf',
+                                    'active' => 'Aktiv',
+                                    'completed' => 'Abgeschlossen'
+                                ]"
+                                :nullable="false"
+                                size="sm"
+                            />
                         </div>
                         <div>
-                            <label class="text-xs font-medium text-[var(--ui-secondary)] mb-1 block">Manager</label>
-                            <select class="w-full text-xs px-2 py-1 border border-[var(--ui-border)] rounded">
-                                <option value="">– Alle –</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
-                            </select>
+                            <x-ui-input-select
+                                name="managerFilter"
+                                label="Manager"
+                                :options="$users"
+                                optionValue="id"
+                                optionLabel="name"
+                                :nullable="true"
+                                nullLabel="– Alle –"
+                                size="sm"
+                            />
                         </div>
                     </div>
                 </div>

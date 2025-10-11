@@ -66,7 +66,7 @@ class OkrManagement extends Component
             'users' => $users,
             'sortField' => $this->sortField,
             'sortDirection' => $this->sortDirection,
-        ]);
+        ])->layout('platform::layouts.app');
     }
 
     public function createOkr()
