@@ -15,6 +15,11 @@ class Sidebar extends Component
         
     }
 
+    public function openCreateModal()
+    {
+        return redirect()->route('okr.okrs.index');
+    }
+
 
 
     public function render()

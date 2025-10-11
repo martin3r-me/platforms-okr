@@ -147,4 +147,19 @@ class Okr extends Model
             ->withPivot('role')
             ->withTimestamps();
     }
+
+    /**
+     * Scope für sichtbare OKRs für einen User
+     */
+    public function scopeVisibleFor($query, User $user)
+    {
+        return $query->where('team_id', $user->current_team_id)
+            ->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id)
+                  ->orWhere('manager_user_id', $user->id)
+                  ->orWhereHas('members', function ($m) use ($user) {
+                      $m->where('users.id', $user->id);
+                  });
+            });
+    }
 }

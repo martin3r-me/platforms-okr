@@ -32,6 +32,16 @@ class Dashboard extends Component
     public $activeObjectivesCount = 0;
     public $activeKeyResultsCount = 0;
     public $activeOkrsCount = 0;
+    
+    // Dashboard-Variablen
+    public $totalOkrsCount = 0;
+    public $draftOkrsCount = 0;
+    public $completedOkrsCount = 0;
+    public $endingSoonOkrsCount = 0;
+    public $averageScore = 0;
+    public $achievedObjectivesCount = 0;
+    public $openKeyResultsCount = 0;
+    public $achievedKeyResultsCount = 0;
 
     public function mount()
     {
@@ -102,6 +112,23 @@ class Dashboard extends Component
         $this->activeObjectivesCount = $this->activeCycles->sum(fn ($c) => $c->objectives->count());
         $this->activeKeyResultsCount = $this->activeCycles->sum(fn ($c) => $c->objectives->sum(fn ($o) => $o->keyResults->count()));
         $this->activeOkrsCount = $this->activeCycles->pluck('okr_id')->unique()->count();
+
+        // Dashboard-Statistiken berechnen
+        $this->totalOkrsCount = $this->okrs->count();
+        $this->draftOkrsCount = $this->okrs->where('status', 'draft')->count();
+        $this->completedOkrsCount = $this->okrs->where('status', 'completed')->count();
+        $this->endingSoonOkrsCount = $this->okrs->where('status', 'ending_soon')->count();
+        
+        // Performance-Statistiken
+        $this->averageScore = $this->okrs->where('performance_score', '!=', null)->avg('performance_score') ?? 0;
+        
+        // Objectives und Key Results Statistiken
+        $allObjectives = $this->activeCycles->flatMap->objectives;
+        $allKeyResults = $allObjectives->flatMap->keyResults;
+        
+        $this->achievedObjectivesCount = $allObjectives->where('status', 'completed')->count();
+        $this->openKeyResultsCount = $allKeyResults->where('status', '!=', 'completed')->count();
+        $this->achievedKeyResultsCount = $allKeyResults->where('status', 'completed')->count();
 
         // Verfügbare Vorlagen (derzeit nicht mehr im Dashboard sichtbar)
         $this->availableTemplates = collect();
