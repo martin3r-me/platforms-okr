@@ -1,3 +1,11 @@
+{{-- SIMPLE TEST VIEW --}}
+<div class="p-8">
+    <h1 class="text-2xl font-bold text-red-600">OKR SHOW TEST</h1>
+    <p>Wenn du das siehst, funktioniert die Livewire-Komponente!</p>
+    <p>OKR ID: {{ $okr->id ?? 'NOT SET' }}</p>
+    <p>OKR Title: {{ $okr->title ?? 'NOT SET' }}</p>
+</div>
+
 <x-ui-page>
     <x-slot name="navbar">
         <x-ui-page-navbar :title="$okr->title ?? 'OKR nicht gefunden'" icon="heroicon-o-flag">
