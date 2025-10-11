@@ -252,4 +252,189 @@
             </div>
         </x-slot>
     </x-ui-modal>
+
+    {{-- Left Sidebar --}}
+    <x-slot name="sidebar">
+        <x-ui-page-sidebar title="OKR Übersicht" width="w-80" :defaultOpen="true">
+            <div class="p-6 space-y-6">
+                {{-- Navigation --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Navigation</h3>
+                    <div class="space-y-2">
+                        <x-ui-button
+                            variant="secondary-outline"
+                            size="sm"
+                            :href="route('okr.dashboard')"
+                            wire:navigate
+                            class="w-full"
+                        >
+                            <span class="flex items-center gap-2">
+                                @svg('heroicon-o-home', 'w-4 h-4')
+                                Zum Dashboard
+                            </span>
+                        </x-ui-button>
+                        <x-ui-button
+                            variant="secondary-outline"
+                            size="sm"
+                            :href="route('okr.okrs.index')"
+                            wire:navigate
+                            class="w-full"
+                        >
+                            <span class="flex items-center gap-2">
+                                @svg('heroicon-o-flag', 'w-4 h-4')
+                                Zu allen OKRs
+                            </span>
+                        </x-ui-button>
+                    </div>
+                </div>
+
+                {{-- OKR Performance --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">OKR Performance</h3>
+                    <div class="space-y-3">
+                        @php
+                            $okrPerformance = $okr->performance;
+                            $totalCycles = $okr->cycles->count();
+                            $totalObjectives = $okr->cycles->sum(fn($cycle) => $cycle->objectives->count());
+                            $totalKeyResults = $okr->cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->count()));
+                            $completedKeyResults = $okr->cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count()));
+                        @endphp
+                        
+                        @if($okrPerformance)
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Gesamt Performance</span>
+                                    <span class="text-sm font-bold {{ $okrPerformance->performance_score >= 80 ? 'text-green-600' : ($okrPerformance->performance_score >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                        {{ $okrPerformance->performance_score }}%
+                                    </span>
+                                </div>
+                                <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-2 mb-2">
+                                    <div class="h-2 rounded-full {{ $okrPerformance->performance_score >= 80 ? 'bg-green-500' : ($okrPerformance->performance_score >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}" 
+                                         style="width: {{ $okrPerformance->performance_score }}%"></div>
+                                </div>
+                                <div class="text-xs text-[var(--ui-muted)]">
+                                    {{ $okrPerformance->completed_cycles }}/{{ $okrPerformance->total_cycles }} Cycles • 
+                                    {{ $okrPerformance->completed_objectives }}/{{ $okrPerformance->total_objectives }} Objectives
+                                </div>
+                            </div>
+                        @endif
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                                <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $totalCycles }}</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Cycles</div>
+                            </div>
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                                <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $totalObjectives }}</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Objectives</div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                                <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $totalKeyResults }}</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Key Results</div>
+                            </div>
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                                <div class="text-lg font-bold text-green-600">{{ $completedKeyResults }}</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Abgeschlossen</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- OKR Details --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">OKR Details</h3>
+                    <div class="space-y-3">
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Team</span>
+                                    <span class="text-sm text-[var(--ui-muted)]">{{ $okr->team->name ?? 'Kein Team' }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Manager</span>
+                                    <span class="text-sm text-[var(--ui-muted)]">{{ $okr->manager->name ?? 'Kein Manager' }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Auto Transfer</span>
+                                    <span class="text-sm text-[var(--ui-muted)]">{{ $okr->auto_transfer ? 'Ja' : 'Nein' }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Erstellt</span>
+                                    <span class="text-sm text-[var(--ui-muted)]">{{ $okr->created_at->format('d.m.Y') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </x-ui-page-sidebar>
+    </x-slot>
+
+    {{-- Right Sidebar --}}
+    <x-slot name="activity">
+        <x-ui-page-sidebar title="Aktivitäten" width="w-80" :defaultOpen="false">
+            <div class="p-6 space-y-6">
+                {{-- Recent Activities --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Letzte Aktivitäten</h3>
+                    <div class="space-y-3">
+                        @if($activities && $activities->count() > 0)
+                            @foreach($activities as $activity)
+                                <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3">
+                                    <div class="flex items-start gap-3">
+                                        <div class="w-6 h-6 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-full flex items-center justify-center text-xs">
+                                            @svg('heroicon-o-flag', 'w-3 h-3')
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm text-[var(--ui-secondary)]">{{ $activity->description ?? 'OKR Aktivität' }}</p>
+                                            <p class="text-xs text-[var(--ui-muted)] mt-1">{{ $activity->created_at->diffForHumans() }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="text-center py-8">
+                                <div class="w-12 h-12 bg-[var(--ui-muted-5)] rounded-full flex items-center justify-center mx-auto mb-3">
+                                    @svg('heroicon-o-flag', 'w-6 h-6 text-[var(--ui-muted)]')
+                                </div>
+                                <p class="text-sm text-[var(--ui-muted)]">Keine Aktivitäten vorhanden</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Quick Actions --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Schnellaktionen</h3>
+                    <div class="space-y-2">
+                        <x-ui-button
+                            variant="primary"
+                            size="sm"
+                            wire:click="openCycleCreateModal"
+                            class="w-full"
+                        >
+                            <span class="flex items-center gap-2">
+                                @svg('heroicon-o-plus', 'w-4 h-4')
+                                Zyklus hinzufügen
+                            </span>
+                        </x-ui-button>
+                        <x-ui-button
+                            variant="secondary-outline"
+                            size="sm"
+                            wire:click="save"
+                            class="w-full"
+                        >
+                            <span class="flex items-center gap-2">
+                                @svg('heroicon-o-check', 'w-4 h-4')
+                                Speichern
+                            </span>
+                        </x-ui-button>
+                    </div>
+                </div>
+            </div>
+        </x-ui-page-sidebar>
+    </x-slot>
 </x-ui-page>
