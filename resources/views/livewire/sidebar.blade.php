@@ -29,7 +29,6 @@
             icon="heroicon-o-plus"
             label="OKR anlegen"
             :active="false"
-            wire:click="openCreateModal"
         />
     </div>
 

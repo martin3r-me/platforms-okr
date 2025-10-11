@@ -9,6 +9,15 @@
     </x-slot>
 
     <x-slot name="content">
+        {{-- Debug Info --}}
+        <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <h3 class="font-semibold text-blue-800">OKR Management Debug:</h3>
+            <p class="text-sm text-blue-700">
+                OKRs: {{ $okrs->count() }} | 
+                Users: {{ $users->count() ?? 0 }}
+            </p>
+        </div>
+
         <div class="mb-4">
             <x-ui-input-text 
                 name="search" 

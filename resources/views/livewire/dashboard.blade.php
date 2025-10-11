@@ -35,16 +35,6 @@
             />
         @endif
 
-        {{-- Debug Info --}}
-        <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h3 class="font-semibold text-yellow-800">Debug Info:</h3>
-            <p class="text-sm text-yellow-700">
-                OKRs: {{ $activeOkrsCount }} | 
-                Cycles: {{ $activeCyclesCount }} | 
-                Objectives: {{ $activeObjectivesCount }} | 
-                Key Results: {{ $activeKeyResultsCount }}
-            </p>
-        </div>
 
         {{-- Main Stats Grid --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
