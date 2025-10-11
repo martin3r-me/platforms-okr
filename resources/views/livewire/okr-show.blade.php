@@ -2,15 +2,33 @@
     <x-slot name="navbar">
         <x-ui-page-navbar :title="$okr->title" icon="heroicon-o-flag">
             <x-slot name="titleActions">
-                <x-ui-button variant="secondary-ghost" size="sm" rounded="full" iconOnly="true" x-data @click="$dispatch('open-modal-task-settings', { taskId: {{ $okr->id }} })" title="Einstellungen">
-                    @svg('heroicon-o-cog-6-tooth','w-4 h-4')
+                <x-ui-button 
+                    variant="secondary-ghost" 
+                    size="sm"
+                    :href="route('okr.dashboard')" 
+                    wire:navigate
+                >
+                    @svg('heroicon-o-arrow-left', 'w-4 h-4')
+                    <span class="ml-1">Dashboard</span>
                 </x-ui-button>
             </x-slot>
-            
         </x-ui-page-navbar>
     </x-slot>
 
     <x-ui-page-container spacing="space-y-8">
+        {{-- Flash Messages --}}
+        @if(session()->has('message'))
+            <div class="p-4 bg-[var(--ui-muted-5)] border border-[var(--ui-border)] rounded-lg">
+                <p class="text-[var(--ui-secondary)]">{{ session('message') }}</p>
+            </div>
+        @endif
+
+        @if(session()->has('error'))
+            <div class="p-4 bg-[var(--ui-muted-5)] border border-[var(--ui-border)] rounded-lg">
+                <p class="text-[var(--ui-secondary)] font-medium">Fehler:</p>
+                <p class="text-[var(--ui-muted)]">{{ session('error') }}</p>
+            </div>
+        @endif
         {{-- Modern Header --}}
         <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
             <div class="flex items-start justify-between">
