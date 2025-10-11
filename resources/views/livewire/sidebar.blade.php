@@ -1,5 +1,10 @@
 {{-- OKR Sidebar --}}
 <div>
+    {{-- Debug Info --}}
+    <div class="p-2 bg-red-100 text-red-800 text-xs">
+        OKR Sidebar geladen! OKRs: {{ $okrs->count() }}
+    </div>
+    
     {{-- Modul Header --}}
     <x-sidebar-module-header module-name="OKR" />
     
