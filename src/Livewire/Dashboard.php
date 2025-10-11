@@ -40,9 +40,15 @@ class Dashboard extends Component
     public $completedOkrsCount = 0;
     public $endingSoonOkrsCount = 0;
     public $averageScore = 0;
+    public $successfulOkrsCount = 0;
     public $achievedObjectivesCount = 0;
     public $openKeyResultsCount = 0;
     public $achievedKeyResultsCount = 0;
+    
+    // Trend-Variablen
+    public $scoreTrend = 0;
+    public $okrTrend = 0;
+    public $achievementTrend = 0;
 
     public function mount()
     {
