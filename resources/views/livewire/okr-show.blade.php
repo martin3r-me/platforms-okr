@@ -307,9 +307,7 @@
             <x-ui-input-select
                 name="cycleForm.cycle_template_id"
                 label="Zyklus-Vorlage"
-                :options="$this->cycleTemplates"
-                optionValue="id"
-                optionLabel="name"
+                :options="$this->cycleTemplates->map(fn($template) => ['value' => $template->id, 'label' => $template->name])->toArray()"
                 wire:model="cycleForm.cycle_template_id"
                 required
             />
