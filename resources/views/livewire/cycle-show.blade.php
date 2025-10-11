@@ -430,6 +430,57 @@
                                 <div class="text-xs text-[var(--ui-muted)]">Offen</div>
                             </div>
                         </div>
+
+                        {{-- Objective Performance --}}
+                        @if($cycle->objectives->count() > 0)
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Objective Performance</span>
+                                    <span class="text-xs text-[var(--ui-muted)]">Durchschnitt</span>
+                                </div>
+                                <div class="space-y-2">
+                                    @foreach($cycle->objectives as $objective)
+                                        @php
+                                            $objKeyResults = $objective->keyResults;
+                                            $objCompleted = $objKeyResults->where('performance.is_completed', true)->count();
+                                            $objTotal = $objKeyResults->count();
+                                            $objProgress = $objTotal > 0 ? round(($objCompleted / $objTotal) * 100) : 0;
+                                        @endphp
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-2 flex-1">
+                                                <div class="w-2 h-2 rounded-full {{ $objProgress >= 80 ? 'bg-green-500' : ($objProgress >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}"></div>
+                                                <span class="text-xs text-[var(--ui-secondary)] truncate">{{ Str::limit($objective->title, 20) }}</span>
+                                            </div>
+                                            <span class="text-xs font-medium {{ $objProgress >= 80 ? 'text-green-600' : ($objProgress >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                                {{ $objProgress }}%
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        {{-- OKR Performance (falls verfügbar) --}}
+                        @if($cycle->okr)
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">OKR Performance</span>
+                                    <span class="text-sm text-[var(--ui-muted)]">
+                                        @php
+                                            $okrScore = $cycle->okr->performance_score ?? 0;
+                                        @endphp
+                                        {{ $okrScore }}%
+                                    </span>
+                                </div>
+                                <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-2">
+                                    <div class="bg-[var(--ui-primary)] h-2 rounded-full transition-all duration-300" style="width: {{ $okrScore }}%"></div>
+                                </div>
+                                <div class="flex items-center justify-between mt-2 text-xs text-[var(--ui-muted)]">
+                                    <span>{{ $cycle->okr->title }}</span>
+                                    <span>{{ $cycle->okr->status ?? 'Aktiv' }}</span>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
@@ -906,21 +957,24 @@
                             // Berechne Fortschritt basierend auf Startwert
                             $progressPercent = 0;
                             $isNegativeProgress = false;
+                            $isRueckschritt = false;
                             
                             if ($type === 'boolean') {
                                 $progressPercent = $currentPerformance->is_completed ? 100 : 0;
                             } elseif ($type === 'percentage' || $type === 'absolute') {
                                 if ($target > $startValue) {
                                     // Positive Entwicklung: Start → Ziel
-                                    $progressRange = $target - $startValue;
-                                    $currentProgress = $current - $startValue;
-                                    $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
+                                    $progressPercent = min(100, max(-100, round((($current - $startValue) / ($target - $startValue)) * 100)));
+                                    if ($progressPercent < 0) {
+                                        $isRueckschritt = true;
+                                    }
                                 } elseif ($target < $startValue) {
                                     // Negative Entwicklung: Start → Ziel (z.B. 100 → 50)
-                                    $progressRange = $startValue - $target;
-                                    $currentProgress = $startValue - $current;
-                                    $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
+                                    $progressPercent = min(100, max(-100, round((($startValue - $current) / ($startValue - $target)) * 100)));
                                     $isNegativeProgress = true;
+                                    if ($progressPercent < 0) {
+                                        $isRueckschritt = true;
+                                    }
                                 } else {
                                     // Start = Ziel
                                     $progressPercent = $current >= $target ? 100 : 0;
@@ -931,7 +985,12 @@
                             $progressColor = 'bg-[var(--ui-primary)]';
                             $progressTextColor = 'text-[var(--ui-primary)]';
                             
-                            if ($isNegativeProgress) {
+                            if ($isRueckschritt) {
+                                // Rückschritt: Rot
+                                $progressColor = 'bg-red-500';
+                                $progressTextColor = 'text-red-600';
+                            } elseif ($isNegativeProgress) {
+                                // Negative Entwicklung (Reduktion)
                                 if ($progressPercent >= 80) {
                                     $progressColor = 'bg-green-500';
                                     $progressTextColor = 'text-green-600';
@@ -943,6 +1002,7 @@
                                     $progressTextColor = 'text-red-600';
                                 }
                             } else {
+                                // Positive Entwicklung
                                 if ($progressPercent >= 80) {
                                     $progressColor = 'bg-green-500';
                                     $progressTextColor = 'text-green-600';
@@ -959,16 +1019,24 @@
                         <div class="mt-3 pt-3 border-t border-[var(--ui-border)]/40">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-xs text-[var(--ui-muted)]">
-                                    @if($isNegativeProgress)
+                                    @if($isRueckschritt)
+                                        Rückschritt
+                                    @elseif($isNegativeProgress)
                                         Reduktion
                                     @else
                                         Fortschritt
                                     @endif
                                 </span>
-                                <span class="text-xs font-medium {{ $progressTextColor }}">{{ $progressPercent }}%</span>
+                                <span class="text-xs font-medium {{ $progressTextColor }}">
+                                    @if($progressPercent < 0)
+                                        {{ $progressPercent }}%
+                                    @else
+                                        {{ $progressPercent }}%
+                                    @endif
+                                </span>
                             </div>
                             <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-1.5">
-                                <div class="{{ $progressColor }} h-1.5 rounded-full transition-all duration-300" style="width: {{ $progressPercent }}%"></div>
+                                <div class="{{ $progressColor }} h-1.5 rounded-full transition-all duration-300" style="width: {{ abs($progressPercent) }}%"></div>
                             </div>
                         </div>
                     </div>
