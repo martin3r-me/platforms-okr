@@ -871,8 +871,20 @@
                     $currentPerformance = $editingKeyResult?->performance;
                 @endphp
                 @if($currentPerformance)
+                    @php
+                        // Hole den ersten Performance-Wert als Startwert
+                        $firstPerformance = $editingKeyResult->performances()->orderBy('created_at', 'asc')->first();
+                        $startValue = $firstPerformance?->current_value ?? 0;
+                    @endphp
+                    
                     <div class="bg-white rounded-lg border border-[var(--ui-border)]/40 p-3 mb-4">
                         <div class="flex items-center justify-between">
+                            <div class="text-sm text-[var(--ui-muted)]">Startwert:</div>
+                            <div class="text-sm font-medium text-blue-600">
+                                {{ $startValue }}@if($currentPerformance->type === 'percentage')% @endif
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
                             <div class="text-sm text-[var(--ui-muted)]">Zielwert:</div>
                             <div class="text-sm font-medium text-[var(--ui-secondary)]">
                                 {{ $currentPerformance->target_value }}@if($currentPerformance->type === 'percentage')% @endif
@@ -882,6 +894,41 @@
                             <div class="text-sm text-[var(--ui-muted)]">Aktueller Wert:</div>
                             <div class="text-sm font-medium text-[var(--ui-primary)]">
                                 {{ $currentPerformance->current_value }}@if($currentPerformance->type === 'percentage')% @endif
+                            </div>
+                        </div>
+                        
+                        {{-- Fortschrittsbalken --}}
+                        @php
+                            $target = $currentPerformance->target_value ?? 0;
+                            $current = $currentPerformance->current_value ?? 0;
+                            $type = $currentPerformance->type;
+                            
+                            // Berechne Fortschritt basierend auf Startwert
+                            $progressPercent = 0;
+                            if ($type === 'boolean') {
+                                $progressPercent = $currentPerformance->is_completed ? 100 : 0;
+                            } elseif ($type === 'percentage' || $type === 'absolute') {
+                                if ($target > $startValue) {
+                                    $progressRange = $target - $startValue;
+                                    $currentProgress = $current - $startValue;
+                                    $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
+                                } elseif ($target < $startValue) {
+                                    $progressRange = $startValue - $target;
+                                    $currentProgress = $startValue - $current;
+                                    $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
+                                } else {
+                                    $progressPercent = $current >= $target ? 100 : 0;
+                                }
+                            }
+                        @endphp
+                        
+                        <div class="mt-3 pt-3 border-t border-[var(--ui-border)]/40">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs text-[var(--ui-muted)]">Fortschritt</span>
+                                <span class="text-xs font-medium text-[var(--ui-primary)]">{{ $progressPercent }}%</span>
+                            </div>
+                            <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-1.5">
+                                <div class="bg-[var(--ui-primary)] h-1.5 rounded-full transition-all duration-300" style="width: {{ $progressPercent }}%"></div>
                             </div>
                         </div>
                     </div>
