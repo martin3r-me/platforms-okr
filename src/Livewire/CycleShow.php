@@ -284,26 +284,16 @@ class CycleShow extends Component
                     'description' => $this->keyResultDescription,
                 ]);
 
-                // Update or create performance record
-                if ($keyResult->performance) {
-                    $keyResult->performance->update([
-                        'type' => $this->keyResultValueType,
-                        'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
-                        'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
-                        'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
-                        'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
-                    ]);
-                } else {
-                    $keyResult->performances()->create([
-                        'type' => $this->keyResultValueType,
-                        'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
-                        'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
-                        'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
-                        'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
-                        'team_id' => auth()->user()->current_team_id,
-                        'user_id' => auth()->id(),
-                    ]);
-                }
+                // Immer eine neue Performance-Version erstellen (Versionierung)
+                $keyResult->performances()->create([
+                    'type' => $this->keyResultValueType,
+                    'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
+                    'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
+                    'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
+                    'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
+                    'team_id' => auth()->user()->current_team_id,
+                    'user_id' => auth()->id(),
+                ]);
                 
                 $this->closeKeyResultEditModal();
                 session()->flash('message', 'Key Result erfolgreich aktualisiert!');
@@ -319,7 +309,7 @@ class CycleShow extends Component
                     'user_id' => auth()->id(),
                 ]);
 
-                // Create initial performance record
+                // Create initial performance record (erste Version)
                 $keyResult->performances()->create([
                     'type' => $this->keyResultValueType,
                     'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
@@ -338,6 +328,33 @@ class CycleShow extends Component
             
         } catch (\Exception $e) {
             session()->flash('error', 'Fehler beim Speichern: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Update nur den aktuellen Wert (Performance-Update ohne Zielwert-Änderung)
+     */
+    public function updateKeyResultPerformance($keyResultId, $newCurrentValue)
+    {
+        try {
+            $keyResult = \Platform\Okr\Models\KeyResult::findOrFail($keyResultId);
+            
+            // Neue Performance-Version erstellen
+            $keyResult->performances()->create([
+                'type' => $keyResult->performance->type,
+                'target_value' => $keyResult->performance->target_value, // Zielwert bleibt unverändert
+                'current_value' => (float) $newCurrentValue,
+                'is_completed' => $keyResult->performance->type === 'boolean' ? (bool) $newCurrentValue : ($newCurrentValue >= $keyResult->performance->target_value),
+                'performance_score' => $keyResult->performance->type === 'boolean' ? ($newCurrentValue ? 1.0 : 0.0) : ($newCurrentValue / $keyResult->performance->target_value),
+                'team_id' => auth()->user()->current_team_id,
+                'user_id' => auth()->id(),
+            ]);
+            
+            $this->cycle->load('objectives.keyResults.performance');
+            session()->flash('message', 'Performance erfolgreich aktualisiert!');
+            
+        } catch (\Exception $e) {
+            session()->flash('error', 'Fehler beim Aktualisieren: ' . $e->getMessage());
         }
     }
 

@@ -213,31 +213,60 @@
                                             <div class="flex items-center gap-2 flex-shrink-0">
                                                 @php
                                                     $type = $keyResult->performance?->type;
+                                                    $target = $keyResult->performance?->target_value ?? 0;
+                                                    $current = $keyResult->performance?->current_value ?? 0;
+                                                    $isCompleted = $keyResult->performance?->is_completed ?? false;
+                                                    
+                                                    // Berechne Fortschritt in Prozent
+                                                    $progressPercent = 0;
+                                                    if ($type === 'boolean') {
+                                                        $progressPercent = $isCompleted ? 100 : 0;
+                                                    } elseif ($type === 'percentage') {
+                                                        $progressPercent = min(100, round(($current / $target) * 100));
+                                                    } elseif ($type === 'absolute' && $target > 0) {
+                                                        $progressPercent = min(100, round(($current / $target) * 100));
+                                                    }
+                                                    
+                                                    // Berechne Distanz zum Ziel
+                                                    $distanceToTarget = $target - $current;
                                                 @endphp
+                                                
                                                 <x-ui-badge variant="secondary" size="xs">
                                                     {{ $type ? ucfirst($type) : 'Ohne Typ' }}
                                                 </x-ui-badge>
 
-                                                <x-ui-badge variant="secondary" size="xs">
-                                                    Ziel: 
-                                                    @if($keyResult->performance)
-                                                        {{ $keyResult->performance->target_value }}@if($keyResult->performance->type === 'percentage') % @endif
+                                                @if($keyResult->performance)
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="text-xs text-[var(--ui-muted)]">
+                                                            Ziel: {{ $target }}@if($type === 'percentage')% @endif
+                                                        </div>
+                                                        <div class="text-xs text-[var(--ui-muted)]">
+                                                            Aktuell: {{ $current }}@if($type === 'percentage')% @endif
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {{-- Fortschrittsbalken --}}
+                                                    <div class="w-16">
+                                                        <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-1.5">
+                                                            <div class="bg-[var(--ui-primary)] h-1.5 rounded-full transition-all duration-300" 
+                                                                 style="width: {{ $progressPercent }}%"></div>
+                                                        </div>
+                                                        <div class="text-xs text-[var(--ui-muted)] text-center mt-0.5">{{ $progressPercent }}%</div>
+                                                    </div>
+                                                    
+                                                    {{-- Status Badge --}}
+                                                    @if($type === 'boolean')
+                                                        <x-ui-badge variant="{{ $isCompleted ? 'success' : 'secondary' }}" size="xs">
+                                                            {{ $isCompleted ? 'Erledigt' : 'Offen' }}
+                                                        </x-ui-badge>
                                                     @else
-                                                        –
+                                                        <x-ui-badge variant="{{ $isCompleted ? 'success' : ($progressPercent >= 80 ? 'warning' : 'secondary') }}" size="xs">
+                                                            {{ $isCompleted ? 'Erreicht' : ($progressPercent >= 80 ? 'Fast erreicht' : 'In Arbeit') }}
+                                                        </x-ui-badge>
                                                     @endif
-                                                </x-ui-badge>
-
-                                                <x-ui-badge variant="secondary" size="xs">
-                                                    @if($keyResult->performance)
-                                                        @if($keyResult->performance->type === 'boolean')
-                                                            {{ $keyResult->performance->is_completed ? 'Erledigt' : 'Offen' }}
-                                                        @else
-                                                            Aktuell: {{ $keyResult->performance->current_value }}@if($keyResult->performance->type === 'percentage') % @endif
-                                                        @endif
-                                                    @else
-                                                        Aktuell: –
-                                                    @endif
-                                                </x-ui-badge>
+                                                @else
+                                                    <x-ui-badge variant="secondary" size="xs">Keine Performance</x-ui-badge>
+                                                @endif
                                             </div>
                                         </div>
                                     @endforeach
@@ -315,12 +344,36 @@
                                         $totalKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->count());
                                         $completedKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count());
                                         $progress = $totalKeyResults > 0 ? round(($completedKeyResults / $totalKeyResults) * 100) : 0;
+                                        
+                                        // Berechne durchschnittlichen Fortschritt aller Key Results
+                                        $totalProgress = 0;
+                                        $keyResultsWithProgress = 0;
+                                        foreach($cycle->objectives as $objective) {
+                                            foreach($objective->keyResults as $keyResult) {
+                                                if($keyResult->performance) {
+                                                    $target = $keyResult->performance->target_value ?? 0;
+                                                    $current = $keyResult->performance->current_value ?? 0;
+                                                    $type = $keyResult->performance->type;
+                                                    
+                                                    if($type === 'boolean') {
+                                                        $totalProgress += $keyResult->performance->is_completed ? 100 : 0;
+                                                    } elseif($type === 'percentage' || $type === 'absolute') {
+                                                        $totalProgress += $target > 0 ? min(100, round(($current / $target) * 100)) : 0;
+                                                    }
+                                                    $keyResultsWithProgress++;
+                                                }
+                                            }
+                                        }
+                                        $averageProgress = $keyResultsWithProgress > 0 ? round($totalProgress / $keyResultsWithProgress) : 0;
                                     @endphp
-                                    {{ $progress }}%
+                                    {{ $averageProgress }}% (Ø)
                                 </span>
                             </div>
                             <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-2">
-                                <div class="bg-[var(--ui-primary)] h-2 rounded-full transition-all duration-300" style="width: {{ $progress }}%"></div>
+                                <div class="bg-[var(--ui-primary)] h-2 rounded-full transition-all duration-300" style="width: {{ $averageProgress }}%"></div>
+                            </div>
+                            <div class="text-xs text-[var(--ui-muted)] mt-1">
+                                {{ $completedKeyResults }}/{{ $totalKeyResults }} erreicht
                             </div>
                         </div>
 
