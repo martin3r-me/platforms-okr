@@ -318,16 +318,19 @@
     {{-- Cycle Create Modal - Step by step --}}
     <x-ui-modal wire:model="modalShow" title="Zyklus hinzufügen">
         <div class="space-y-4">
-            <x-ui-input-select
-                name="cycleForm.cycle_template_id"
-                label="Zyklus-Vorlage"
-                :options="$this->cycleTemplates"
-                optionValue="id"
-                optionLabel="name"
-                :nullable="true"
-                nullLabel="– Vorlage auswählen –"
-                wire:model="cycleForm.cycle_template_id"
-            />
+            <div>
+                <label class="block text-sm font-medium text-[var(--ui-secondary)] mb-2">Zyklus-Vorlage</label>
+                <select wire:model="cycleForm.cycle_template_id" class="w-full px-3 py-2 border border-[var(--ui-border)] rounded-lg focus:ring-2 focus:ring-[var(--ui-primary)] focus:border-[var(--ui-primary)]">
+                    <option value="">– Vorlage auswählen –</option>
+                    @if($this->cycleTemplates->count() > 0)
+                        @foreach($this->cycleTemplates as $template)
+                            <option value="{{ $template->id }}">{{ $template->label ?? 'Unbekannt' }}</option>
+                        @endforeach
+                    @else
+                        <option value="" disabled>Keine Vorlagen verfügbar</option>
+                    @endif
+                </select>
+            </div>
             
             <x-ui-input-select
                 name="cycleForm.status"
