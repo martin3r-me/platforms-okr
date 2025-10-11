@@ -15,7 +15,7 @@
             @svg('heroicon-o-flag', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">OKRs</span>
         </x-ui-sidebar-item>
-        <x-ui-sidebar-item :href="route('okr.okrs.index')">
+        <x-ui-sidebar-item wire:click="openCreateModal">
             @svg('heroicon-o-plus', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">OKR anlegen</span>
         </x-ui-sidebar-item>
@@ -30,9 +30,9 @@
             <a href="{{ route('okr.okrs.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
                 @svg('heroicon-o-flag', 'w-5 h-5')
             </a>
-            <a href="{{ route('okr.okrs.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
+            <button type="button" wire:click="openCreateModal" class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
                 @svg('heroicon-o-plus', 'w-5 h-5')
-            </a>
+            </button>
         </div>
     </div>
 
@@ -53,4 +53,96 @@
             @endif
         </div>
     </div>
+
+    <!-- Create OKR Modal -->
+    <x-ui-modal
+        wire:model="modalShow"
+        size="lg"
+    >
+        <x-slot name="header">
+            OKR anlegen
+        </x-slot>
+
+        <div class="space-y-4">
+            <form wire:submit.prevent="createOkr" class="space-y-4">
+                <x-ui-input-text
+                    name="title"
+                    label="Titel"
+                    wire:model.live="title"
+                    required
+                    placeholder="Titel des OKR eingeben"
+                />
+
+                <x-ui-input-textarea
+                    name="description"
+                    label="Beschreibung"
+                    wire:model.live="description"
+                    placeholder="Detaillierte Beschreibung des OKR (optional)"
+                    rows="3"
+                />
+
+                <div class="grid grid-cols-2 gap-4">
+                    <x-ui-input-number
+                        name="performance_score"
+                        label="Performance Score (%)"
+                        wire:model.live="performance_score"
+                        min="0"
+                        max="100"
+                        required
+                    />
+
+                    <x-ui-input-select
+                        name="manager_user_id"
+                        label="Verantwortlicher Manager"
+                        :options="$users"
+                        optionValue="id"
+                        optionLabel="name"
+                        :nullable="true"
+                        nullLabel="– Manager auswählen –"
+                        wire:model.live="manager_user_id"
+                    />
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2">
+                        <input 
+                            type="checkbox" 
+                            id="auto_transfer"
+                            wire:model.live="auto_transfer"
+                            class="w-4 h-4 text-[var(--ui-primary)] bg-[var(--ui-muted-5)] border-[var(--ui-border)] rounded focus:ring-[var(--ui-primary)] focus:ring-2"
+                        >
+                        <label for="auto_transfer" class="text-sm font-medium text-[var(--ui-secondary)]">
+                            Automatisch übertragen
+                        </label>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input 
+                            type="checkbox" 
+                            id="is_template"
+                            wire:model.live="is_template"
+                            class="w-4 h-4 text-[var(--ui-primary)] bg-[var(--ui-muted-5)] border-[var(--ui-border)] rounded focus:ring-[var(--ui-primary)] focus:ring-2"
+                        >
+                        <label for="is_template" class="text-sm font-medium text-[var(--ui-secondary)]">
+                            Als Template speichern
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <x-slot name="footer">
+            <div class="flex justify-end gap-2">
+                <x-ui-button 
+                    type="button" 
+                    variant="secondary-ghost" 
+                    wire:click="closeCreateModal"
+                >
+                    Abbrechen
+                </x-ui-button>
+                <x-ui-button type="button" variant="secondary" wire:click="createOkr">
+                    OKR anlegen
+                </x-ui-button>
+            </div>
+        </x-slot>
+    </x-ui-modal>
 </div>

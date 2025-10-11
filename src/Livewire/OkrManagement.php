@@ -35,6 +35,14 @@ class OkrManagement extends Component
         'manager_user_id' => 'nullable|exists:users,id',
     ];
 
+    public function mount()
+    {
+        // Prüfe, ob das Modal geöffnet werden soll
+        if (request()->get('create') || str_contains(request()->url(), '#create')) {
+            $this->modalShow = true;
+        }
+    }
+
     public function render()
     {
         $okrs = Okr::with(['user', 'manager', 'cycles'])
