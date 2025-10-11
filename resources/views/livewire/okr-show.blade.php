@@ -381,8 +381,8 @@
                 <div>
                     <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Letzte Aktivitäten</h3>
                     <div class="space-y-3">
-                        @if($activities && $activities->count() > 0)
-                            @foreach($activities as $activity)
+                        @if($this->activities && $this->activities->count() > 0)
+                            @foreach($this->activities as $activity)
                                 <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3">
                                     <div class="flex items-start gap-3">
                                         <div class="w-6 h-6 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-full flex items-center justify-center text-xs">
