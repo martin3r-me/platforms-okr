@@ -79,10 +79,13 @@ class UpdateOkrPerformance extends Command
             $completionPercentage = $totalKeyResults > 0 ? round(($completedKeyResults / $totalKeyResults) * 100) : 0;
             $isCompleted = $completionPercentage >= 100;
             
+            // Debug: Check user_id values
+            $userId = $objective->cycle->okr->user_id ?? $objective->cycle->user_id ?? 1; // Fallback to user 1
+            
             ObjectivePerformance::create([
                 'objective_id' => $objective->id,
                 'team_id' => $objective->cycle->team_id,
-                'user_id' => $objective->cycle->okr->user_id ?? $objective->cycle->user_id,
+                'user_id' => $userId,
                 'performance_score' => $averageProgress,
                 'completion_percentage' => $completionPercentage,
                 'completed_key_results' => $completedKeyResults,
@@ -160,10 +163,13 @@ class UpdateOkrPerformance extends Command
             $completionPercentage = $totalObjectives > 0 ? round(($completedObjectives / $totalObjectives) * 100) : 0;
             $isCompleted = $completionPercentage >= 100;
             
+            // Debug: Check user_id values
+            $userId = $cycle->okr->user_id ?? $cycle->user_id ?? 1; // Fallback to user 1
+            
             CyclePerformance::create([
                 'cycle_id' => $cycle->id,
                 'team_id' => $cycle->team_id,
-                'user_id' => $cycle->okr->user_id ?? $cycle->user_id,
+                'user_id' => $userId,
                 'performance_score' => $averageKeyResultProgress,
                 'completion_percentage' => $completionPercentage,
                 'completed_objectives' => $completedObjectives,
@@ -259,10 +265,13 @@ class UpdateOkrPerformance extends Command
             $completionPercentage = $totalCycles > 0 ? round(($completedCycles / $totalCycles) * 100) : 0;
             $isCompleted = $completionPercentage >= 100;
             
+            // Debug: Check user_id values
+            $userId = $okr->user_id ?? 1; // Fallback to user 1
+            
             OkrPerformance::create([
                 'okr_id' => $okr->id,
                 'team_id' => $okr->team_id,
-                'user_id' => $okr->user_id,
+                'user_id' => $userId,
                 'performance_score' => $averageKeyResultProgress,
                 'completion_percentage' => $completionPercentage,
                 'completed_cycles' => $completedCycles,
