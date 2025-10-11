@@ -24,24 +24,6 @@
                     </x-ui-button>
                 @endif
             </x-slot>
-            
-            {{-- Breadcrumbs --}}
-            <div class="flex items-center space-x-2 text-sm">
-                <a href="{{ route('okr.dashboard') }}" class="text-[var(--ui-secondary)] hover:text-[var(--ui-primary)] flex items-center gap-1">
-                    @svg('heroicon-o-home', 'w-4 h-4')
-                    Dashboard
-                </a>
-                <span class="text-[var(--ui-muted)]">›</span>
-                <a href="{{ route('okr.okrs.show', ['okr' => $cycle->okr_id]) }}" class="text-[var(--ui-secondary)] hover:text-[var(--ui-primary)] flex items-center gap-1">
-                    @svg('heroicon-o-flag', 'w-4 h-4')
-                    {{ $cycle->okr->title }}
-                </a>
-                <span class="text-[var(--ui-muted)]">›</span>
-                <span class="text-[var(--ui-muted)] flex items-center gap-1">
-                    @svg('heroicon-o-calendar', 'w-4 h-4')
-                    {{ $cycle->template?->label ?? 'Unbekannter Cycle' }}
-                </span>
-            </div>
         </x-ui-page-navbar>
     </x-slot>
 
@@ -404,21 +386,21 @@
             </form>
         </div>
 
-            <x-slot name="footer">
-                <div class="flex justify-end gap-2">
-                    <x-ui-button 
-                        type="button" 
-                        variant="secondary-ghost" 
-                        wire:click="closeObjectiveCreateModal"
-                    >
-                        Abbrechen
-                    </x-ui-button>
-                    <x-ui-button type="button" variant="secondary" wire:click="saveObjective">
-                        Hinzufügen
-                    </x-ui-button>
-                </div>
-            </x-slot>
-        </x-ui-modal>
+        <x-slot name="footer">
+            <div class="flex justify-end gap-2">
+                <x-ui-button 
+                    type="button" 
+                    variant="secondary-ghost" 
+                    wire:click="closeObjectiveCreateModal"
+                >
+                    Abbrechen
+                </x-ui-button>
+                <x-ui-button type="button" variant="secondary" wire:click="saveObjective">
+                    Hinzufügen
+                </x-ui-button>
+            </div>
+        </x-slot>
+    </x-ui-modal>
 
     <!-- Objective Edit Modal -->
     <x-ui-modal
@@ -457,32 +439,32 @@
             </form>
         </div>
 
-            <x-slot name="footer">
-                <div class="flex justify-between items-center gap-4">
-                    <div class="flex-shrink-0">
-                        <x-ui-confirm-button 
-                            action="deleteObjectiveAndCloseModal" 
-                            text="Löschen" 
-                            confirmText="Wirklich löschen?" 
-                            variant="secondary-ghost"
-                            :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
-                        />
-                    </div>
-                    <div class="flex gap-2 flex-shrink-0">
-                        <x-ui-button 
-                            type="button" 
-                            variant="secondary-ghost" 
-                            wire:click="closeObjectiveEditModal"
-                        >
-                            Abbrechen
-                        </x-ui-button>
-                        <x-ui-button type="button" variant="secondary" wire:click="saveObjective">
-                            Speichern
-                        </x-ui-button>
-                    </div>
+        <x-slot name="footer">
+            <div class="flex justify-between items-center gap-4">
+                <div class="flex-shrink-0">
+                    <x-ui-confirm-button 
+                        action="deleteObjectiveAndCloseModal" 
+                        text="Löschen" 
+                        confirmText="Wirklich löschen?" 
+                        variant="secondary-ghost"
+                        :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
+                    />
                 </div>
-            </x-slot>
-        </x-ui-modal>
+                <div class="flex gap-2 flex-shrink-0">
+                    <x-ui-button 
+                        type="button" 
+                        variant="secondary-ghost" 
+                        wire:click="closeObjectiveEditModal"
+                    >
+                        Abbrechen
+                    </x-ui-button>
+                    <x-ui-button type="button" variant="secondary" wire:click="saveObjective">
+                        Speichern
+                    </x-ui-button>
+                </div>
+            </div>
+        </x-slot>
+    </x-ui-modal>
 
     <!-- Key Result Create Modal -->
     <x-ui-modal
@@ -691,5 +673,4 @@
             </div>
         </x-slot>
     </x-ui-modal>
-    </x-slot>
 </x-ui-page>
