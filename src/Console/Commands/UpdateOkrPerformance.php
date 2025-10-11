@@ -32,7 +32,7 @@ class UpdateOkrPerformance extends Command
     {
         $this->info('Updating Objective performances...');
         
-        $objectives = Objective::with(['keyResults.performance', 'keyResults.performances'])
+        $objectives = Objective::with(['keyResults.performance', 'keyResults.performances', 'cycle.okr'])
             ->whereHas('cycle')
             ->get();
 
@@ -82,7 +82,7 @@ class UpdateOkrPerformance extends Command
             ObjectivePerformance::create([
                 'objective_id' => $objective->id,
                 'team_id' => $objective->cycle->team_id,
-                'user_id' => $objective->cycle->user_id,
+                'user_id' => $objective->cycle->okr->user_id ?? $objective->cycle->user_id,
                 'performance_score' => $averageProgress,
                 'completion_percentage' => $completionPercentage,
                 'completed_key_results' => $completedKeyResults,
@@ -163,7 +163,7 @@ class UpdateOkrPerformance extends Command
             CyclePerformance::create([
                 'cycle_id' => $cycle->id,
                 'team_id' => $cycle->team_id,
-                'user_id' => $cycle->user_id,
+                'user_id' => $cycle->okr->user_id ?? $cycle->user_id,
                 'performance_score' => $averageKeyResultProgress,
                 'completion_percentage' => $completionPercentage,
                 'completed_objectives' => $completedObjectives,
