@@ -50,13 +50,8 @@ class OkrShow extends Component
         $this->okr = $okr;
         $this->okr->load(['user', 'manager', 'cycles.template', 'members']);
         
-        // Load cycle templates like in CRM - transform to array
-        $this->cycleTemplates = CycleTemplate::orderBy('starts_at')->get()->map(function($template) {
-            return [
-                'id' => $template->id,
-                'label' => $template->label
-            ];
-        })->toArray();
+        // Load cycle templates like in CRM - direct collection
+        $this->cycleTemplates = CycleTemplate::orderBy('starts_at')->get();
     }
 
     #[Computed]
