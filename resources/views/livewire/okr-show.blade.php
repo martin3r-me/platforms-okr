@@ -229,4 +229,70 @@
             </div>
         </div>
     </x-ui-page-container>
+
+    <x-slot name="settings">
+        <x-ui-page-sidebar title="Einstellungen" width="w-80" :defaultOpen="false" storeKey="settingsOpen" side="right">
+            <div class="p-4 space-y-6">
+                {{-- Team Info --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Team</h3>
+                    <div class="space-y-2">
+                        <div class="text-sm">
+                            <span class="text-[var(--ui-muted)]">Name:</span>
+                            <span class="text-[var(--ui-secondary)]">{{ $okr->team->name ?? 'Kein Team' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- OKR Info --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">OKR Details</h3>
+                    <div class="space-y-2">
+                        <div class="text-sm">
+                            <span class="text-[var(--ui-muted)]">Erstellt von:</span>
+                            <span class="text-[var(--ui-secondary)]">{{ $okr->user->name ?? 'Unbekannt' }}</span>
+                        </div>
+                        <div class="text-sm">
+                            <span class="text-[var(--ui-muted)]">Erstellt am:</span>
+                            <span class="text-[var(--ui-secondary)]">{{ $okr->created_at->format('d.m.Y H:i') }}</span>
+                        </div>
+                        <div class="text-sm">
+                            <span class="text-[var(--ui-muted)]">Zuletzt geändert:</span>
+                            <span class="text-[var(--ui-secondary)]">{{ $okr->updated_at->format('d.m.Y H:i') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Actions --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Aktionen</h3>
+                    <div class="space-y-2">
+                        <x-ui-button 
+                            variant="secondary" 
+                            :href="route('okr.okrs.index')" 
+                            wire:navigate
+                            class="w-full"
+                        >
+                            @svg('heroicon-o-arrow-left', 'w-4 h-4')
+                            <span class="ml-1">Zurück zu OKRs</span>
+                        </x-ui-button>
+                    </div>
+                </div>
+            </div>
+        </x-ui-page-sidebar>
+    </x-slot>
+
+    <x-slot name="activity">
+        <x-ui-page-sidebar title="Aktivitäten" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
+            <div class="p-4 space-y-4">
+                <div class="text-sm text-[var(--ui-muted)]">Letzte Aktivitäten</div>
+                <div class="space-y-3 text-sm">
+                    <div class="p-2 rounded border border-[var(--ui-border)]/60 bg-[var(--ui-muted-5)]">
+                        <div class="font-medium text-[var(--ui-secondary)] truncate">OKR erstellt</div>
+                        <div class="text-[var(--ui-muted)]">{{ $okr->created_at->diffForHumans() }}</div>
+                    </div>
+                </div>
+            </div>
+        </x-ui-page-sidebar>
+    </x-slot>
 </x-ui-page>
