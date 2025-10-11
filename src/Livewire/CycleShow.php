@@ -291,6 +291,7 @@ class CycleShow extends Component
                         'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
                         'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
                         'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
+                        'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
                     ]);
                 } else {
                     $keyResult->performances()->create([
@@ -298,7 +299,7 @@ class CycleShow extends Component
                         'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
                         'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
                         'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
-                        'performance_score' => 0.0,
+                        'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
                         'team_id' => auth()->user()->current_team_id,
                         'user_id' => auth()->id(),
                     ]);
@@ -324,7 +325,7 @@ class CycleShow extends Component
                     'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
                     'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
                     'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
-                    'performance_score' => 0.0,
+                    'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
                     'team_id' => auth()->user()->current_team_id,
                     'user_id' => auth()->id(),
                 ]);
