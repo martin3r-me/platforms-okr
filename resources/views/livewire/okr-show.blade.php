@@ -7,30 +7,6 @@
                 </x-ui-button>
             </x-slot>
             
-            {{-- Simple Breadcrumbs --}}
-            <div class="flex items-center space-x-2 text-sm">
-                <a href="{{ route('okr.dashboard') }}" class="text-[var(--ui-secondary)] hover:text-[var(--ui-primary)] flex items-center gap-1">
-                    @svg('heroicon-o-home', 'w-4 h-4')
-                    Dashboard
-                </a>
-                <span class="text-[var(--ui-muted)]">›</span>
-                <a href="{{ route('okr.okrs.index') }}" class="text-[var(--ui-secondary)] hover:text-[var(--ui-primary)] flex items-center gap-1">
-                    @svg('heroicon-o-flag', 'w-4 h-4')
-                    OKRs
-                </a>
-                <span class="text-[var(--ui-muted)]">›</span>
-                <span class="text-[var(--ui-muted)] flex items-center gap-1">
-                    @svg('heroicon-o-flag', 'w-4 h-4')
-                    {{ $okr->title }}
-                </span>
-            </div>
-            
-            <x-ui-button variant="secondary" size="sm" wire:click="save">
-                <span class="inline-flex items-center gap-2">
-                    @svg('heroicon-o-check', 'w-4 h-4')
-                    <span class="hidden sm:inline">Speichern</span>
-                </span>
-            </x-ui-button>
         </x-ui-page-navbar>
     </x-slot>
 
