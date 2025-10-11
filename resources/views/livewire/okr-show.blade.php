@@ -197,9 +197,9 @@
                         </div>
                         
                         <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-6">
-                            @if($activities->count() > 0)
+                            @if($this->activities->count() > 0)
                                 <div class="space-y-4">
-                                    @foreach($activities as $activity)
+                                    @foreach($this->activities as $activity)
                                         <div class="flex items-start gap-3 pb-4 border-b border-[var(--ui-border)]/40 last:border-b-0 last:pb-0">
                                             <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-full flex items-center justify-center text-xs font-semibold">
                                                 {{ substr($activity->causer->name ?? 'System', 0, 1) }}
