@@ -323,9 +323,9 @@
                 label="Zyklus-Vorlage"
                 :options="$this->cycleTemplates"
                 optionValue="id"
-                optionLabel="title"
+                optionLabel="name"
                 :nullable="true"
-                nullLabel="-- Vorlage auswählen --"
+                nullLabel="– Vorlage auswählen –"
                 wire:model="cycleForm.cycle_template_id"
             />
             
