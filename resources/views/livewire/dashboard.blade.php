@@ -198,4 +198,104 @@
             @endif
         </x-ui-panel>
     </x-ui-page-container>
+
+    {{-- Left Sidebar --}}
+    <x-slot name="sidebar">
+        <x-ui-page-sidebar title="Schnellzugriff" width="w-80" :defaultOpen="true">
+            <div class="p-6 space-y-6">
+                {{-- Quick Actions --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Schnellzugriff</h3>
+                    <div class="space-y-2">
+                        <x-ui-button variant="secondary" size="sm" :href="route('okr.okrs.index')" wire:navigate class="w-full justify-start">
+                            @svg('heroicon-o-flag', 'w-4 h-4')
+                            <span class="ml-2">Alle OKRs</span>
+                        </x-ui-button>
+                        <x-ui-button variant="secondary" size="sm" wire:click="openCreateModal" class="w-full justify-start">
+                            @svg('heroicon-o-plus', 'w-4 h-4')
+                            <span class="ml-2">Neues OKR</span>
+                        </x-ui-button>
+                    </div>
+                </div>
+
+                {{-- Aktuelle Statistiken --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Statistiken</h3>
+                    <div class="space-y-3">
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $activeOkrsCount }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Aktive OKRs</div>
+                        </div>
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-2xl font-bold text-green-600">{{ $activeCyclesCount }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Aktive Zyklen</div>
+                        </div>
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-2xl font-bold text-blue-600">{{ $activeObjectivesCount }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Objectives</div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Filter --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Filter</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs font-medium text-[var(--ui-secondary)] mb-1 block">Status</label>
+                            <select wire:model.live="statusFilter" class="w-full text-xs px-2 py-1 border border-[var(--ui-border)] rounded">
+                                <option value="all">Alle</option>
+                                <option value="draft">Entwurf</option>
+                                <option value="active">Aktiv</option>
+                                <option value="completed">Abgeschlossen</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-xs font-medium text-[var(--ui-secondary)] mb-1 block">Manager</label>
+                            <select wire:model.live="managerFilter" class="w-full text-xs px-2 py-1 border border-[var(--ui-border)] rounded">
+                                <option value="">– Alle –</option>
+                                @foreach($managers as $manager)
+                                    <option value="{{ $manager->id }}">{{ $manager->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </x-ui-page-sidebar>
+    </x-slot>
+
+    {{-- Right Sidebar --}}
+    <x-slot name="activity">
+        <x-ui-page-sidebar title="Aktivitäten" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
+            <div class="p-6 space-y-6">
+                {{-- Recent Activities --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Letzte Aktivitäten</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="text-[var(--ui-muted)]">Keine Aktivitäten verfügbar</div>
+                    </div>
+                </div>
+
+                {{-- Performance Übersicht --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Performance</h3>
+                    <div class="space-y-3">
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-lg font-bold text-[var(--ui-primary)]">{{ round($averageScore ?? 0, 1) }}%</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Durchschnitt Score</div>
+                        </div>
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-lg font-bold text-green-600">{{ $achievedObjectivesCount ?? 0 }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Erreichte Ziele</div>
+                        </div>
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-lg font-bold text-blue-600">{{ $achievedKeyResultsCount ?? 0 }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Erreichte KR</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </x-ui-page-sidebar>
+    </x-slot>
 </x-ui-page>
