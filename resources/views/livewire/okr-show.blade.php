@@ -255,7 +255,7 @@
 
     {{-- Left Sidebar --}}
     <x-slot name="sidebar">
-        <x-ui-page-sidebar title="OKR Übersicht" width="w-80" :defaultOpen="true">
+        <x-ui-page-sidebar title="OKR Übersicht" width="w-80" side="left" :defaultOpen="true">
             <div class="p-6 space-y-6">
                 {{-- Navigation --}}
                 <div>
