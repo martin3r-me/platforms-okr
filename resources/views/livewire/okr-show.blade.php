@@ -2,7 +2,7 @@
     <x-slot name="navbar">
         <x-ui-page-navbar :title="$okr->title" icon="heroicon-o-flag">
             <x-slot name="titleActions">
-                <x-ui-button variant="secondary-ghost" size="sm" rounded="full" iconOnly="true" x-data @click="$dispatch('open-modal-okr-settings', { okrId: {{ $okr->id }} })" title="Einstellungen">
+                <x-ui-button variant="secondary-ghost" size="sm" rounded="full" iconOnly="true" x-data @click="$dispatch('open-modal-task-settings', { taskId: {{ $okr->id }} })" title="Einstellungen">
                     @svg('heroicon-o-cog-6-tooth','w-4 h-4')
                 </x-ui-button>
             </x-slot>
