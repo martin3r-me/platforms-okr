@@ -232,49 +232,68 @@
 
     <x-slot name="sidebar">
         <x-ui-page-sidebar title="Navigation & Details" width="w-80" :defaultOpen="true">
-            <div class="p-4 space-y-6">
-                {{-- Team Info --}}
+            <div class="p-6 space-y-6">
+                {{-- Navigation --}}
                 <div>
-                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Team</h3>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Navigation</h3>
                     <div class="space-y-2">
-                        <div class="text-sm">
-                            <span class="text-[var(--ui-muted)]">Name:</span>
-                            <span class="text-[var(--ui-secondary)]">{{ $okr->team->name ?? 'Kein Team' }}</span>
-                        </div>
+                        <x-ui-button
+                            variant="secondary-outline"
+                            size="sm"
+                            :href="route('okr.dashboard')"
+                            wire:navigate
+                            class="w-full"
+                        >
+                            <span class="flex items-center gap-2">
+                                @svg('heroicon-o-home', 'w-4 h-4')
+                                Zum Dashboard
+                            </span>
+                        </x-ui-button>
+                        <x-ui-button
+                            variant="secondary-outline"
+                            size="sm"
+                            :href="route('okr.okrs.index')"
+                            wire:navigate
+                            class="w-full"
+                        >
+                            <span class="flex items-center gap-2">
+                                @svg('heroicon-o-flag', 'w-4 h-4')
+                                Zu allen OKRs
+                            </span>
+                        </x-ui-button>
                     </div>
                 </div>
 
                 {{-- OKR Info --}}
                 <div>
                     <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">OKR Details</h3>
-                    <div class="space-y-2">
-                        <div class="text-sm">
-                            <span class="text-[var(--ui-muted)]">Erstellt von:</span>
-                            <span class="text-[var(--ui-secondary)]">{{ $okr->user->name ?? 'Unbekannt' }}</span>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between py-3 px-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
+                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Team</span>
+                            <span class="text-sm text-[var(--ui-muted)]">{{ $okr->team->name ?? 'Kein Team' }}</span>
                         </div>
-                        <div class="text-sm">
-                            <span class="text-[var(--ui-muted)]">Erstellt am:</span>
-                            <span class="text-[var(--ui-secondary)]">{{ $okr->created_at->format('d.m.Y H:i') }}</span>
+                        <div class="flex items-center justify-between py-3 px-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
+                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Manager</span>
+                            <span class="text-sm text-[var(--ui-muted)]">{{ $okr->manager->name ?? 'Nicht zugewiesen' }}</span>
                         </div>
-                        <div class="text-sm">
-                            <span class="text-[var(--ui-muted)]">Zuletzt geändert:</span>
-                            <span class="text-[var(--ui-secondary)]">{{ $okr->updated_at->format('d.m.Y H:i') }}</span>
+                        <div class="flex items-center justify-between py-3 px-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
+                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Erstellt</span>
+                            <span class="text-sm text-[var(--ui-muted)]">{{ $okr->created_at->format('d.m.Y') }}</span>
                         </div>
                     </div>
                 </div>
 
-                {{-- Actions --}}
+                {{-- Quick Actions --}}
                 <div>
                     <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Aktionen</h3>
                     <div class="space-y-2">
                         <x-ui-button 
                             variant="secondary" 
-                            :href="route('okr.okrs.index')" 
-                            wire:navigate
+                            wire:click="openCycleCreateModal"
                             class="w-full"
                         >
-                            @svg('heroicon-o-arrow-left', 'w-4 h-4')
-                            <span class="ml-1">Zurück zu OKRs</span>
+                            @svg('heroicon-o-plus', 'w-4 h-4')
+                            <span class="ml-1">Zyklus hinzufügen</span>
                         </x-ui-button>
                     </div>
                 </div>
@@ -282,17 +301,51 @@
         </x-ui-page-sidebar>
     </x-slot>
 
-    <x-slot name="activity">
-        <x-ui-page-sidebar title="Aktivitäten" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
-            <div class="p-4 space-y-4">
-                <div class="text-sm text-[var(--ui-muted)]">Letzte Aktivitäten</div>
-                <div class="space-y-3 text-sm">
-                    <div class="p-2 rounded border border-[var(--ui-border)]/60 bg-[var(--ui-muted-5)]">
-                        <div class="font-medium text-[var(--ui-secondary)] truncate">OKR erstellt</div>
-                        <div class="text-[var(--ui-muted)]">{{ $okr->created_at->diffForHumans() }}</div>
-                    </div>
-                </div>
+    {{-- Cycle Create Modal --}}
+    <x-ui-modal wire:model="cycleCreateModalShow" title="Zyklus hinzufügen">
+        <div class="space-y-4">
+            <x-ui-input-select
+                name="cycleForm.cycle_template_id"
+                label="Zyklus-Vorlage"
+                :options="$this->cycleTemplates"
+                optionValue="id"
+                optionLabel="name"
+                wire:model="cycleForm.cycle_template_id"
+                required
+            />
+            
+            <x-ui-input-select
+                name="cycleForm.status"
+                label="Status"
+                :options="[
+                    ['value' => 'draft', 'label' => 'Entwurf'],
+                    ['value' => 'active', 'label' => 'Aktiv'],
+                    ['value' => 'completed', 'label' => 'Abgeschlossen'],
+                    ['value' => 'ending_soon', 'label' => 'Endet bald'],
+                    ['value' => 'past', 'label' => 'Vergangen']
+                ]"
+                wire:model="cycleForm.status"
+                required
+            />
+            
+            <x-ui-input-textarea
+                name="cycleForm.notes"
+                label="Notizen"
+                wire:model="cycleForm.notes"
+                placeholder="Optionale Notizen zum Zyklus"
+                rows="3"
+            />
+        </div>
+        
+        <x-slot name="footer">
+            <div class="flex justify-end space-x-3">
+                <x-ui-button variant="secondary" wire:click="closeCycleCreateModal">
+                    Abbrechen
+                </x-ui-button>
+                <x-ui-button variant="primary" wire:click="saveCycle">
+                    Zyklus erstellen
+                </x-ui-button>
             </div>
-        </x-ui-page-sidebar>
-    </x-slot>
+        </x-slot>
+    </x-ui-modal>
 </x-ui-page>
