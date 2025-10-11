@@ -1,7 +1,268 @@
-{{-- ABSOLUTE MINIMAL TEST - NUR EIN DIV --}}
-<div style="background: red; color: white; padding: 20px; font-size: 24px;">
-    <h1>LIVEWIRE FUNKTIONIERT!</h1>
-    <p>OKR ID: {{ $okr->id ?? 'KEINE ID' }}</p>
-    <p>OKR Title: {{ $okr->title ?? 'KEIN TITLE' }}</p>
-    <p>OKR Description: {{ $okr->description ?? 'KEINE DESCRIPTION' }}</p>
-</div>
+<x-ui-page>
+    <x-slot name="navbar">
+        <x-ui-page-navbar :title="$okr->title" icon="heroicon-o-flag">
+            <div class="flex items-center gap-2">
+                <x-ui-button 
+                    variant="secondary-ghost" 
+                    size="sm"
+                    :href="route('okr.okrs.index')" 
+                    wire:navigate
+                >
+                    @svg('heroicon-o-arrow-left', 'w-4 h-4')
+                    <span class="ml-1">OKRs</span>
+                </x-ui-button>
+                @if($this->isDirty)
+                    <x-ui-button 
+                        variant="secondary" 
+                        size="sm"
+                        wire:click="save"
+                    >
+                        <div class="flex items-center gap-2">
+                            @svg('heroicon-o-check', 'w-4 h-4')
+                            Speichern
+                        </div>
+                    </x-ui-button>
+                @endif
+            </div>
+        </x-ui-page-navbar>
+    </x-slot>
+
+    <x-slot name="content">
+        <div class="flex h-full">
+            <!-- Linke Spalte -->
+            <div class="flex-grow-1 flex flex-col">
+                <!-- Haupt-Content (nimmt Restplatz, scrollt) -->
+                <div class="flex-grow-1 overflow-y-auto p-4">
+                    
+                    {{-- OKR Details --}}
+                    <div class="mb-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                                @svg('heroicon-o-flag', 'w-4 h-4')
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">OKR Details</h3>
+                                <p class="text-sm text-[var(--ui-muted)]">Grundinformationen und Einstellungen</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-6">
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <x-ui-input-text 
+                                        name="okr.title"
+                                        label="OKR-Titel"
+                                        wire:model.live.debounce.500ms="okr.title"
+                                        placeholder="z.B. Kundenbetreuung verbessern"
+                                        required
+                                        :errorKey="'okr.title'"
+                                        class="text-lg"
+                                    />
+                                    
+                                    <x-ui-input-select
+                                        name="okr.manager_user_id"
+                                        label="Verantwortlicher Manager"
+                                        :options="$this->users"
+                                        optionValue="id"
+                                        optionLabel="name"
+                                        :nullable="true"
+                                        nullLabel="– Manager auswählen –"
+                                        wire:model.live="okr.manager_user_id"
+                                    />
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <x-ui-input-textarea
+                                        name="okr.description"
+                                        label="Beschreibung"
+                                        wire:model.live.debounce.500ms="okr.description"
+                                        placeholder="Detaillierte Beschreibung des OKRs..."
+                                        rows="4"
+                                        :errorKey="'okr.description'"
+                                    />
+                                    
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <x-ui-input-number
+                                            name="okr.performance_score"
+                                            label="Performance Score"
+                                            wire:model.live.debounce.500ms="okr.performance_score"
+                                            placeholder="0"
+                                            min="0"
+                                            max="100"
+                                            step="0.1"
+                                            :errorKey="'okr.performance_score'"
+                                        />
+                                        
+                                        <div class="space-y-2">
+                                            <label class="text-sm font-medium text-[var(--ui-secondary)]">Einstellungen</label>
+                                            <div class="space-y-2">
+                                                <x-ui-input-checkbox
+                                                    name="okr.auto_transfer"
+                                                    wire:model.live="okr.auto_transfer"
+                                                    checked-label="Automatische Übertragung"
+                                                />
+                                                
+                                                <x-ui-input-checkbox
+                                                    name="okr.is_template"
+                                                    wire:model.live="okr.is_template"
+                                                    checked-label="Als Vorlage speichern"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Cycles --}}
+                    <div class="mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                                    @svg('heroicon-o-calendar', 'w-4 h-4')
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Zyklen</h3>
+                                    <p class="text-sm text-[var(--ui-muted)]">OKR-Zyklen verwalten</p>
+                                </div>
+                            </div>
+                            <x-ui-button 
+                                variant="secondary" 
+                                size="sm"
+                                wire:click="openCycleCreateModal"
+                            >
+                                @svg('heroicon-o-plus', 'w-4 h-4')
+                                <span class="ml-1">Zyklus hinzufügen</span>
+                            </x-ui-button>
+                        </div>
+                        
+                        @if($okr->cycles->count() > 0)
+                            <div class="space-y-4">
+                                @foreach($okr->cycles as $cycle)
+                                    <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4 hover:border-[var(--ui-border)]/60 transition-colors">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-6 h-6 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded flex items-center justify-center text-xs font-semibold">
+                                                    {{ $loop->iteration }}
+                                                </div>
+                                                <div>
+                                                    <h4 class="font-medium text-[var(--ui-secondary)]">{{ $cycle->cycleTemplate->name ?? 'Unbekannter Zyklus' }}</h4>
+                                                    <p class="text-sm text-[var(--ui-muted)]">
+                                                        {{ $cycle->starts_at ? $cycle->starts_at->format('d.m.Y') : 'Kein Startdatum' }} - 
+                                                        {{ $cycle->ends_at ? $cycle->ends_at->format('d.m.Y') : 'Kein Enddatum' }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-2">
+                                                <x-ui-badge variant="secondary">{{ ucfirst($cycle->status) }}</x-ui-badge>
+                                                <x-ui-button 
+                                                    variant="secondary-ghost" 
+                                                    size="sm"
+                                                    wire:click="editCycle({{ $cycle->id }})"
+                                                >
+                                                    @svg('heroicon-o-pencil', 'w-4 h-4')
+                                                </x-ui-button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-12">
+                                <div class="w-16 h-16 bg-[var(--ui-muted-5)] rounded-full flex items-center justify-center mx-auto mb-4">
+                                    @svg('heroicon-o-calendar', 'w-8 h-8 text-[var(--ui-muted)]')
+                                </div>
+                                <h4 class="text-lg font-medium text-[var(--ui-secondary)] mb-2">Keine Zyklen vorhanden</h4>
+                                <p class="text-[var(--ui-muted)] mb-4">Erstelle den ersten Zyklus für dieses OKR</p>
+                                <x-ui-button 
+                                    variant="secondary" 
+                                    wire:click="openCycleCreateModal"
+                                >
+                                    @svg('heroicon-o-plus', 'w-4 h-4')
+                                    <span class="ml-1">Ersten Zyklus hinzufügen</span>
+                                </x-ui-button>
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Aktivitäten --}}
+                    <div class="mb-8">
+                        <div class="flex items-center gap-3 mb-6">
+                            <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                                @svg('heroicon-o-clock', 'w-4 h-4')
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Aktivitäten</h3>
+                                <p class="text-sm text-[var(--ui-muted)]">Letzte Änderungen und Aktivitäten</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-6">
+                            @if($activities->count() > 0)
+                                <div class="space-y-4">
+                                    @foreach($activities as $activity)
+                                        <div class="flex items-start gap-3 pb-4 border-b border-[var(--ui-border)]/40 last:border-b-0 last:pb-0">
+                                            <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-full flex items-center justify-center text-xs font-semibold">
+                                                {{ substr($activity->causer->name ?? 'System', 0, 1) }}
+                                            </div>
+                                            <div class="flex-grow">
+                                                <p class="text-sm text-[var(--ui-secondary)]">{{ $activity->description }}</p>
+                                                <p class="text-xs text-[var(--ui-muted)]">{{ $activity->created_at->diffForHumans() }}</p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-8">
+                                    <p class="text-[var(--ui-muted)]">Noch keine Aktivitäten vorhanden</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rechte Spalte -->
+            <div class="w-80 border-l border-[var(--ui-border)] bg-[var(--ui-muted-5)]">
+                <div class="p-4">
+                    <h4 class="font-semibold text-[var(--ui-secondary)] mb-4">Einstellungen</h4>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-[var(--ui-secondary)]">Team</label>
+                            <p class="text-sm text-[var(--ui-muted)]">{{ $okr->team->name ?? 'Kein Team' }}</p>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-[var(--ui-secondary)]">Erstellt von</label>
+                            <p class="text-sm text-[var(--ui-muted)]">{{ $okr->user->name ?? 'Unbekannt' }}</p>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-[var(--ui-secondary)]">Erstellt am</label>
+                            <p class="text-sm text-[var(--ui-muted)]">{{ $okr->created_at->format('d.m.Y H:i') }}</p>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-[var(--ui-secondary)]">Zuletzt geändert</label>
+                            <p class="text-sm text-[var(--ui-muted)]">{{ $okr->updated_at->format('d.m.Y H:i') }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 pt-4 border-t border-[var(--ui-border)]">
+                        <x-ui-button 
+                            variant="secondary" 
+                            :href="route('okr.okrs.index')" 
+                            wire:navigate
+                            class="w-full"
+                        >
+                            @svg('heroicon-o-arrow-left', 'w-4 h-4')
+                            <span class="ml-1">Zurück zu OKRs</span>
+                        </x-ui-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </x-slot>
+</x-ui-page>
