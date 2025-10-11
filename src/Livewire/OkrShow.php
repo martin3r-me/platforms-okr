@@ -250,6 +250,22 @@ class OkrShow extends Component
         ];
     }
 
+    #[Computed]
+    public function activities()
+    {
+        // Placeholder für Aktivitäten - kann später erweitert werden
+        return collect([
+            (object) [
+                'description' => 'OKR wurde erstellt',
+                'created_at' => $this->okr->created_at,
+            ],
+            (object) [
+                'description' => 'Letzte Aktualisierung',
+                'created_at' => $this->okr->updated_at,
+            ],
+        ]);
+    }
+
     public function render()
     {
         return view('okr::livewire.okr-show')
