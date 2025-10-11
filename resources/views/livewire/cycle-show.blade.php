@@ -133,7 +133,7 @@
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
-                        @svg('heroicon-o-target', 'w-4 h-4')
+                        @svg('heroicon-o-flag', 'w-4 h-4')
                     </div>
                     <div>
                         <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Objectives & Key Results</h3>
@@ -247,7 +247,7 @@
             @else
                 <div class="text-center py-12">
                     <div class="w-16 h-16 bg-[var(--ui-muted-5)] rounded-full flex items-center justify-center mx-auto mb-4">
-                        @svg('heroicon-o-target', 'w-8 h-8 text-[var(--ui-muted)]')
+                        @svg('heroicon-o-flag', 'w-8 h-8 text-[var(--ui-muted)]')
                     </div>
                     <h4 class="text-lg font-medium text-[var(--ui-secondary)] mb-2">Noch keine Objectives vorhanden</h4>
                     <p class="text-[var(--ui-muted)] mb-4">Klicken Sie auf "Objective hinzufügen" um zu beginnen</p>
