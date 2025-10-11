@@ -228,14 +228,16 @@
                 
                 <div>
                     <label class="block text-sm font-medium text-[var(--ui-secondary)] mb-2">Template</label>
-                    <x-ui-input-select
+                    <select 
                         name="cycleForm.cycle_template_id"
                         wire:model="cycleForm.cycle_template_id"
-                        :options="$cycleTemplates->map(fn($template) => ['value' => $template->id, 'label' => $template->label])->toArray()"
-                        optionValue="value"
-                        optionLabel="label"
-                        placeholder="Template auswählen..."
-                    />
+                        class="w-full px-3 py-2 border border-[var(--ui-border)] rounded-lg focus:ring-2 focus:ring-[var(--ui-primary)] focus:border-[var(--ui-primary)]"
+                    >
+                        <option value="">Template auswählen...</option>
+                        @foreach($cycleTemplates as $template)
+                            <option value="{{ $template->id }}">{{ $template->label }}</option>
+                        @endforeach
+                    </select>
                 </div>
             </div>
         </x-slot>
