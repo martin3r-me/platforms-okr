@@ -15,15 +15,6 @@
         </x-ui-page-navbar>
     </x-slot>
 
-    {{-- DEBUG BOX --}}
-    <div style="background: red; color: white; padding: 20px; font-size: 24px; margin-bottom: 20px;">
-        <h1>LIVEWIRE FUNKTIONIERT!</h1>
-        <p>OKR ID: {{ $okr->id ?? 'KEINE ID' }}</p>
-        <p>OKR Title: {{ $okr->title ?? 'KEIN TITLE' }}</p>
-        <p>OKR Description: {{ $okr->description ?? 'KEINE DESCRIPTION' }}</p>
-        <p>Cycles Count: {{ $okr->cycles->count() ?? 'NOT SET' }}</p>
-        <p>Users Count: {{ $this->users->count() ?? 'NOT SET' }}</p>
-    </div>
     
     <div class="flex h-full">
         <!-- Linke Spalte -->
@@ -202,45 +193,9 @@
             </div>
         </div>
 
-        <!-- Rechte Spalte -->
+        <!-- Rechte Sidebar -->
         <div class="w-80 border-l border-[var(--ui-border)] bg-[var(--ui-muted-5)]">
-            <div class="p-4">
-                <h4 class="font-semibold text-[var(--ui-secondary)] mb-4">Einstellungen</h4>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="text-sm font-medium text-[var(--ui-secondary)]">Team</label>
-                        <p class="text-sm text-[var(--ui-muted)]">{{ $okr->team->name ?? 'Kein Team' }}</p>
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-[var(--ui-secondary)]">Erstellt von</label>
-                        <p class="text-sm text-[var(--ui-muted)]">{{ $okr->user->name ?? 'Unbekannt' }}</p>
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-[var(--ui-secondary)]">Erstellt am</label>
-                        <p class="text-sm text-[var(--ui-muted)]">{{ $okr->created_at->format('d.m.Y H:i') }}</p>
-                    </div>
-                    
-                    <div>
-                        <label class="text-sm font-medium text-[var(--ui-secondary)]">Zuletzt geändert</label>
-                        <p class="text-sm text-[var(--ui-muted)]">{{ $okr->updated_at->format('d.m.Y H:i') }}</p>
-                    </div>
-                </div>
-                
-                <div class="mt-6 pt-4 border-t border-[var(--ui-border)]">
-                    <x-ui-button 
-                        variant="secondary" 
-                        :href="route('okr.okrs.index')" 
-                        wire:navigate
-                        class="w-full"
-                    >
-                        @svg('heroicon-o-arrow-left', 'w-4 h-4')
-                        <span class="ml-1">Zurück zu OKRs</span>
-                    </x-ui-button>
-                </div>
-            </div>
+            <livewire:okr.sidebar />
         </div>
     </div>
 </x-ui-page>
