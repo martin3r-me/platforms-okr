@@ -114,6 +114,7 @@ class UpdateOkrPerformance extends Command
                 [
                     'team_id' => $objective->cycle->team_id,
                     'user_id' => $userId,
+                    'performance_date' => $today,
                     'performance_score' => $averageProgress,
                     'completion_percentage' => $completionPercentage,
                     'completed_key_results' => $completedKeyResults,
@@ -188,6 +189,7 @@ class UpdateOkrPerformance extends Command
                 [
                     'team_id' => $cycle->team_id,
                     'user_id' => $userId,
+                    'performance_date' => $today,
                     'performance_score' => $averageObjectiveProgress,
                     'completion_percentage' => $completionPercentage,
                     'completed_objectives' => $completedObjectives,
@@ -303,6 +305,7 @@ class UpdateOkrPerformance extends Command
                 [
                     'team_id' => $okr->team_id,
                     'user_id' => $userId,
+                    'performance_date' => $today,
                     'performance_score' => $averageKeyResultProgress,
                     'completion_percentage' => $completionPercentage,
                     'completed_cycles' => $completedCycles,
@@ -385,6 +388,7 @@ class UpdateOkrPerformance extends Command
                     'performance_date' => $today,
                 ],
                 [
+                    'performance_date' => $today,
                     'average_score' => $averageScore,
                     'total_okrs' => $okrs->count(),
                     'active_okrs' => $okrs->where('status', 'active')->count(),
