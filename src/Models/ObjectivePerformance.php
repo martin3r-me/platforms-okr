@@ -18,6 +18,7 @@ class ObjectivePerformance extends Model
         'objective_id',
         'team_id',
         'user_id',
+        'performance_date',
         'performance_score',
         'completion_percentage',
         'completed_key_results',

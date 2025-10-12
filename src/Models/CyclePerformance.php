@@ -18,6 +18,7 @@ class CyclePerformance extends Model
         'cycle_id',
         'team_id',
         'user_id',
+        'performance_date',
         'performance_score',
         'completion_percentage',
         'completed_objectives',

@@ -18,6 +18,7 @@ class OkrPerformance extends Model
         'okr_id',
         'team_id',
         'user_id',
+        'performance_date',
         'performance_score',
         'completion_percentage',
         'completed_cycles',
