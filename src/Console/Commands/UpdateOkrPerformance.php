@@ -21,14 +21,89 @@ class UpdateOkrPerformance extends Command
     public function handle(): int
     {
         $this->info('Starting OKR performance update...');
-        
+
+        $this->updateKeyResultCompletionStatus();
         $this->updateObjectivePerformances();
         $this->updateCyclePerformances();
         $this->updateOkrPerformances();
         $this->updateTeamPerformances();
-        
+
         $this->info('OKR performance update completed successfully!');
         return 0;
+    }
+
+    private function updateKeyResultCompletionStatus(): void
+    {
+        $this->info('Updating Key Result completion status...');
+
+        $keyResults = KeyResult::with(['performance'])
+            ->whereHas('performance')
+            ->get();
+
+        $today = today();
+        $this->info("Today's date: {$today->format('Y-m-d')}");
+        $this->info("Found {$keyResults->count()} key results to process");
+
+        foreach ($keyResults as $keyResult) {
+            $performance = $keyResult->performance;
+            if (!$performance) continue;
+
+            $type = $performance->type;
+            $target = $performance->target_value ?? 0;
+            $current = $performance->current_value ?? 0;
+            $isCompleted = $performance->is_completed ?? false;
+
+            // Berechne Fortschritt
+            $progress = 0;
+            if ($type === 'boolean') {
+                $progress = $isCompleted ? 100 : 0;
+            } elseif ($type === 'percentage' || $type === 'absolute') {
+                if ($target > 0) {
+                    $progress = min(100, max(0, round(($current / $target) * 100)));
+                }
+            }
+
+            // Automatisch als "erreicht" markieren bei 100% Fortschritt
+            if ($progress >= 100 && !$isCompleted) {
+                $this->info("  → Key Result {$keyResult->id} ({$keyResult->title}) has 100% progress, marking as completed");
+                
+                // Update the performance record
+                $performance->update([
+                    'is_completed' => true,
+                    'completed_at' => now(),
+                ]);
+
+                // Create new performance record with completion status
+                $keyResult->performances()->create([
+                    'type' => $type,
+                    'target_value' => $target,
+                    'current_value' => $current,
+                    'is_completed' => true,
+                    'completed_at' => now(),
+                ]);
+            }
+            // Automatisch als "nicht erreicht" markieren bei <100% Fortschritt
+            elseif ($progress < 100 && $isCompleted) {
+                $this->info("  → Key Result {$keyResult->id} ({$keyResult->title}) has {$progress}% progress, marking as not completed");
+                
+                // Update the performance record
+                $performance->update([
+                    'is_completed' => false,
+                    'completed_at' => null,
+                ]);
+
+                // Create new performance record with non-completion status
+                $keyResult->performances()->create([
+                    'type' => $type,
+                    'target_value' => $target,
+                    'current_value' => $current,
+                    'is_completed' => false,
+                    'completed_at' => null,
+                ]);
+            }
+        }
+
+        $this->info("Updated Key Result completion status");
     }
 
     private function updateObjectivePerformances(): void
