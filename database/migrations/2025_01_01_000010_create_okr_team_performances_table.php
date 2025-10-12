@@ -11,7 +11,6 @@ return new class extends Migration
         Schema::create('okr_team_performances', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('team_id');
-            $table->date('performance_date');
             
             // Team Performance Metriken
             $table->decimal('average_score', 5, 2)->default(0);
@@ -40,9 +39,9 @@ return new class extends Migration
             $table->timestamps();
             
             // Indizes
-            $table->unique(['team_id', 'performance_date']);
-            $table->index(['team_id', 'performance_date']);
-            $table->index('performance_date');
+            $table->unique(['team_id', 'created_at']);
+            $table->index(['team_id', 'created_at']);
+            $table->index('created_at');
             
             // Foreign Key
             $table->foreign('team_id')->references('id')->on('teams')->onDelete('cascade');

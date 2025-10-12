@@ -357,7 +357,7 @@ class UpdateOkrPerformance extends Command
 
             // Calculate trends (vs. previous snapshot)
             $previousPerformance = TeamPerformance::forTeam($team->id)
-                ->where('performance_date', '<', $today)
+                ->where('created_at', '<', $today)
                 ->latest()
                 ->first();
 
@@ -375,7 +375,7 @@ class UpdateOkrPerformance extends Command
             TeamPerformance::updateOrCreate(
                 [
                     'team_id' => $team->id,
-                    'performance_date' => $today,
+                    'created_at' => $today,
                 ],
                 [
                     'average_score' => $averageScore,
