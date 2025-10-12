@@ -35,33 +35,6 @@
             />
         @endif
 
-        {{-- Performance Highlight Banner --}}
-        <div class="bg-gradient-to-r from-[var(--ui-primary)]/5 to-[var(--ui-secondary)]/5 border border-[var(--ui-primary)]/20 rounded-xl p-6 mb-8">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-2xl font-bold text-[var(--ui-secondary)] mb-2">Team Performance</h2>
-                    <p class="text-[var(--ui-muted)]">Aktuelle Leistungsübersicht des Teams</p>
-                </div>
-                <div class="text-right">
-                    <div class="text-4xl font-bold text-[var(--ui-primary)]">{{ round($averageScore, 1) }}%</div>
-                    <div class="text-sm text-[var(--ui-muted)]">Durchschnitt Score</div>
-                </div>
-            </div>
-            <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-green-600">{{ $successfulOkrsCount }}</div>
-                    <div class="text-xs text-[var(--ui-muted)]">Erfolgreiche OKRs (≥80%)</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-600">{{ $achievedObjectivesCount }}</div>
-                    <div class="text-xs text-[var(--ui-muted)]">Erreichte Objectives</div>
-                </div>
-                <div class="text-center">
-                    <div class="text-2xl font-bold text-purple-600">{{ $achievedKeyResultsCount }}</div>
-                    <div class="text-xs text-[var(--ui-muted)]">Erreichte Key Results</div>
-                </div>
-            </div>
-        </div>
 
         {{-- Performance Stats Grid - Wichtigste Metriken zuerst --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -135,27 +108,16 @@
             />
         </div>
 
-        {{-- Detail Stats --}}
-        <x-ui-detail-stats-grid cols="2" gap="6">
-            <x-slot:left>
-                <h3 class="text-lg font-semibold text-[var(--ui-secondary)] mb-4">OKR-Übersicht</h3>
-                <x-ui-form-grid :cols="2" :gap="3">
-                    <x-ui-dashboard-tile title="Entwürfe" :count="$draftOkrsCount" icon="document-text" variant="neutral" size="sm" />
-                    <x-ui-dashboard-tile title="Aktiv" :count="$activeOkrsCount" icon="play" variant="success" size="sm" />
-                    <x-ui-dashboard-tile title="Abgeschlossen" :count="$completedOkrsCount" icon="check-circle" variant="success" size="sm" />
-                    <x-ui-dashboard-tile title="Endet bald" :count="$endingSoonOkrsCount" icon="exclamation-triangle" variant="warning" size="sm" />
-                </x-ui-form-grid>
-            </x-slot:left>
-            <x-slot:right>
-                <h3 class="text-lg font-semibold text-[var(--ui-secondary)] mb-4">Performance-Übersicht</h3>
-                <x-ui-form-grid :cols="2" :gap="3">
-                    <x-ui-dashboard-tile title="Durchschnitt Score" :count="round($averageScore, 1)" icon="chart-bar" variant="info" size="sm" />
-                    <x-ui-dashboard-tile title="Erreichte Ziele" :count="$achievedObjectivesCount" icon="check-circle" variant="success" size="sm" />
-                    <x-ui-dashboard-tile title="Offene KR" :count="$openKeyResultsCount" icon="clock" variant="warning" size="sm" />
-                    <x-ui-dashboard-tile title="Erreichte KR" :count="$achievedKeyResultsCount" icon="check-circle" variant="success" size="sm" />
-                </x-ui-form-grid>
-            </x-slot:right>
-        </x-ui-detail-stats-grid>
+        {{-- OKR Status Übersicht --}}
+        <div class="mb-8">
+            <h3 class="text-lg font-semibold text-[var(--ui-secondary)] mb-4">OKR Status</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <x-ui-dashboard-tile title="Entwürfe" :count="$draftOkrsCount" icon="document-text" variant="neutral" size="sm" />
+                <x-ui-dashboard-tile title="Aktiv" :count="$activeOkrsCount" icon="play" variant="success" size="sm" />
+                <x-ui-dashboard-tile title="Abgeschlossen" :count="$completedOkrsCount" icon="check-circle" variant="success" size="sm" />
+                <x-ui-dashboard-tile title="Endet bald" :count="$endingSoonOkrsCount" icon="exclamation-triangle" variant="warning" size="sm" />
+            </div>
+        </div>
 
         <!-- Filterleiste -->
         <div class="mb-4 flex items-end gap-3">

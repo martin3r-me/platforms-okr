@@ -74,13 +74,6 @@ class Dashboard extends Component
             ->today()
             ->first();
 
-        // Debug: Log was geladen wird
-        \Log::info("Dashboard Team Performance", [
-            'team_id' => $teamId,
-            'snapshot_found' => $performanceSnapshot ? 'YES' : 'NO',
-            'average_score' => $performanceSnapshot ? $performanceSnapshot->average_score : 'N/A',
-            'today' => today()->format('Y-m-d'),
-        ]);
 
         if ($performanceSnapshot) {
             $this->loadFromSnapshot($performanceSnapshot);
@@ -156,11 +149,6 @@ class Dashboard extends Component
             $this->successfulOkrsCount = (int) $this->okrs->where('performance_score', '>=', 80)->count();
         }
         
-        // Debug: Log final averageScore
-        \Log::info("Dashboard Final Performance", [
-            'averageScore' => $this->averageScore,
-            'successfulOkrsCount' => $this->successfulOkrsCount,
-        ]);
         
         // Objectives und Key Results Statistiken
         $allObjectives = $this->activeCycles->flatMap->objectives;
