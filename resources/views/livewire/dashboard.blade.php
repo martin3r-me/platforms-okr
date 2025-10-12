@@ -43,21 +43,21 @@
                     <p class="text-[var(--ui-muted)]">Aktuelle Leistungsübersicht des Teams</p>
                 </div>
                 <div class="text-right">
-                    <div class="text-4xl font-bold text-[var(--ui-primary)]">{{ round((float)($averageScore ?? 0), 1) }}%</div>
+                    <div class="text-4xl font-bold text-[var(--ui-primary)]">{{ round($averageScore, 1) }}%</div>
                     <div class="text-sm text-[var(--ui-muted)]">Durchschnitt Score</div>
                 </div>
             </div>
             <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-green-600">{{ $successfulOkrsCount ?? 0 }}</div>
+                    <div class="text-2xl font-bold text-green-600">{{ $successfulOkrsCount }}</div>
                     <div class="text-xs text-[var(--ui-muted)]">Erfolgreiche OKRs (≥80%)</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-600">{{ $achievedObjectivesCount ?? 0 }}</div>
+                    <div class="text-2xl font-bold text-blue-600">{{ $achievedObjectivesCount }}</div>
                     <div class="text-xs text-[var(--ui-muted)]">Erreichte Objectives</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-purple-600">{{ $achievedKeyResultsCount ?? 0 }}</div>
+                    <div class="text-2xl font-bold text-purple-600">{{ $achievedKeyResultsCount }}</div>
                     <div class="text-xs text-[var(--ui-muted)]">Erreichte Key Results</div>
                 </div>
             </div>
@@ -65,17 +65,17 @@
 
         {{-- Performance Stats Grid - Wichtigste Metriken zuerst --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <x-ui-dashboard-tile
-                title="Durchschnitt Score"
-                :count="round((float)($averageScore ?? 0), 1) . '%'"
-                subtitle="Team Performance"
-                icon="chart-bar"
-                variant="primary"
-                size="lg"
-            />
+             <x-ui-dashboard-tile
+                 title="Durchschnitt Score"
+                 :count="round($averageScore ?? 0, 1)"
+                 subtitle="Team Performance"
+                 icon="chart-bar"
+                 variant="primary"
+                 size="lg"
+             />
             <x-ui-dashboard-tile
                 title="Erfolgreiche OKRs"
-                :count="(int)($successfulOkrsCount ?? 0)"
+                :count="$successfulOkrsCount"
                 subtitle="≥80% Score"
                 icon="check-circle"
                 variant="success"
@@ -83,7 +83,7 @@
             />
             <x-ui-dashboard-tile
                 title="Aktive OKRs"
-                :count="(int)($activeOkrsCount ?? 0)"
+                :count="$activeOkrsCount"
                 subtitle="von {{ $totalOkrsCount ?? $activeOkrsCount }}"
                 icon="flag"
                 variant="secondary"
@@ -91,7 +91,7 @@
             />
             <x-ui-dashboard-tile
                 title="Erreichte Ziele"
-                :count="(int)($achievedObjectivesCount ?? 0)"
+                :count="$achievedObjectivesCount"
                 subtitle="von {{ $activeObjectivesCount }}"
                 icon="light-bulb"
                 variant="info"
@@ -103,7 +103,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <x-ui-dashboard-tile
                 title="Aktive Zyklen"
-                :count="(int)($activeCyclesCount ?? 0)"
+                :count="$activeCyclesCount"
                 subtitle="laufende Zeiträume"
                 icon="calendar"
                 variant="neutral"
@@ -111,7 +111,7 @@
             />
             <x-ui-dashboard-tile
                 title="Key Results"
-                :count="(int)($activeKeyResultsCount ?? 0)"
+                :count="$activeKeyResultsCount"
                 subtitle="messbare Ergebnisse"
                 icon="chart-bar"
                 variant="neutral"
@@ -119,7 +119,7 @@
             />
             <x-ui-dashboard-tile
                 title="Offene KR"
-                :count="(int)($openKeyResultsCount ?? 0)"
+                :count="$openKeyResultsCount"
                 subtitle="noch zu erreichen"
                 icon="clock"
                 variant="warning"
@@ -127,7 +127,7 @@
             />
             <x-ui-dashboard-tile
                 title="Erreichte KR"
-                :count="(int)($achievedKeyResultsCount ?? 0)"
+                :count="$achievedKeyResultsCount"
                 subtitle="bereits erreicht"
                 icon="check-circle"
                 variant="success"
@@ -140,19 +140,19 @@
             <x-slot:left>
                 <h3 class="text-lg font-semibold text-[var(--ui-secondary)] mb-4">OKR-Übersicht</h3>
                 <x-ui-form-grid :cols="2" :gap="3">
-                    <x-ui-dashboard-tile title="Entwürfe" :count="(int)($draftOkrsCount ?? 0)" icon="document-text" variant="neutral" size="sm" />
-                    <x-ui-dashboard-tile title="Aktiv" :count="(int)($activeOkrsCount ?? 0)" icon="play" variant="success" size="sm" />
-                    <x-ui-dashboard-tile title="Abgeschlossen" :count="(int)($completedOkrsCount ?? 0)" icon="check-circle" variant="success" size="sm" />
-                    <x-ui-dashboard-tile title="Endet bald" :count="(int)($endingSoonOkrsCount ?? 0)" icon="exclamation-triangle" variant="warning" size="sm" />
+                    <x-ui-dashboard-tile title="Entwürfe" :count="$draftOkrsCount" icon="document-text" variant="neutral" size="sm" />
+                    <x-ui-dashboard-tile title="Aktiv" :count="$activeOkrsCount" icon="play" variant="success" size="sm" />
+                    <x-ui-dashboard-tile title="Abgeschlossen" :count="$completedOkrsCount" icon="check-circle" variant="success" size="sm" />
+                    <x-ui-dashboard-tile title="Endet bald" :count="$endingSoonOkrsCount" icon="exclamation-triangle" variant="warning" size="sm" />
                 </x-ui-form-grid>
             </x-slot:left>
             <x-slot:right>
                 <h3 class="text-lg font-semibold text-[var(--ui-secondary)] mb-4">Performance-Übersicht</h3>
                 <x-ui-form-grid :cols="2" :gap="3">
-                    <x-ui-dashboard-tile title="Durchschnitt Score" :count="round((float)($averageScore ?? 0), 1)" icon="chart-bar" variant="info" size="sm" />
-                    <x-ui-dashboard-tile title="Erreichte Ziele" :count="(int)($achievedObjectivesCount ?? 0)" icon="check-circle" variant="success" size="sm" />
-                    <x-ui-dashboard-tile title="Offene KR" :count="(int)($openKeyResultsCount ?? 0)" icon="clock" variant="warning" size="sm" />
-                    <x-ui-dashboard-tile title="Erreichte KR" :count="(int)($achievedKeyResultsCount ?? 0)" icon="check-circle" variant="success" size="sm" />
+                    <x-ui-dashboard-tile title="Durchschnitt Score" :count="round($averageScore, 1)" icon="chart-bar" variant="info" size="sm" />
+                    <x-ui-dashboard-tile title="Erreichte Ziele" :count="$achievedObjectivesCount" icon="check-circle" variant="success" size="sm" />
+                    <x-ui-dashboard-tile title="Offene KR" :count="$openKeyResultsCount" icon="clock" variant="warning" size="sm" />
+                    <x-ui-dashboard-tile title="Erreichte KR" :count="$achievedKeyResultsCount" icon="check-circle" variant="success" size="sm" />
                 </x-ui-form-grid>
             </x-slot:right>
         </x-ui-detail-stats-grid>
