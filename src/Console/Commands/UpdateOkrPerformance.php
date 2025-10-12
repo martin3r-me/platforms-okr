@@ -61,6 +61,12 @@ class UpdateOkrPerformance extends Command
             $totalKeyResults = $keyResults->count();
             $completedKeyResults = $keyResults->where('performance.is_completed', true)->count();
             
+            // Ignoriere Objectives ohne Key Results
+            if ($totalKeyResults === 0) {
+                $this->info("  → Objective {$objective->id} has no Key Results, skipping...");
+                continue;
+            }
+            
             $this->info("  → Key Results: {$totalKeyResults} total, {$completedKeyResults} completed");
             
             // Berechne durchschnittlichen Fortschritt basierend auf Key Result Performances
@@ -145,9 +151,18 @@ class UpdateOkrPerformance extends Command
         foreach ($cycles as $cycle) {
             $this->info("Processing Cycle ID: {$cycle->id} - OKR: {$cycle->okr?->title}");
             
+            $objectives = $cycle->objectives;
+            $totalObjectives = $objectives->count();
+            
+            // Ignoriere Cycles ohne Objectives
+            if ($totalObjectives === 0) {
+                $this->info("  → Cycle {$cycle->id} has no Objectives, skipping...");
+                continue;
+            }
+            
             // Prüfe, ob bereits ein Performance-Eintrag für heute existiert
             $existingPerformance = CyclePerformance::where('cycle_id', $cycle->id)
-                ->whereDate('created_at', $today)
+                ->whereDate('performance_date', $today)
                 ->first();
                 
             if ($existingPerformance) {
@@ -155,8 +170,7 @@ class UpdateOkrPerformance extends Command
             } else {
                 $this->info("  → Cycle {$cycle->id} has no performance for today, creating new...");
             }
-            $objectives = $cycle->objectives;
-            $totalObjectives = $objectives->count();
+            
             $completedObjectives = $objectives->where('status', 'completed')->count();
             
             $this->info("  → Objectives: {$totalObjectives} total, {$completedObjectives} completed");
@@ -300,13 +314,22 @@ class UpdateOkrPerformance extends Command
             $activeCycles = Cycle::where('team_id', $team->id)
                 ->whereIn('status', ['current', 'active'])
                 ->get();
-
+            
             // Get all objectives and key results from active cycles
             $objectives = $activeCycles->flatMap->objectives;
             $keyResults = $objectives->flatMap->keyResults;
+            
+            // Bereinige: Nur OKRs mit Cycles, Objectives und Key Results berücksichtigen
+            $relevantOkrs = $okrs->filter(function ($okr) {
+                return $okr->cycles->count() > 0 && 
+                       $okr->cycles->sum(fn($cycle) => $cycle->objectives->count()) > 0 &&
+                       $okr->cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->count())) > 0;
+            });
+            
+            $this->info("  → Relevant OKRs: {$relevantOkrs->count()} (with Cycles, Objectives and Key Results)");
 
-            // Calculate metrics from OKR Performance records
-            $okrPerformances = OkrPerformance::whereIn('okr_id', $okrs->pluck('id'))
+            // Calculate metrics from OKR Performance records (nur relevante OKRs)
+            $okrPerformances = OkrPerformance::whereIn('okr_id', $relevantOkrs->pluck('id'))
                 ->whereDate('performance_date', $today)
                 ->get();
                 
@@ -338,7 +361,7 @@ class UpdateOkrPerformance extends Command
 
             if ($previousPerformance) {
                 $scoreTrend = $averageScore - $previousPerformance->average_score;
-                $okrTrend = $okrs->count() - $previousPerformance->total_okrs;
+                $okrTrend = $relevantOkrs->count() - $previousPerformance->total_okrs; // Nur relevante OKRs
                 $achievementTrend = $achievedObjectives - $previousPerformance->achieved_objectives;
             }
 
@@ -352,11 +375,11 @@ class UpdateOkrPerformance extends Command
                 [
                     'performance_date' => $today,
                     'average_score' => $averageScore,
-                    'total_okrs' => $okrs->count(),
-                    'active_okrs' => $okrs->where('status', 'active')->count(),
+                    'total_okrs' => $relevantOkrs->count(), // Nur relevante OKRs
+                    'active_okrs' => $relevantOkrs->where('status', 'active')->count(),
                     'successful_okrs' => $successfulOkrs,
-                    'draft_okrs' => $okrs->where('status', 'draft')->count(),
-                    'completed_okrs' => $okrs->where('status', 'completed')->count(),
+                    'draft_okrs' => $relevantOkrs->where('status', 'draft')->count(),
+                    'completed_okrs' => $relevantOkrs->where('status', 'completed')->count(),
                     'total_objectives' => $objectives->count(),
                     'achieved_objectives' => $achievedObjectives,
                     'total_key_results' => $keyResults->count(),
