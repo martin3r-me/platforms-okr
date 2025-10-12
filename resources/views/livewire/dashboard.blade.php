@@ -151,55 +151,123 @@
             </div>
         </div>
 
-        <x-ui-panel title="Aktive Zyklen" subtitle="Laufende OKR-Zyklen mit Objectives und Key Results">
+        <x-ui-panel title="Aktive Zyklen" subtitle="Laufende OKR-Zyklen mit Performance-Übersicht">
             @if($activeCycles && $activeCycles->count() > 0)
-                <div class="space-y-4">
+                <div class="space-y-6">
                     @foreach($activeCycles as $cycle)
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <div>
-                                    <div class="font-medium text-[var(--ui-secondary)]">{{ $cycle->okr?->title ?? 'OKR' }}</div>
-                                    <div class="text-xs text-[var(--ui-muted)]">{{ $cycle->template?->label }} • {{ $cycle->template?->starts_at?->format('d.m.Y') }} - {{ $cycle->template?->ends_at?->format('d.m.Y') }}</div>
+                        @php
+                            $cyclePerformance = $cycle->performance;
+                            $cycleScore = $cyclePerformance ? $cyclePerformance->performance_score : 0;
+                            $cycleScoreColor = $cycleScore >= 80 ? 'text-green-600' : ($cycleScore >= 60 ? 'text-yellow-600' : 'text-red-600');
+                            $cycleProgressColor = $cycleScore >= 80 ? 'bg-green-500' : ($cycleScore >= 60 ? 'bg-yellow-500' : 'bg-red-500');
+                        @endphp
+                        <div class="bg-gradient-to-r from-[var(--ui-muted-5)] to-[var(--ui-muted-5)] rounded-xl border border-[var(--ui-border)]/40 p-6 hover:border-[var(--ui-border)]/60 transition-colors">
+                            {{-- Cycle Header mit Performance --}}
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div class="w-10 h-10 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                                            @svg('heroicon-o-calendar', 'w-5 h-5')
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-[var(--ui-secondary)]">{{ $cycle->okr?->title ?? 'OKR' }}</h3>
+                                            <div class="text-sm text-[var(--ui-muted)]">{{ $cycle->template?->label }} • {{ $cycle->template?->starts_at?->format('d.m.Y') }} - {{ $cycle->template?->ends_at?->format('d.m.Y') }}</div>
+                                        </div>
+                                    </div>
+                                    
+                                    {{-- Performance Score --}}
+                                    <div class="flex items-center gap-4">
+                                        <div class="text-center">
+                                            <div class="text-2xl font-bold {{ $cycleScoreColor }}">{{ round($cycleScore, 1) }}%</div>
+                                            <div class="text-xs text-[var(--ui-muted)]">Cycle Performance</div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-2">
+                                                <div class="h-2 rounded-full {{ $cycleProgressColor }}" style="width: {{ $cycleScore }}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                                
                                 <div class="flex items-center gap-2">
-                                    <x-ui-badge variant="secondary" size="xs">{{ ucfirst($cycle->status) }}</x-ui-badge>
+                                    <x-ui-badge variant="secondary" size="sm">{{ ucfirst($cycle->status) }}</x-ui-badge>
                                     <x-ui-button 
                                         size="sm" 
-                                        variant="secondary" 
+                                        variant="primary" 
                                         :href="route('okr.cycles.show', ['cycle' => $cycle->id])" 
                                         wire:navigate
                                     >
+                                        @svg('heroicon-o-arrow-right', 'w-4 h-4')
                                         Öffnen
                                     </x-ui-button>
                                 </div>
                             </div>
 
                             @if($cycle->objectives->count() > 0)
-                                <div class="space-y-2 mt-2">
+                                <div class="space-y-3 mt-4">
+                                    <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-2">Objectives</h4>
                                     @foreach($cycle->objectives as $objective)
-                                        <div class="p-2 rounded bg-[var(--ui-muted-4)] border border-[var(--ui-border)]/40">
-                                            <div class="flex items-center justify-between">
-                                                <div class="text-sm font-medium text-[var(--ui-secondary)]">{{ $objective->title }}</div>
-                                                <x-ui-badge variant="secondary" size="xs">{{ $objective->keyResults->count() }} KR</x-ui-badge>
+                                        @php
+                                            $objectivePerformance = $objective->performance;
+                                            $objectiveScore = $objectivePerformance ? $objectivePerformance->performance_score : 0;
+                                            $objectiveScoreColor = $objectiveScore >= 80 ? 'text-green-600' : ($objectiveScore >= 60 ? 'text-yellow-600' : 'text-red-600');
+                                            $objectiveProgressColor = $objectiveScore >= 80 ? 'bg-green-500' : ($objectiveScore >= 60 ? 'bg-yellow-500' : 'bg-red-500');
+                                        @endphp
+                                        <div class="bg-white rounded-lg border border-[var(--ui-border)]/40 p-4 hover:border-[var(--ui-border)]/60 transition-colors">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div class="flex-1">
+                                                    <h5 class="text-sm font-medium text-[var(--ui-secondary)] mb-1">{{ $objective->title }}</h5>
+                                                    <div class="flex items-center gap-4">
+                                                        <div class="text-center">
+                                                            <div class="text-lg font-bold {{ $objectiveScoreColor }}">{{ round($objectiveScore, 1) }}%</div>
+                                                            <div class="text-xs text-[var(--ui-muted)]">Objective Performance</div>
+                                                        </div>
+                                                        <div class="flex-1">
+                                                            <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-1.5">
+                                                                <div class="h-1.5 rounded-full {{ $objectiveProgressColor }}" style="width: {{ $objectiveScore }}%"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <x-ui-badge variant="secondary" size="sm">{{ $objective->keyResults->count() }} KR</x-ui-badge>
                                             </div>
                                             @if($objective->keyResults->count() > 0)
-                                                <div class="space-y-1 mt-2">
+                                                <div class="space-y-2 mt-3">
+                                                    <h6 class="text-xs font-medium text-[var(--ui-muted)] uppercase tracking-wide">Key Results</h6>
                                                     @foreach($objective->keyResults as $kr)
                                                         @php
                                                             $type = $kr->performance?->type;
+                                                            $isCompleted = $kr->performance?->is_completed ?? false;
+                                                            $currentValue = $kr->performance?->current_value ?? 0;
+                                                            $targetValue = $kr->performance?->target_value ?? 0;
+                                                            $progress = $type === 'boolean' ? ($isCompleted ? 100 : 0) : ($targetValue > 0 ? min(100, round(($currentValue / $targetValue) * 100)) : 0);
+                                                            $progressColor = $progress >= 80 ? 'bg-green-500' : ($progress >= 60 ? 'bg-yellow-500' : 'bg-red-500');
                                                         @endphp
-                                                        <div class="flex items-center justify-between p-2 bg-[var(--ui-muted-5)] rounded border border-[var(--ui-border)]/40 text-xs">
-                                                            <div class="truncate pr-2 text-[var(--ui-secondary)]">{{ $kr->title }}</div>
-                                                            <div class="flex items-center gap-2 flex-shrink-0">
-                                                                <x-ui-badge variant="secondary" size="xs">{{ $type ? ucfirst($type) : 'Typ' }}</x-ui-badge>
-                                                                <x-ui-badge variant="secondary" size="xs">Ziel: {{ $kr->performance?->target_value ?? '–' }}@if($type === 'percentage') % @endif</x-ui-badge>
-                                                                <x-ui-badge variant="secondary" size="xs">
+                                                        <div class="flex items-center justify-between p-3 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
+                                                            <div class="flex-1 min-w-0">
+                                                                <div class="text-sm font-medium text-[var(--ui-secondary)] truncate">{{ $kr->title }}</div>
+                                                                <div class="flex items-center gap-2 mt-1">
+                                                                    <x-ui-badge variant="secondary" size="xs">{{ $type ? ucfirst($type) : 'Typ' }}</x-ui-badge>
                                                                     @if($type === 'boolean')
-                                                                        {{ $kr->performance?->is_completed ? 'Erledigt' : 'Offen' }}
+                                                                        <x-ui-badge variant="{{ $isCompleted ? 'success' : 'warning' }}" size="xs">
+                                                                            {{ $isCompleted ? 'Erledigt' : 'Offen' }}
+                                                                        </x-ui-badge>
                                                                     @else
-                                                                        Aktuell: {{ $kr->performance?->current_value ?? '–' }}@if($type === 'percentage') % @endif
+                                                                        <x-ui-badge variant="secondary" size="xs">
+                                                                            {{ $currentValue }}{{ $type === 'percentage' ? '%' : '' }} / {{ $targetValue }}{{ $type === 'percentage' ? '%' : '' }}
+                                                                        </x-ui-badge>
                                                                     @endif
-                                                                </x-ui-badge>
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-center gap-2 flex-shrink-0">
+                                                                <div class="text-right">
+                                                                    <div class="text-sm font-bold {{ $progress >= 80 ? 'text-green-600' : ($progress >= 60 ? 'text-yellow-600' : 'text-red-600') }}">
+                                                                        {{ $progress }}%
+                                                                    </div>
+                                                                </div>
+                                                                <div class="w-16 bg-[var(--ui-border)]/40 rounded-full h-1.5">
+                                                                    <div class="h-1.5 rounded-full {{ $progressColor }}" style="width: {{ $progress }}%"></div>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     @endforeach
