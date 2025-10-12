@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('objective_id')->constrained('okr_objectives')->onDelete('cascade');
             $table->foreignId('team_id')->constrained('teams')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->date('performance_date');
             $table->decimal('performance_score', 5, 2)->default(0);
             $table->decimal('completion_percentage', 5, 2)->default(0);
             $table->integer('completed_key_results')->default(0);

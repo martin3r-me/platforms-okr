@@ -109,7 +109,7 @@ class UpdateOkrPerformance extends Command
             $result = ObjectivePerformance::updateOrCreate(
                 [
                     'objective_id' => $objective->id,
-                    'created_at' => $today,
+                    'performance_date' => $today,
                 ],
                 [
                     'team_id' => $objective->cycle->team_id,
@@ -183,7 +183,7 @@ class UpdateOkrPerformance extends Command
             $result = CyclePerformance::updateOrCreate(
                 [
                     'cycle_id' => $cycle->id,
-                    'created_at' => $today,
+                    'performance_date' => $today,
                 ],
                 [
                     'team_id' => $cycle->team_id,
@@ -298,7 +298,7 @@ class UpdateOkrPerformance extends Command
             OkrPerformance::updateOrCreate(
                 [
                     'okr_id' => $okr->id,
-                    'created_at' => $today,
+                    'performance_date' => $today,
                 ],
                 [
                     'team_id' => $okr->team_id,
@@ -363,7 +363,7 @@ class UpdateOkrPerformance extends Command
 
             // Calculate trends (vs. previous snapshot)
             $previousPerformance = TeamPerformance::forTeam($team->id)
-                ->where('created_at', '<', $today)
+                ->where('performance_date', '<', $today)
                 ->latest()
                 ->first();
 
@@ -382,7 +382,7 @@ class UpdateOkrPerformance extends Command
             $result = TeamPerformance::updateOrCreate(
                 [
                     'team_id' => $team->id,
-                    'created_at' => $today,
+                    'performance_date' => $today,
                 ],
                 [
                     'average_score' => $averageScore,
