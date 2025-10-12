@@ -45,6 +45,12 @@
                         <x-ui-sidebar-item :href="route('okr.okrs.show', ['okr' => $okr])">
                             @svg('heroicon-o-flag', 'w-5 h-5 flex-shrink-0 text-[var(--ui-secondary)]')
                             <span class="truncate text-sm ml-2">{{ $okr->title }}</span>
+                            @php
+                                $performance = $okr->performance;
+                                $score = $performance ? $performance->performance_score : 0;
+                                $scoreColor = $score >= 80 ? 'text-green-600' : ($score >= 60 ? 'text-yellow-600' : 'text-red-600');
+                            @endphp
+                            <span class="ml-auto text-xs {{ $scoreColor }} font-medium">{{ round($score, 0) }}%</span>
                         </x-ui-sidebar-item>
             @endforeach
                 </x-ui-sidebar-list>
