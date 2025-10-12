@@ -39,7 +39,13 @@ class UpdateOkrPerformance extends Command
             ->whereHas('cycle')
             ->get();
 
+        $today = today();
+        
         foreach ($objectives as $objective) {
+            // Prüfe, ob bereits ein Performance-Eintrag für heute existiert
+            $existingPerformance = ObjectivePerformance::where('objective_id', $objective->id)
+                ->whereDate('created_at', $today)
+                ->first();
             $keyResults = $objective->keyResults;
             $totalKeyResults = $keyResults->count();
             $completedKeyResults = $keyResults->where('performance.is_completed', true)->count();
@@ -85,18 +91,23 @@ class UpdateOkrPerformance extends Command
             // Debug: Check user_id values
             $userId = $objective->cycle->okr->user_id ?? $objective->cycle->user_id ?? \Platform\Core\Models\User::first()?->id ?? 1;
             
-            ObjectivePerformance::create([
-                'objective_id' => $objective->id,
-                'team_id' => $objective->cycle->team_id,
-                'user_id' => $userId,
-                'performance_score' => $averageProgress,
-                'completion_percentage' => $completionPercentage,
-                'completed_key_results' => $completedKeyResults,
-                'total_key_results' => $totalKeyResults,
-                'average_progress' => $averageProgress,
-                'is_completed' => $isCompleted,
-                'completed_at' => $isCompleted ? now() : null,
-            ]);
+            ObjectivePerformance::updateOrCreate(
+                [
+                    'objective_id' => $objective->id,
+                    'created_at' => $today,
+                ],
+                [
+                    'team_id' => $objective->cycle->team_id,
+                    'user_id' => $userId,
+                    'performance_score' => $averageProgress,
+                    'completion_percentage' => $completionPercentage,
+                    'completed_key_results' => $completedKeyResults,
+                    'total_key_results' => $totalKeyResults,
+                    'average_progress' => $averageProgress,
+                    'is_completed' => $isCompleted,
+                    'completed_at' => $isCompleted ? now() : null,
+                ]
+            );
         }
         
         $this->info("Updated {$objectives->count()} Objective performances");
@@ -109,10 +120,16 @@ class UpdateOkrPerformance extends Command
         $cycles = Cycle::with(['objectives.keyResults.performance', 'okr'])
             ->get();
 
+        $today = today();
+        
         foreach ($cycles as $cycle) {
+            // Prüfe, ob bereits ein Performance-Eintrag für heute existiert
+            $existingPerformance = CyclePerformance::where('cycle_id', $cycle->id)
+                ->whereDate('created_at', $today)
+                ->first();
             $objectives = $cycle->objectives;
             $totalObjectives = $objectives->count();
-            $completedObjectives = $objectives->where('performance.is_completed', true)->count();
+            $completedObjectives = $objectives->where('status', 'completed')->count();
             
             $totalKeyResults = $objectives->sum(fn($obj) => $obj->keyResults->count());
             $completedKeyResults = $objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count());
@@ -169,21 +186,26 @@ class UpdateOkrPerformance extends Command
             // Debug: Check user_id values
             $userId = $cycle->okr->user_id ?? $cycle->user_id ?? \Platform\Core\Models\User::first()?->id ?? 1;
             
-            CyclePerformance::create([
-                'cycle_id' => $cycle->id,
-                'team_id' => $cycle->team_id,
-                'user_id' => $userId,
-                'performance_score' => $averageKeyResultProgress,
-                'completion_percentage' => $completionPercentage,
-                'completed_objectives' => $completedObjectives,
-                'total_objectives' => $totalObjectives,
-                'completed_key_results' => $completedKeyResults,
-                'total_key_results' => $totalKeyResults,
-                'average_objective_progress' => $averageObjectiveProgress,
-                'average_key_result_progress' => $averageKeyResultProgress,
-                'is_completed' => $isCompleted,
-                'completed_at' => $isCompleted ? now() : null,
-            ]);
+            CyclePerformance::updateOrCreate(
+                [
+                    'cycle_id' => $cycle->id,
+                    'created_at' => $today,
+                ],
+                [
+                    'team_id' => $cycle->team_id,
+                    'user_id' => $userId,
+                    'performance_score' => $averageKeyResultProgress,
+                    'completion_percentage' => $completionPercentage,
+                    'completed_objectives' => $completedObjectives,
+                    'total_objectives' => $totalObjectives,
+                    'completed_key_results' => $completedKeyResults,
+                    'total_key_results' => $totalKeyResults,
+                    'average_objective_progress' => $averageObjectiveProgress,
+                    'average_key_result_progress' => $averageKeyResultProgress,
+                    'is_completed' => $isCompleted,
+                    'completed_at' => $isCompleted ? now() : null,
+                ]
+            );
         }
         
         $this->info("Updated {$cycles->count()} Cycle performances");
@@ -196,13 +218,19 @@ class UpdateOkrPerformance extends Command
         $okrs = Okr::with(['cycles.objectives.keyResults.performance'])
             ->get();
 
+        $today = today();
+        
         foreach ($okrs as $okr) {
+            // Prüfe, ob bereits ein Performance-Eintrag für heute existiert
+            $existingPerformance = OkrPerformance::where('okr_id', $okr->id)
+                ->whereDate('created_at', $today)
+                ->first();
             $cycles = $okr->cycles;
             $totalCycles = $cycles->count();
-            $completedCycles = $cycles->where('performance.is_completed', true)->count();
+            $completedCycles = $cycles->where('status', 'completed')->count();
             
             $totalObjectives = $cycles->sum(fn($cycle) => $cycle->objectives->count());
-            $completedObjectives = $cycles->sum(fn($cycle) => $cycle->objectives->where('performance.is_completed', true)->count());
+            $completedObjectives = $cycles->sum(fn($cycle) => $cycle->objectives->where('status', 'completed')->count());
             
             $totalKeyResults = $cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->count()));
             $completedKeyResults = $cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count()));
@@ -217,7 +245,7 @@ class UpdateOkrPerformance extends Command
             
             foreach ($cycles as $cycle) {
                 $cycleObjectives = $cycle->objectives;
-                $cycleCompletedObjectives = $cycleObjectives->where('performance.is_completed', true)->count();
+                $cycleCompletedObjectives = $cycleObjectives->where('status', 'completed')->count();
                 $cycleTotalObjectives = $cycleObjectives->count();
                 $cycleProgress = $cycleTotalObjectives > 0 ? round(($cycleCompletedObjectives / $cycleTotalObjectives) * 100) : 0;
                 $totalCycleProgress += $cycleProgress;
@@ -271,24 +299,29 @@ class UpdateOkrPerformance extends Command
             // Debug: Check user_id values
             $userId = $okr->user_id ?? \Platform\Core\Models\User::first()?->id ?? 1;
             
-            OkrPerformance::create([
-                'okr_id' => $okr->id,
-                'team_id' => $okr->team_id,
-                'user_id' => $userId,
-                'performance_score' => $averageKeyResultProgress,
-                'completion_percentage' => $completionPercentage,
-                'completed_cycles' => $completedCycles,
-                'total_cycles' => $totalCycles,
-                'completed_objectives' => $completedObjectives,
-                'total_objectives' => $totalObjectives,
-                'completed_key_results' => $completedKeyResults,
-                'total_key_results' => $totalKeyResults,
-                'average_cycle_progress' => $averageCycleProgress,
-                'average_objective_progress' => $averageObjectiveProgress,
-                'average_key_result_progress' => $averageKeyResultProgress,
-                'is_completed' => $isCompleted,
-                'completed_at' => $isCompleted ? now() : null,
-            ]);
+            OkrPerformance::updateOrCreate(
+                [
+                    'okr_id' => $okr->id,
+                    'created_at' => $today,
+                ],
+                [
+                    'team_id' => $okr->team_id,
+                    'user_id' => $userId,
+                    'performance_score' => $averageKeyResultProgress,
+                    'completion_percentage' => $completionPercentage,
+                    'completed_cycles' => $completedCycles,
+                    'total_cycles' => $totalCycles,
+                    'completed_objectives' => $completedObjectives,
+                    'total_objectives' => $totalObjectives,
+                    'completed_key_results' => $completedKeyResults,
+                    'total_key_results' => $totalKeyResults,
+                    'average_cycle_progress' => $averageCycleProgress,
+                    'average_objective_progress' => $averageObjectiveProgress,
+                    'average_key_result_progress' => $averageKeyResultProgress,
+                    'is_completed' => $isCompleted,
+                    'completed_at' => $isCompleted ? now() : null,
+                ]
+            );
         }
         
         $this->info("Updated {$okrs->count()} OKR performances");
