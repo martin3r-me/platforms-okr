@@ -213,7 +213,7 @@ class UpdateOkrPerformance extends Command
     {
         $this->info('Updating OKR performances...');
         
-        $okrs = Okr::with(['cycles.objectives.keyResults.performance'])
+        $okrs = Okr::with(['cycles.performance'])
             ->get();
 
         $today = today();
@@ -221,83 +221,35 @@ class UpdateOkrPerformance extends Command
         foreach ($okrs as $okr) {
             // Prüfe, ob bereits ein Performance-Eintrag für heute existiert
             $existingPerformance = OkrPerformance::where('okr_id', $okr->id)
-                ->whereDate('created_at', $today)
+                ->whereDate('performance_date', $today)
                 ->first();
             $cycles = $okr->cycles;
             $totalCycles = $cycles->count();
             $completedCycles = $cycles->where('status', 'completed')->count();
             
-            $totalObjectives = $cycles->sum(fn($cycle) => $cycle->objectives->count());
-            $completedObjectives = $cycles->sum(fn($cycle) => $cycle->objectives->where('status', 'completed')->count());
+            $this->info("  → Cycles: {$totalCycles} total, {$completedCycles} completed");
             
-            $totalKeyResults = $cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->count()));
-            $completedKeyResults = $cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count()));
-            
-            // Berechne durchschnittlichen Fortschritt
+            // Berechne durchschnittlichen Fortschritt basierend auf Cycle Performances
             $totalCycleProgress = 0;
-            $totalObjectiveProgress = 0;
-            $totalKeyResultProgress = 0;
             $cyclesWithProgress = 0;
-            $objectivesWithProgress = 0;
-            $keyResultsWithProgress = 0;
-            
+
             foreach ($cycles as $cycle) {
-                $cycleObjectives = $cycle->objectives;
-                $cycleCompletedObjectives = $cycleObjectives->where('status', 'completed')->count();
-                $cycleTotalObjectives = $cycleObjectives->count();
-                $cycleProgress = $cycleTotalObjectives > 0 ? round(($cycleCompletedObjectives / $cycleTotalObjectives) * 100) : 0;
-                $totalCycleProgress += $cycleProgress;
-                $cyclesWithProgress++;
-                
-                foreach ($cycleObjectives as $objective) {
-                    $objKeyResults = $objective->keyResults;
-                    $objCompleted = $objKeyResults->where('performance.is_completed', true)->count();
-                    $objTotal = $objKeyResults->count();
-                    $objProgress = $objTotal > 0 ? round(($objCompleted / $objTotal) * 100) : 0;
-                    $totalObjectiveProgress += $objProgress;
-                    $objectivesWithProgress++;
-                    
-                    foreach ($objKeyResults as $keyResult) {
-                        if ($keyResult->performance) {
-                            $target = $keyResult->performance->target_value ?? 0;
-                            $current = $keyResult->performance->current_value ?? 0;
-                            $type = $keyResult->performance->type;
-                            
-                            $firstPerformance = $keyResult->performances()->orderBy('created_at', 'asc')->first();
-                            $startValue = $firstPerformance?->current_value ?? 0;
-                            
-                            if ($type === 'boolean') {
-                                $totalKeyResultProgress += $keyResult->performance->is_completed ? 100 : 0;
-                            } elseif ($type === 'percentage' || $type === 'absolute') {
-                                if ($target > $startValue) {
-                                    $progressRange = $target - $startValue;
-                                    $currentProgress = $current - $startValue;
-                                    $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
-                                } elseif ($target < $startValue) {
-                                    $progressRange = $startValue - $target;
-                                    $currentProgress = $startValue - $current;
-                                    $progressPercent = min(100, max(0, round(($currentProgress / $progressRange) * 100)));
-                                } else {
-                                    $progressPercent = $current >= $target ? 100 : 0;
-                                }
-                                $totalKeyResultProgress += $progressPercent;
-                            }
-                            $keyResultsWithProgress++;
-                        }
-                    }
+                if ($cycle->performance) {
+                    $totalCycleProgress += $cycle->performance->performance_score ?? 0;
+                    $cyclesWithProgress++;
                 }
             }
-            
+
             $averageCycleProgress = $cyclesWithProgress > 0 ? round($totalCycleProgress / $cyclesWithProgress) : 0;
-            $averageObjectiveProgress = $objectivesWithProgress > 0 ? round($totalObjectiveProgress / $objectivesWithProgress) : 0;
-            $averageKeyResultProgress = $keyResultsWithProgress > 0 ? round($totalKeyResultProgress / $keyResultsWithProgress) : 0;
             $completionPercentage = $totalCycles > 0 ? round(($completedCycles / $totalCycles) * 100) : 0;
             $isCompleted = $completionPercentage >= 100;
             
             // Debug: Check user_id values
             $userId = $okr->user_id ?? \Platform\Core\Models\User::first()?->id ?? 1;
             
-            OkrPerformance::updateOrCreate(
+            $this->info("  → Calculated: Average Cycle Progress: {$averageCycleProgress}%, Completion: {$completionPercentage}%, User ID: {$userId}");
+            
+            $result = OkrPerformance::updateOrCreate(
                 [
                     'okr_id' => $okr->id,
                     'performance_date' => $today,
@@ -306,21 +258,23 @@ class UpdateOkrPerformance extends Command
                     'team_id' => $okr->team_id,
                     'user_id' => $userId,
                     'performance_date' => $today,
-                    'performance_score' => $averageKeyResultProgress,
+                    'performance_score' => $averageCycleProgress,
                     'completion_percentage' => $completionPercentage,
                     'completed_cycles' => $completedCycles,
                     'total_cycles' => $totalCycles,
-                    'completed_objectives' => $completedObjectives,
-                    'total_objectives' => $totalObjectives,
-                    'completed_key_results' => $completedKeyResults,
-                    'total_key_results' => $totalKeyResults,
+                    'completed_objectives' => 0, // Wird nicht mehr direkt berechnet
+                    'total_objectives' => 0, // Wird nicht mehr direkt berechnet
+                    'completed_key_results' => 0, // Wird nicht mehr direkt berechnet
+                    'total_key_results' => 0, // Wird nicht mehr direkt berechnet
                     'average_cycle_progress' => $averageCycleProgress,
-                    'average_objective_progress' => $averageObjectiveProgress,
-                    'average_key_result_progress' => $averageKeyResultProgress,
+                    'average_objective_progress' => 0, // Wird nicht mehr direkt berechnet
+                    'average_key_result_progress' => 0, // Wird nicht mehr direkt berechnet
                     'is_completed' => $isCompleted,
                     'completed_at' => $isCompleted ? now() : null,
                 ]
             );
+            
+            $this->info("  → Performance " . ($result->wasRecentlyCreated ? 'CREATED' : 'UPDATED') . " for OKR {$okr->id}");
         }
         
         $this->info("Updated {$okrs->count()} OKR performances");
@@ -351,11 +305,19 @@ class UpdateOkrPerformance extends Command
             $objectives = $activeCycles->flatMap->objectives;
             $keyResults = $objectives->flatMap->keyResults;
 
-            // Calculate metrics
-            $averageScore = $okrs->where('performance_score', '!=', null)->avg('performance_score') ?? 0;
-            $successfulOkrs = $okrs->where('performance_score', '>=', 80)->count();
+            // Calculate metrics from OKR Performance records
+            $okrPerformances = OkrPerformance::whereIn('okr_id', $okrs->pluck('id'))
+                ->whereDate('performance_date', $today)
+                ->get();
+                
+            $averageScore = $okrPerformances->avg('performance_score') ?? 0;
+            $successfulOkrs = $okrPerformances->where('performance_score', '>=', 80)->count();
             
             $this->info("  → OKR Metrics: Average Score: {$averageScore}, Successful OKRs: {$successfulOkrs}");
+            $this->info("  → OKR Performance Details:");
+            foreach ($okrPerformances as $okrPerf) {
+                $this->info("    - OKR {$okrPerf->okr_id}: Score = {$okrPerf->performance_score}");
+            }
             
             $achievedObjectives = $objectives->where('status', 'completed')->count();
             $achievedKeyResults = $keyResults->where('status', 'completed')->count();
