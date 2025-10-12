@@ -150,9 +150,17 @@ class Dashboard extends Component
         $this->completedOkrsCount = (int) $this->okrs->where('status', 'completed')->count();
         $this->endingSoonOkrsCount = (int) $this->okrs->where('status', 'ending_soon')->count();
         
-        // Performance-Statistiken
-        $this->averageScore = (float) ($this->okrs->where('performance_score', '!=', null)->avg('performance_score') ?? 0);
-        $this->successfulOkrsCount = (int) $this->okrs->where('performance_score', '>=', 80)->count();
+        // Performance-Statistiken - NUR wenn nicht bereits aus Snapshot geladen
+        if (!isset($this->averageScore) || $this->averageScore === 0) {
+            $this->averageScore = (float) ($this->okrs->where('performance_score', '!=', null)->avg('performance_score') ?? 0);
+            $this->successfulOkrsCount = (int) $this->okrs->where('performance_score', '>=', 80)->count();
+        }
+        
+        // Debug: Log final averageScore
+        \Log::info("Dashboard Final Performance", [
+            'averageScore' => $this->averageScore,
+            'successfulOkrsCount' => $this->successfulOkrsCount,
+        ]);
         
         // Objectives und Key Results Statistiken
         $allObjectives = $this->activeCycles->flatMap->objectives;
