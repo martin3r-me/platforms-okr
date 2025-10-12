@@ -74,6 +74,14 @@ class Dashboard extends Component
             ->today()
             ->first();
 
+        // Debug: Log was geladen wird
+        \Log::info("Dashboard Team Performance", [
+            'team_id' => $teamId,
+            'snapshot_found' => $performanceSnapshot ? 'YES' : 'NO',
+            'average_score' => $performanceSnapshot ? $performanceSnapshot->average_score : 'N/A',
+            'today' => today()->format('Y-m-d'),
+        ]);
+
         if ($performanceSnapshot) {
             $this->loadFromSnapshot($performanceSnapshot);
         } else {
