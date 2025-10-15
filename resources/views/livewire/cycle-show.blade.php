@@ -139,22 +139,7 @@
                                     @if($objective->description)
                                         <div class="text-sm text-[var(--ui-muted)] mt-2">{{ Str::limit($objective->description, 100) }}</div>
                                     @endif
-                                    
-                                    {{-- Objective Performance Bar --}}
-                                    @if($objTotal > 0)
-                                        <div class="mt-3">
-                                            <div class="flex items-center justify-between mb-1">
-                                                <span class="text-xs text-[var(--ui-muted)]">Objective Performance</span>
-                                                <span class="text-xs font-medium {{ $objProgress >= 80 ? 'text-green-600' : ($objProgress >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
-                                                    {{ $objCompleted }}/{{ $objTotal }} erreicht
-                                                </span>
-                                            </div>
-                                            <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-1.5">
-                                                <div class="h-1.5 rounded-full transition-all duration-300 {{ $objProgress >= 80 ? 'bg-green-500' : ($objProgress >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}" 
-                                                     style="width: {{ $objProgress }}%"></div>
-                                            </div>
-                                        </div>
-                                    @endif
+                                    {{-- Objective Performance Anzeige entfernt --}}
                                 </div>
                                 <div class="flex gap-2">
                                     <x-ui-button 
@@ -359,34 +344,7 @@
                         </div>
                         
 
-                        {{-- Objective Performance --}}
-                        @if($cycle->objectives->count() > 0)
-                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
-                                <div class="flex items-center justify-between mb-3">
-                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Objective Performance</span>
-                                    <span class="text-xs text-[var(--ui-muted)]">Durchschnitt</span>
-                                </div>
-                                <div class="space-y-2">
-                                    @foreach($cycle->objectives as $objective)
-                                        @php
-                                            $objKeyResults = $objective->keyResults;
-                                            $objCompleted = $objKeyResults->where('performance.is_completed', true)->count();
-                                            $objTotal = $objKeyResults->count();
-                                            $objProgress = $objTotal > 0 ? round(($objCompleted / $objTotal) * 100) : 0;
-                                        @endphp
-                                        <div class="flex items-center justify-between">
-                                            <div class="flex items-center gap-2 flex-1">
-                                                <div class="w-2 h-2 rounded-full {{ $objProgress >= 80 ? 'bg-green-500' : ($objProgress >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}"></div>
-                                                <span class="text-xs text-[var(--ui-secondary)] truncate">{{ Str::limit($objective->title, 20) }}</span>
-                                            </div>
-                                            <span class="text-xs font-medium {{ $objProgress >= 80 ? 'text-green-600' : ($objProgress >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
-                                                {{ $objProgress }}%
-                                            </span>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endif
+                        {{-- Objective Performance Übersicht entfernt --}}
 
                         {{-- OKR Performance (falls verfügbar) --}}
                         @if($cycle->okr)
