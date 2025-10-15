@@ -532,16 +532,14 @@
                             <span class="ml-1">Objective hinzufügen</span>
                         </x-ui-button>
                         
-                        <x-ui-button 
-                            variant="danger" 
-                            wire:click="openDeleteModal"
+                        <x-ui-confirm-button 
+                            action="deleteCycle" 
+                            text="Zyklus löschen" 
+                            confirmText="Wirklich löschen?" 
+                            variant="danger"
                             class="w-full"
-                        >
-                            <div class="flex items-center gap-2">
-                                @svg('heroicon-o-trash', 'w-4 h-4')
-                                <span class="ml-1">Zyklus löschen</span>
-                            </div>
-                        </x-ui-button>
+                            :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
+                        />
                     </div>
                 </div>
             </div>
@@ -1153,61 +1151,6 @@
         </x-slot>
     </x-ui-modal>
 
-    {{-- Delete Cycle Modal --}}
-    <x-ui-modal wire:model="deleteModalShow" title="Zyklus löschen" size="md">
-        <div class="p-6">
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 bg-[var(--ui-danger-5)] text-[var(--ui-danger)] rounded-lg flex items-center justify-center flex-shrink-0">
-                    @svg('heroicon-o-exclamation-triangle', 'w-6 h-6')
-                </div>
-                <div class="flex-1 min-w-0">
-                    <h3 class="text-lg font-semibold text-[var(--ui-secondary)] mb-2">
-                        Zyklus wirklich löschen?
-                    </h3>
-                    <p class="text-[var(--ui-muted)] mb-4">
-                        Der Zyklus <strong>"{{ $cycle->template?->label ?? 'Unbekannter Cycle' }}"</strong> wird unwiderruflich gelöscht.
-                    </p>
-                    <div class="bg-[var(--ui-danger-5)] border border-[var(--ui-danger-20)] rounded-lg p-4">
-                        <div class="flex items-start gap-3">
-                            <div class="w-5 h-5 text-[var(--ui-danger)] flex-shrink-0 mt-0.5">
-                                @svg('heroicon-o-information-circle', 'w-5 h-5')
-                            </div>
-                            <div class="text-sm text-[var(--ui-danger)]">
-                                <strong>Achtung:</strong> Alle Objectives, Key Results und Performance-Daten in diesem Zyklus werden ebenfalls gelöscht.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <x-slot name="footer">
-            <div class="flex justify-between items-center">
-                <div class="text-xs text-[var(--ui-muted)]">
-                    Diese Aktion kann nicht rückgängig gemacht werden
-                </div>
-                <div class="flex gap-3">
-                    <x-ui-button 
-                        type="button" 
-                        variant="secondary-ghost" 
-                        size="sm"
-                        wire:click="closeDeleteModal"
-                    >
-                        @svg('heroicon-o-x-mark', 'w-4 h-4')
-                        <span class="ml-1">Abbrechen</span>
-                    </x-ui-button>
-                    <x-ui-button 
-                        type="button" 
-                        variant="danger" 
-                        size="sm"
-                        wire:click="deleteCycle"
-                    >
-                        @svg('heroicon-o-trash', 'w-4 h-4')
-                        <span class="ml-1">Zyklus löschen</span>
-                    </x-ui-button>
-                </div>
-            </div>
-        </x-slot>
-    </x-ui-modal>
+    {{-- Delete durch x-ui-confirm-button, kein separates Modal notwendig --}}
 
 </x-ui-page>
