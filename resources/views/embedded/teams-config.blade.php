@@ -73,7 +73,7 @@
         filtered.forEach(c => {
           const opt = document.createElement('option');
           opt.value = c.id;
-          opt.textContent = c.template_label || ('Zyklus #' + c.id);
+          opt.textContent = c.template_label ? c.template_label : ('Zyklus #' + c.id);
           cycleSelect.appendChild(opt);
         });
       }

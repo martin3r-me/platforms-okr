@@ -39,12 +39,11 @@ Route::get('/embedded/teams/config', function() {
     }
 
     $cycles = \Platform\Okr\Models\Cycle::query()
-        ->select(['id','team_id'])
-        ->with(['template:id,label'])
-        ->when($teamIds->isNotEmpty(), function($q) use ($teamIds){ $q->whereIn('team_id', $teamIds); }, function($q){ $q->whereRaw('1=0'); })
-        ->orderByDesc('id')
-        ->get()
-        ->map(function($c){ return [ 'id' => $c->id, 'team_id' => $c->team_id, 'template_label' => optional($c->template)->label ]; });
+        ->leftJoin('okr_cycle_templates', 'okr_cycle_templates.id', '=', 'okr_cycles.cycle_template_id')
+        ->when($teamIds->isNotEmpty(), function($q) use ($teamIds){ $q->whereIn('okr_cycles.team_id', $teamIds); }, function($q){ $q->whereRaw('1=0'); })
+        ->orderByDesc('okr_cycles.id')
+        ->get(['okr_cycles.id','okr_cycles.team_id','okr_cycle_templates.label as template_label'])
+        ->map(function($c){ return [ 'id' => $c->id, 'team_id' => $c->team_id, 'template_label' => $c->template_label ]; });
 
     $response = response()->view('okr::embedded.teams-config', [
         'teams' => $teams,
