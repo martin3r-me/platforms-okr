@@ -216,31 +216,29 @@
 
     {{-- Cycle Create Modal --}}
     <x-ui-modal wire:model="modalShow">
-        <x-slot name="title">Zyklus erstellen</x-slot>
-        <x-slot name="content">
-            <div class="space-y-4">
-                <x-ui-input-text
-                    name="cycleForm.notes"
-                    label="Notizen"
-                    wire:model="cycleForm.notes"
-                    placeholder="Optionale Notizen zum Zyklus..."
-                />
-                
-                <div>
-                    <label class="block text-sm font-medium text-[var(--ui-secondary)] mb-2">Template</label>
-                    <select 
-                        name="cycleForm.cycle_template_id"
-                        wire:model="cycleForm.cycle_template_id"
-                        class="w-full px-3 py-2 border border-[var(--ui-border)] rounded-lg focus:ring-2 focus:ring-[var(--ui-primary)] focus:border-[var(--ui-primary)]"
-                    >
-                        <option value="">Template auswählen...</option>
-                        @foreach($cycleTemplates as $template)
-                            <option value="{{ $template->id }}">{{ $template->label }}</option>
-                        @endforeach
-                    </select>
-                </div>
+        <x-slot name="header">Zyklus erstellen</x-slot>
+        <div class="space-y-4">
+            <x-ui-input-text
+                name="cycleForm.notes"
+                label="Notizen"
+                wire:model="cycleForm.notes"
+                placeholder="Optionale Notizen zum Zyklus..."
+            />
+            
+            <div>
+                <label class="block text-sm font-medium text-[var(--ui-secondary)] mb-2">Template</label>
+                <select 
+                    name="cycleForm.cycle_template_id"
+                    wire:model="cycleForm.cycle_template_id"
+                    class="w-full px-3 py-2 border border-[var(--ui-border)] rounded-lg focus:ring-2 focus:ring-[var(--ui-primary)] focus:border-[var(--ui-primary)]"
+                >
+                    <option value="">Template auswählen...</option>
+                    @foreach($cycleTemplates as $template)
+                        <option value="{{ $template->id }}">{{ $template->label }}</option>
+                    @endforeach
+                </select>
             </div>
-        </x-slot>
+        </div>
         <x-slot name="footer">
             <div class="flex justify-end gap-3">
                 <x-ui-button variant="secondary-ghost" wire:click="closeCycleCreateModal">

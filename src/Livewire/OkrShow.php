@@ -148,8 +148,12 @@ class OkrShow extends Component
     public function openCycleCreateModal()
     {
         $this->resetCycleForm();
+        // Sicherstellen, dass Templates geladen sind
+        $this->ensureCycleTemplatesLoaded();
         // Default: erstes verfügbares Template vorwählen
-        $firstTemplate = $this->cycleTemplates[0] ?? null;
+        $firstTemplate = $this->cycleTemplates instanceof \Illuminate\Support\Collection
+            ? $this->cycleTemplates->first()
+            : (is_array($this->cycleTemplates) ? ($this->cycleTemplates[0] ?? null) : null);
         if ($firstTemplate) {
             $this->cycleForm['cycle_template_id'] = $firstTemplate->id;
         }
@@ -253,6 +257,21 @@ class OkrShow extends Component
             'status' => 'draft',
             'notes' => '',
         ];
+    }
+
+    protected function ensureCycleTemplatesLoaded(): void
+    {
+        $needLoad = false;
+        if ($this->cycleTemplates instanceof \Illuminate\Support\Collection) {
+            $needLoad = $this->cycleTemplates->isEmpty();
+        } elseif (is_array($this->cycleTemplates)) {
+            $needLoad = count($this->cycleTemplates) === 0;
+        } else {
+            $needLoad = empty($this->cycleTemplates);
+        }
+        if ($needLoad) {
+            $this->cycleTemplates = CycleTemplate::orderBy('starts_at')->get();
+        }
     }
 
 
