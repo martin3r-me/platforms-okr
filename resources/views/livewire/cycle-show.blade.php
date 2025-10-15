@@ -90,48 +90,7 @@
             </div>
         </div>
 
-        {{-- Cycle Details --}}
-        <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
-                    @svg('heroicon-o-cog-6-tooth', 'w-4 h-4')
-                </div>
-                <div>
-                    <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Cycle Details</h3>
-                    <p class="text-sm text-[var(--ui-muted)]">Grundinformationen und Einstellungen</p>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-[var(--ui-secondary)] mb-1">Template</label>
-                        <div class="text-sm text-[var(--ui-muted)]">{{ $cycle->template?->label ?? 'Kein Template' }}</div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-[var(--ui-secondary)] mb-1">Zeitraum</label>
-                        <div class="text-sm text-[var(--ui-muted)]">
-                            @if($cycle->template)
-                                {{ $cycle->template->starts_at?->format('d.m.Y') }} - {{ $cycle->template->ends_at?->format('d.m.Y') }}
-                            @else
-                                Nicht definiert
-                            @endif
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="space-y-4">
-                    <x-ui-input-textarea 
-                        name="cycle.notes"
-                        label="Notizen"
-                        wire:model.live.debounce.500ms="cycle.notes"
-                        placeholder="Zusätzliche Notizen zum Cycle (optional)"
-                        rows="4"
-                        :errorKey="'cycle.notes'"
-                    />
-                </div>
-            </div>
-        </div>
+        {{-- Cycle Details entfernt (Info im Header enthalten) --}}
 
         {{-- Objectives & Key Results --}}
         <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
