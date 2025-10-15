@@ -32,18 +32,10 @@
           <div class="text-xs text-[var(--ui-muted)]">Nur Zyklen aus dem gewählten Team</div>
         </div>
       </div>
-      <x-ui-input-select
-        name="cycleSelect"
-        label="Zyklus"
-        :options="[]"
-        optionValue="id"
-        optionLabel="label"
-        :nullable="true"
-        nullLabel="– Bitte erst ein Team wählen –"
-        x-data
-        x-on:update-cycles.window="(e)=>{ $el.__lw?.setOptions?.(e.detail.options || []); }"
-        id="cycleSelect"
-      />
+      <label class="block text-sm font-medium text-[var(--ui-secondary)] mb-2">Zyklus</label>
+      <select id="cycleSelect" class="w-full px-3 py-2 border border-[var(--ui-border)] rounded-lg focus:ring-2 focus:ring-[var(--ui-primary)] focus:border-[var(--ui-primary)]">
+        <option value="">– Bitte erst ein Team wählen –</option>
+      </select>
       <div class="text-xs text-[var(--ui-muted)] mt-2"><span id="cycleCount">0</span> Zyklen verfügbar</div>
     </div>
 
@@ -66,8 +58,26 @@
   function renderCycles(){
     let filtered = allCycles.filter(c => String(c.team_id) === String(selectedTeamId));
     cycleCountEl.textContent = String(filtered.length);
-    const options = filtered.map(c => ({ id: c.id, label: c.template_label || ('Zyklus #' + c.id) }));
-    window.dispatchEvent(new CustomEvent('update-cycles', { detail: { options } }));
+    // rebuild select options
+    if (cycleSelect) {
+      cycleSelect.innerHTML = '';
+      if (!selectedTeamId) {
+        cycleSelect.innerHTML = '<option value="">– Bitte erst ein Team wählen –</option>';
+      } else if (filtered.length === 0) {
+        cycleSelect.innerHTML = '<option value="">Keine Zyklen im Team</option>';
+      } else {
+        const ph = document.createElement('option');
+        ph.value = '';
+        ph.textContent = '– Bitte wählen –';
+        cycleSelect.appendChild(ph);
+        filtered.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.template_label || ('Zyklus #' + c.id);
+          cycleSelect.appendChild(opt);
+        });
+      }
+    }
     saveBtn.disabled = true;
     if (window.microsoftTeams?.pages?.config) window.microsoftTeams.pages.config.setValidityState(false);
   }
