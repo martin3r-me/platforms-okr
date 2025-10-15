@@ -17,3 +17,8 @@ Route::get('/cycles/{cycle}', \Platform\Okr\Livewire\CycleShow::class)->name('ok
 
 // Objective Management
 Route::get('/objectives/{objective}', \Platform\Okr\Livewire\ObjectiveShow::class)->name('okr.objectives.show');
+
+// Embedded Teams Config (OKR) – Platzhalter
+Route::get('/embedded/teams/config', function() {
+    return view('okr::embedded.teams-config');
+})->name('okr.embedded.teams.config');
