@@ -2,25 +2,14 @@
 
 namespace Platform\Okr\Livewire\Embedded;
 
-use Livewire\Component;
-use Platform\Okr\Models\Cycle as OkrCycle;
+use Platform\Okr\Livewire\CycleShow as BaseCycleShow;
 
-class Cycle extends Component
+class Cycle extends BaseCycleShow
 {
-    public OkrCycle $cycle;
-
-    public function mount($cycle)
-    {
-        if (!$cycle instanceof OkrCycle) {
-            $this->cycle = OkrCycle::with(['template','objectives.keyResults'])->findOrFail($cycle);
-        } else {
-            $this->cycle = $cycle->load(['template','objectives.keyResults']);
-        }
-    }
-
     public function render()
     {
-        return view('okr::livewire.embedded.cycle')
+        // Verwende die normale Cycle-View mit vollständiger UI, nur mit Embedded-Layout
+        return view('okr::livewire.cycle-show')
             ->layout('platform::layouts.embedded');
     }
 }
