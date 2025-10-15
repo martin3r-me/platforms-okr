@@ -117,7 +117,10 @@
             contentUrl: contentUrl,
             websiteUrl: contentUrl,
             entityId: 'okr-cycle-' + cycleId,
-            suggestedDisplayName: 'OKR – ' + templateName
+            // suggestedDisplayName wird beim Neu-Anlegen verwendet
+            suggestedDisplayName: 'OKR – ' + templateName,
+            // displayName wird bei Re-Konfiguration (bestehender Tab) respektiert
+            displayName: 'OKR – ' + templateName
           });
           saveEvent.notifySuccess();
         } catch(e) {
