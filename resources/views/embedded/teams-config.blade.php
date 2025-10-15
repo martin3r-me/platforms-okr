@@ -106,12 +106,18 @@
         try {
           const cycleId = cycleSelect?.value || '';
           if (!cycleId) { saveEvent.notifyFailure('Bitte Zyklus wählen'); return; }
+          // Tab-Anzeigename aus dem ausgewählten Optionstext ableiten (Template-Name)
+          let templateName = 'Zyklus ' + cycleId;
+          try {
+            const sel = cycleSelect.options[cycleSelect.selectedIndex];
+            if (sel && sel.text) templateName = sel.text;
+          } catch(_) {}
           const contentUrl = 'https://office.martin3r.me/okr/embedded/okr/cycles/' + encodeURIComponent(cycleId);
           await window.microsoftTeams.pages.config.setConfig({
             contentUrl: contentUrl,
             websiteUrl: contentUrl,
             entityId: 'okr-cycle-' + cycleId,
-            suggestedDisplayName: 'OKR – Zyklus ' + cycleId
+            suggestedDisplayName: 'OKR – ' + templateName
           });
           saveEvent.notifySuccess();
         } catch(e) {
