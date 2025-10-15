@@ -148,6 +148,11 @@ class OkrShow extends Component
     public function openCycleCreateModal()
     {
         $this->resetCycleForm();
+        // Default: erstes verfügbares Template vorwählen
+        $firstTemplate = $this->cycleTemplates[0] ?? null;
+        if ($firstTemplate) {
+            $this->cycleForm['cycle_template_id'] = $firstTemplate->id;
+        }
         $this->modalShow = true;
     }
 
