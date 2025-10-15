@@ -2,15 +2,7 @@
     <x-slot name="navbar">
         <x-ui-page-navbar :title="$cycle->template?->label ?? 'Unbekannter Cycle'" icon="heroicon-o-calendar">
             <x-slot name="titleActions">
-                <x-ui-button 
-                    variant="secondary-ghost" 
-                    size="sm"
-                    :href="route('okr.okrs.show', ['okr' => $cycle->okr_id])" 
-                    wire:navigate
-                >
-                    @svg('heroicon-o-arrow-left', 'w-4 h-4')
-                    <span class="ml-1">{{ $cycle->okr->title }}</span>
-                </x-ui-button>
+                {{-- Embedded: keine Navigation zurück anzeigen --}}
                 @if($this->isDirty)
                     <x-ui-button 
                         variant="secondary" 
@@ -341,36 +333,7 @@
     <x-slot name="sidebar">
         <x-ui-page-sidebar title="Cycle Übersicht" width="w-80" :defaultOpen="true">
             <div class="p-6 space-y-6">
-                {{-- Navigation --}}
-                <div>
-                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Navigation</h3>
-                    <div class="space-y-2">
-                        <x-ui-button
-                            variant="secondary-outline"
-                            size="sm"
-                            :href="route('okr.dashboard')"
-                            wire:navigate
-                            class="w-full"
-                        >
-                            <span class="flex items-center gap-2">
-                                @svg('heroicon-o-home', 'w-4 h-4')
-                                Zum Dashboard
-                            </span>
-                        </x-ui-button>
-                        <x-ui-button
-                            variant="secondary-outline"
-                            size="sm"
-                            :href="route('okr.okrs.show', ['okr' => $cycle->okr_id])"
-                            wire:navigate
-                            class="w-full"
-                        >
-                            <span class="flex items-center gap-2">
-                                @svg('heroicon-o-flag', 'w-4 h-4')
-                                Zurück zu OKR
-                            </span>
-                        </x-ui-button>
-                    </div>
-                </div>
+                {{-- Embedded: Navigation ausgeblendet --}}
 
                 {{-- Cycle Performance --}}
                 <div>
@@ -519,7 +482,7 @@
                     />
                 </div>
 
-                {{-- Quick Actions --}}
+                {{-- Aktionen: Löschen im Embedded ausblenden, Add Objective bleibt --}}
                 <div>
                     <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Aktionen</h3>
                     <div class="space-y-2">
@@ -531,15 +494,6 @@
                             @svg('heroicon-o-plus', 'w-4 h-4')
                             <span class="ml-1">Objective hinzufügen</span>
                         </x-ui-button>
-                        
-                        <x-ui-confirm-button 
-                            action="deleteCycle" 
-                            text="Zyklus löschen" 
-                            confirmText="Wirklich löschen?" 
-                            variant="danger"
-                            class="w-full"
-                            :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
-                        />
                     </div>
                 </div>
             </div>
