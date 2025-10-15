@@ -226,17 +226,15 @@
             />
             
             <div>
-                <label class="block text-sm font-medium text-[var(--ui-secondary)] mb-2">Template</label>
-                <select 
+                <x-ui-input-select
                     name="cycleForm.cycle_template_id"
-                    wire:model="cycleForm.cycle_template_id"
-                    class="w-full px-3 py-2 border border-[var(--ui-border)] rounded-lg focus:ring-2 focus:ring-[var(--ui-primary)] focus:border-[var(--ui-primary)]"
-                >
-                    <option value="">Template auswählen...</option>
-                    @foreach($cycleTemplates as $template)
-                        <option value="{{ $template->id }}">{{ $template->label }}</option>
-                    @endforeach
-                </select>
+                    label="Template"
+                    :options="$cycleTemplates"
+                    optionValue="id"
+                    optionLabel="label"
+                    :nullable="false"
+                    wire:model.live="cycleForm.cycle_template_id"
+                />
             </div>
         </div>
         <x-slot name="footer">
