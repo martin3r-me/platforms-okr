@@ -20,8 +20,7 @@ class Cycle extends Component
 
     public function render()
     {
-        return view('okr::livewire.embedded.cycle')
-            ->layout('platform::layouts.embedded');
+        return view('okr::livewire.embedded.cycle');
     }
 }
 
