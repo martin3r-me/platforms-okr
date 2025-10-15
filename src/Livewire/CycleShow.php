@@ -266,9 +266,12 @@ class CycleShow extends Component
             return;
         }
         
-        if (empty($this->keyResultTargetValue)) {
-            session()->flash('error', 'Zielwert ist erforderlich!');
-            return;
+        // Zielwert nur erzwingen, wenn Typ nicht boolean ist
+        if ($this->keyResultValueType !== 'boolean') {
+            if ($this->keyResultTargetValue === '' || $this->keyResultTargetValue === null) {
+                session()->flash('error', 'Zielwert ist erforderlich!');
+                return;
+            }
         }
 
         if (!$this->editingKeyResultObjectiveId) {

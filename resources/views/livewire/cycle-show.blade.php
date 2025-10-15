@@ -236,7 +236,7 @@
                                                     <div class="text-xs text-[var(--ui-muted)] mt-1">{{ Str::limit($keyResult->description, 60) }}</div>
                                                 @endif
                                             </div>
-                                            <div class="flex items-center gap-3 flex-shrink-0" wire:click.stop>
+                                            <div class="flex items-center gap-4 flex-shrink-0" wire:click.stop>
                                                 @php
                                                     $type = $keyResult->performance?->type;
                                                     $target = $keyResult->performance?->target_value ?? 0;
@@ -290,6 +290,11 @@
                                                                 <div class="text-xs text-[var(--ui-muted)] text-center mt-1">{{ $progressPercent }}%</div>
                                                             </div>
                                                             
+                                                            {{-- Ziel / Ist Tooltip --}}
+                                                            <div class="text-xs text-[var(--ui-muted)] text-right">
+                                                                <div>Ziel: <span class="font-medium">{{ $target }}@if($type==='percentage')% @endif</span></div>
+                                                                <div>Ist: <span class="font-medium">{{ $current }}@if($type==='percentage')% @endif</span></div>
+                                                            </div>
                                                             {{-- Status Badge --}}
                                                             <x-ui-badge variant="{{ $isCompleted ? 'success' : ($progressPercent >= 80 ? 'warning' : 'secondary') }}" size="sm">
                                                                 {{ $isCompleted ? 'Erreicht' : ($progressPercent >= 80 ? 'Fast erreicht' : 'In Arbeit') }}
