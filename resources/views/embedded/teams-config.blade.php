@@ -113,15 +113,19 @@
             if (sel && sel.text) templateName = sel.text;
           } catch(_) {}
           const contentUrl = 'https://office.martin3r.me/okr/embedded/okr/cycles/' + encodeURIComponent(cycleId);
-          await window.microsoftTeams.pages.config.setConfig({
+          // Bestehende Konfiguration holen und aktualisieren (wichtig für Re-Konfiguration)
+          let current = {};
+          try {
+            current = await window.microsoftTeams.pages.config.getConfig();
+          } catch(_) { current = {}; }
+          const newConfig = Object.assign({}, current, {
             contentUrl: contentUrl,
             websiteUrl: contentUrl,
             entityId: 'okr-cycle-' + cycleId,
-            // suggestedDisplayName wird beim Neu-Anlegen verwendet
             suggestedDisplayName: 'OKR – ' + templateName,
-            // displayName wird bei Re-Konfiguration (bestehender Tab) respektiert
             displayName: 'OKR – ' + templateName
           });
+          await window.microsoftTeams.pages.config.setConfig(newConfig);
           saveEvent.notifySuccess();
         } catch(e) {
           try { saveEvent.notifyFailure('Speichern fehlgeschlagen'); } catch(_) {}

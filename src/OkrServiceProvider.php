@@ -87,6 +87,13 @@ class OkrServiceProvider extends ServiceProvider
         Livewire::component('okr.cycle-show', \Platform\Okr\Livewire\CycleShow::class);
         Livewire::component('okr.objective-show', \Platform\Okr\Livewire\ObjectiveShow::class);
         Livewire::component('okr.sidebar', \Platform\Okr\Livewire\Sidebar::class);
+
+        // Embedded Components
+        if (class_exists(\Platform\Okr\Livewire\Embedded\Cycle::class)) {
+            Livewire::component('okr.embedded.cycle', \Platform\Okr\Livewire\Embedded\Cycle::class);
+            // Fallback Alias falls ein voller Namenspfad referenziert wird
+            Livewire::component('platform.okr.livewire.embedded.cycle', \Platform\Okr\Livewire\Embedded\Cycle::class);
+        }
     }
 
     private function schedulePerformanceUpdates(): void
