@@ -65,4 +65,58 @@ class OkrPolicy
     {
         return $this->update($user, $okr);
     }
+
+    /**
+     * Darf der Nutzer Mitglieder zum OKR einladen?
+     */
+    public function invite(User $user, Okr $okr): bool
+    {
+        if ($okr->team_id !== $user->current_team_id) {
+            return false;
+        }
+        if (method_exists($user, 'isTeamOwner') && $user->isTeamOwner($user->current_team_id)) {
+            return true;
+        }
+        if (method_exists($user, 'hasTeamRole') && $user->hasTeamRole('admin', $user->current_team_id)) {
+            return true;
+        }
+        // Manager oder Owner des OKR dürfen einladen
+        return $okr->manager_user_id === $user->id || $okr->user_id === $user->id;
+    }
+
+    /**
+     * Darf der Nutzer Mitglieder aus dem OKR entfernen?
+     */
+    public function removeMember(User $user, Okr $okr): bool
+    {
+        // Gleiche Kriterien wie invite
+        return $this->invite($user, $okr);
+    }
+
+    /**
+     * Darf der Nutzer die Rolle eines OKR-Mitglieds ändern?
+     */
+    public function changeRole(User $user, Okr $okr): bool
+    {
+        // Gleiche Kriterien wie invite
+        return $this->invite($user, $okr);
+    }
+
+    /**
+     * Darf der Nutzer das Ownership des OKR übertragen?
+     */
+    public function transferOwnership(User $user, Okr $okr): bool
+    {
+        if ($okr->team_id !== $user->current_team_id) {
+            return false;
+        }
+        // Nur Team-Owner/Admin oder aktueller Owner/Manager
+        if (method_exists($user, 'isTeamOwner') && $user->isTeamOwner($user->current_team_id)) {
+            return true;
+        }
+        if (method_exists($user, 'hasTeamRole') && $user->hasTeamRole('admin', $user->current_team_id)) {
+            return true;
+        }
+        return $okr->user_id === $user->id || $okr->manager_user_id === $user->id;
+    }
 }

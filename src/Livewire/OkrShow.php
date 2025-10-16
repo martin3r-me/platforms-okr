@@ -101,6 +101,7 @@ class OkrShow extends Component
     // Member Management
     public function addMember()
     {
+        $this->authorize('invite', $this->okr);
         $this->validate([
             'memberUserId' => 'required|exists:users,id',
             'memberRole' => 'required|in:contributor,viewer',
@@ -118,6 +119,7 @@ class OkrShow extends Component
 
     public function removeMember($userId)
     {
+        $this->authorize('removeMember', $this->okr);
         $this->okr->members()->detach($userId);
         $this->okr->load('members');
         session()->flash('message', 'Teilnehmer entfernt.');
@@ -125,6 +127,7 @@ class OkrShow extends Component
 
     public function updateMemberRole($userId, $role)
     {
+        $this->authorize('changeRole', $this->okr);
         if (!in_array($role, ['contributor','viewer'])) {
             return;
         }
