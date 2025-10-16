@@ -3,43 +3,15 @@
 namespace Platform\Okr\Policies;
 
 use Platform\Core\Models\User;
+use Platform\Core\Enums\StandardRole;
+use Platform\Core\Policies\RolePolicy;
 use Platform\Okr\Models\Okr;
 
-class OkrPolicy
+class OkrPolicy extends RolePolicy
 {
     public function viewAny(User $user): bool
     {
         return !is_null($user->current_team_id);
-    }
-
-    public function view(User $user, Okr $okr): bool
-    {
-        if ($okr->team_id !== $user->current_team_id) {
-            return false;
-        }
-
-        // Owner/Admin des Teams
-        if (method_exists($user, 'isTeamOwner') && $user->isTeamOwner($user->current_team_id)) {
-            return true;
-        }
-        if (method_exists($user, 'hasTeamRole') && $user->hasTeamRole('admin', $user->current_team_id)) {
-            return true;
-        }
-
-        // Manager oder Owner des OKR oder explizite Freigabe via relation (optional)
-        if ($okr->manager_user_id === $user->id) {
-            return true;
-        }
-        if ($okr->user_id === $user->id) {
-            return true;
-        }
-
-        // Optional: contributors/viewers relation auf OKR
-        if (method_exists($okr, 'members') && $okr->members()->where('user_id', $user->id)->exists()) {
-            return true;
-        }
-
-        return false;
     }
 
     public function create(User $user): bool
@@ -47,23 +19,10 @@ class OkrPolicy
         return !is_null($user->current_team_id);
     }
 
-    public function update(User $user, Okr $okr): bool
-    {
-        if ($okr->team_id !== $user->current_team_id) {
-            return false;
-        }
-        if (method_exists($user, 'isTeamOwner') && $user->isTeamOwner($user->current_team_id)) {
-            return true;
-        }
-        if (method_exists($user, 'hasTeamRole') && $user->hasTeamRole('admin', $user->current_team_id)) {
-            return true;
-        }
-        return $okr->manager_user_id === $user->id || $okr->user_id === $user->id;
-    }
-
     public function delete(User $user, Okr $okr): bool
     {
-        return $this->update($user, $okr);
+        // Erbt Löschlogik aus RolePolicy (Owner/Admin Rollen), aber erlaubt zusätzlich Owner des Modells
+        return parent::delete($user, $okr);
     }
 
     /**
@@ -71,17 +30,15 @@ class OkrPolicy
      */
     public function invite(User $user, Okr $okr): bool
     {
-        if ($okr->team_id !== $user->current_team_id) {
+        // Teamzugang + Schreibrolle (member/admin/owner) per StandardRole
+        if (! $this->isInTeam($user, $okr)) {
             return false;
         }
-        if (method_exists($user, 'isTeamOwner') && $user->isTeamOwner($user->current_team_id)) {
+        if ($this->hasRole($user, $okr, StandardRole::getWriteRoles())) {
             return true;
         }
-        if (method_exists($user, 'hasTeamRole') && $user->hasTeamRole('admin', $user->current_team_id)) {
-            return true;
-        }
-        // Manager oder Owner des OKR dürfen einladen
-        return $okr->manager_user_id === $user->id || $okr->user_id === $user->id;
+        // Zusätzlich: Manager oder Model-Owner
+        return $okr->manager_user_id === $user->id || $this->isOwner($user, $okr);
     }
 
     /**
@@ -89,7 +46,6 @@ class OkrPolicy
      */
     public function removeMember(User $user, Okr $okr): bool
     {
-        // Gleiche Kriterien wie invite
         return $this->invite($user, $okr);
     }
 
@@ -98,8 +54,15 @@ class OkrPolicy
      */
     public function changeRole(User $user, Okr $okr): bool
     {
-        // Gleiche Kriterien wie invite
-        return $this->invite($user, $okr);
+        // Admin-Rollen dürfen Rollen ändern
+        if (! $this->isInTeam($user, $okr)) {
+            return false;
+        }
+        if ($this->hasRole($user, $okr, StandardRole::getAdminRoles())) {
+            return true;
+        }
+        // Zusätzlich: Model-Owner
+        return $this->isOwner($user, $okr);
     }
 
     /**
@@ -107,16 +70,25 @@ class OkrPolicy
      */
     public function transferOwnership(User $user, Okr $okr): bool
     {
-        if ($okr->team_id !== $user->current_team_id) {
+        if (! $this->isInTeam($user, $okr)) {
             return false;
         }
-        // Nur Team-Owner/Admin oder aktueller Owner/Manager
-        if (method_exists($user, 'isTeamOwner') && $user->isTeamOwner($user->current_team_id)) {
+        // Nur Admin-Rollen oder aktueller Owner/Manager
+        if ($this->hasRole($user, $okr, StandardRole::getAdminRoles())) {
             return true;
         }
-        if (method_exists($user, 'hasTeamRole') && $user->hasTeamRole('admin', $user->current_team_id)) {
-            return true;
+        return $this->isOwner($user, $okr) || $okr->manager_user_id === $user->id;
+    }
+
+    /**
+     * Liefert die Nutzerrolle aus der Pivot-Relation `members`.
+     */
+    protected function getUserRole(User $user, $model): ?string
+    {
+        if (method_exists($model, 'members')) {
+            $relation = $model->members()->where('user_id', $user->id)->first();
+            return $relation?->pivot?->role ?? $relation?->role ?? null;
         }
-        return $okr->user_id === $user->id || $okr->manager_user_id === $user->id;
+        return null;
     }
 }

@@ -3,46 +3,20 @@
 namespace Platform\Okr\Policies;
 
 use Platform\Core\Models\User;
+use Platform\Core\Enums\StandardRole;
+use Platform\Core\Policies\RolePolicy;
 use Platform\Okr\Models\Cycle;
 
-class CyclePolicy
+class CyclePolicy extends RolePolicy
 {
     public function view(User $user, Cycle $cycle): bool
     {
-        if ($cycle->team_id !== $user->current_team_id) {
-            return false;
-        }
-        if (method_exists($user, 'isTeamOwner') && $user->isTeamOwner($user->current_team_id)) {
-            return true;
-        }
-        if (method_exists($user, 'hasTeamRole') && $user->hasTeamRole('admin', $user->current_team_id)) {
-            return true;
-        }
-        // Owner/Manager des zugehörigen OKR oder Cycle-Mitglied
-        if ($cycle->okr && ($cycle->okr->user_id === $user->id || $cycle->okr->manager_user_id === $user->id)) {
-            return true;
-        }
-        if (method_exists($cycle, 'members') && $cycle->members()->where('user_id', $user->id)->exists()) {
-            return true;
-        }
-        return false;
+        return parent::view($user, $cycle);
     }
 
     public function update(User $user, Cycle $cycle): bool
     {
-        if ($cycle->team_id !== $user->current_team_id) {
-            return false;
-        }
-        if (method_exists($user, 'isTeamOwner') && $user->isTeamOwner($user->current_team_id)) {
-            return true;
-        }
-        if (method_exists($user, 'hasTeamRole') && $user->hasTeamRole('admin', $user->current_team_id)) {
-            return true;
-        }
-        if ($cycle->okr && ($cycle->okr->user_id === $user->id || $cycle->okr->manager_user_id === $user->id)) {
-            return true;
-        }
-        return method_exists($cycle, 'members') && $cycle->members()->where('user_id', $user->id)->exists();
+        return parent::update($user, $cycle);
     }
 
     public function invite(User $user, Cycle $cycle): bool
@@ -59,8 +33,19 @@ class CyclePolicy
 
     public function changeRole(User $user, Cycle $cycle): bool
     {
-        // Gleiche Kriterien wie update
-        return $this->update($user, $cycle);
+        if (! $this->isInTeam($user, $cycle)) {
+            return false;
+        }
+        return $this->hasRole($user, $cycle, StandardRole::getAdminRoles());
+    }
+
+    protected function getUserRole(User $user, $model): ?string
+    {
+        if (method_exists($model, 'members')) {
+            $relation = $model->members()->where('user_id', $user->id)->first();
+            return $relation?->pivot?->role ?? $relation?->role ?? null;
+        }
+        return null;
     }
 }
 
