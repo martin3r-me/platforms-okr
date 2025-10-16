@@ -7,6 +7,7 @@ use Platform\Okr\Models\Okr;
 use Platform\Okr\Models\Cycle;
 use Platform\Okr\Models\CycleTemplate;
 use Platform\Core\Models\User;
+use Platform\Core\Enums\StandardRole;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 
@@ -90,6 +91,31 @@ class OkrShow extends Component
             $query->whereNotIn('id', $excludeIds);
         }
         return $query->get();
+    }
+
+    #[Computed]
+    public function roleOptions(): array
+    {
+        $user = auth()->user();
+        $isAdminContext = false;
+        if (method_exists($user, 'isTeamOwner') && $user->isTeamOwner($this->okr->team_id)) {
+            $isAdminContext = true;
+        }
+        if (!$isAdminContext && method_exists($user, 'hasTeamRole') && $user->hasTeamRole('admin', $this->okr->team_id)) {
+            $isAdminContext = true;
+        }
+        if (!$isAdminContext && $this->okr->user_id === $user->id) {
+            $isAdminContext = true;
+        }
+
+        $options = [
+            StandardRole::MEMBER->value => 'Member',
+            StandardRole::VIEWER->value => 'Viewer',
+        ];
+        if ($isAdminContext) {
+            $options = [StandardRole::ADMIN->value => 'Admin'] + $options;
+        }
+        return $options;
     }
 
     public $cycleTemplates = [];
