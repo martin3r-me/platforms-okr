@@ -51,7 +51,7 @@ Route::get('/embedded/teams/config', function() {
     ]);
     $response->headers->set('Content-Security-Policy', "frame-ancestors https://*.teams.microsoft.com https://teams.microsoft.com https://*.skype.com");
     return $response;
-})->name('okr.embedded.teams.config');
+})->withoutMiddleware([FrameGuard::class])->name('okr.embedded.teams.config');
 
 // Embedded Cycle View (Teams/iFrame)
 Route::middleware([\Platform\Core\Middleware\EmbeddedHeaderAuth::class])->group(function () {
