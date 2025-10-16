@@ -20,7 +20,7 @@ Route::get('/cycles/{cycle}', \Platform\Okr\Livewire\CycleShow::class)->name('ok
 Route::get('/objectives/{objective}', \Platform\Okr\Livewire\ObjectiveShow::class)->name('okr.objectives.show');
 
 // Embedded Teams Config (OKR) – Platzhalter
-Route::get('/embedded/teams/config', function() {
+Route::middleware([\Platform\Core\Middleware\EmbeddedHeaderAuth::class])->get('/embedded/teams/config', function() {
     $user = auth()->user();
     $teamIds = collect();
     $teams = collect();
