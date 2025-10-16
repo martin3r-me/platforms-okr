@@ -150,7 +150,7 @@
                                     @can('changeRole', $okr)
                                         <x-ui-input-select
                                             name="memberRoleSelect_{{ $member->id }}"
-                                            :options="[['value'=>'contributor','label'=>'Contributor'],['value'=>'viewer','label'=>'Viewer']]"
+                                            :options="['contributor' => 'Contributor', 'viewer' => 'Viewer']"
                                             :nullable="false"
                                             :value="$member->pivot->role"
                                             wire:change="updateMemberRole({{ $member->id }}, $event.target.value)"
@@ -172,17 +172,13 @@
                             <x-ui-input-select 
                                 name="memberUserId"
                                 label="Nutzer"
-                                :options="$this->users"
-                                optionValue="id"
-                                optionLabel="name"
+                                :options="$this->users->pluck('name','id')->toArray()"
                                 wire:model.live="memberUserId"
                             />
                             <x-ui-input-select 
                                 name="memberRole"
                                 label="Rolle"
-                                :options="[['value'=>'contributor','label'=>'Contributor'],['value'=>'viewer','label'=>'Viewer']]"
-                                optionValue="value"
-                                optionLabel="label"
+                                :options="['contributor' => 'Contributor', 'viewer' => 'Viewer']"
                                 wire:model.live="memberRole"
                             />
                             <div class="flex items-end">
