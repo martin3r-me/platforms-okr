@@ -112,7 +112,7 @@
             const sel = cycleSelect.options[cycleSelect.selectedIndex];
             if (sel && sel.text) templateName = sel.text;
           } catch(_) {}
-          const contentUrl = 'https://office.martin3r.me/okr/embedded/okr/cycles/' + encodeURIComponent(cycleId);
+          const contentUrl = '{{ url('/okr/embedded/okr/cycles') }}' + '/' + encodeURIComponent(cycleId);
           // Bestehende Konfiguration holen und aktualisieren (wichtig für Re-Konfiguration)
           let current = {};
           try {
