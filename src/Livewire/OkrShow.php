@@ -58,19 +58,38 @@ class OkrShow extends Component
     #[Computed]
     public function users()
     {
-        return User::where('current_team_id', auth()->user()->current_team_id)->orderBy('name')->get();
+        $team = $this->okr->team;
+        if ($team && method_exists($team, 'users')) {
+            return $team->users()->orderBy('name')->get();
+        }
+        // Fallback auf current_team_id, falls Relation nicht geladen/verfügbar
+        return User::where('current_team_id', $this->okr->team_id)->orderBy('name')->get();
     }
 
     #[Computed]
     public function availableUsers()
     {
         $currentMemberIds = $this->okr->members->pluck('id')->all();
-        return User::where('current_team_id', auth()->user()->current_team_id)
-            ->when(!empty($currentMemberIds), function ($q) use ($currentMemberIds) {
-                $q->whereNotIn('id', $currentMemberIds);
-            })
-            ->orderBy('name')
-            ->get();
+        $excludeIds = array_filter(array_unique(array_merge(
+            $currentMemberIds,
+            [$this->okr->manager_user_id]
+        )));
+
+        $team = $this->okr->team;
+        if ($team && method_exists($team, 'users')) {
+            $query = $team->users()->orderBy('name');
+            if (!empty($excludeIds)) {
+                $query->whereNotIn('users.id', $excludeIds);
+            }
+            return $query->get();
+        }
+
+        // Fallback auf current_team_id / team_id
+        $query = User::where('current_team_id', $this->okr->team_id)->orderBy('name');
+        if (!empty($excludeIds)) {
+            $query->whereNotIn('id', $excludeIds);
+        }
+        return $query->get();
     }
 
     public $cycleTemplates = [];
