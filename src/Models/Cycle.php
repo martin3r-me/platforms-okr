@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
@@ -131,5 +132,12 @@ class Cycle extends Model
          ->orderBy('okr_objectives.order')
          ->orderBy('okr_key_results.order')
          ->select('okr_key_results.*'); // wichtig: damit du nicht auch alle Objective-Spalten bekommst
+    }
+
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'okr_cycle_user')
+            ->withPivot('role')
+            ->withTimestamps();
     }
 }

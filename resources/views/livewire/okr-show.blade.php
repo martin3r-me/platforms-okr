@@ -80,14 +80,20 @@
 
         {{-- OKR Details --}}
         <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
-            <div class="flex items-center gap-3 mb-6">
-                <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
-                    @svg('heroicon-o-flag', 'w-4 h-4')
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                        @svg('heroicon-o-flag', 'w-4 h-4')
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">OKR Details</h3>
+                        <p class="text-sm text-[var(--ui-muted)]">Grundinformationen und Einstellungen</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">OKR Details</h3>
-                    <p class="text-sm text-[var(--ui-muted)]">Grundinformationen und Einstellungen</p>
-                </div>
+                <x-ui-button variant="secondary" size="sm" wire:click="$set('okrSettingsModalShow', true)">
+                    @svg('heroicon-o-cog-6-tooth', 'w-4 h-4')
+                    <span class="ml-1">Einstellungen</span>
+                </x-ui-button>
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -122,6 +128,74 @@
                 </div>
             </div>
         </div>
+        {{-- OKR Settings Modal --}}
+        <x-ui-modal wire:model="okrSettingsModalShow" size="lg">
+            <x-slot name="header">OKR Einstellungen</x-slot>
+            <div class="space-y-6">
+                <div>
+                    <h4 class="text-md font-medium text-[var(--ui-secondary)] mb-2">Teilnehmer</h4>
+                    <div class="space-y-2">
+                        @foreach($this->members as $member)
+                            <div class="flex items-center justify-between p-3 bg-[var(--ui-muted-5)] rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-[var(--ui-primary)]/10 text-[var(--ui-primary)] rounded-full flex items-center justify-center text-sm font-medium">
+                                        {{ substr($member->name, 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <div class="font-medium">{{ $member->name }}</div>
+                                        <div class="text-sm text-[var(--ui-muted)]">{{ $member->email }}</div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    @can('changeRole', $okr)
+                                        <x-ui-input-select
+                                            name="memberRoleSelect_{{ $member->id }}"
+                                            :options="[['value'=>'contributor','label'=>'Contributor'],['value'=>'viewer','label'=>'Viewer']]"
+                                            :nullable="false"
+                                            :value="$member->pivot->role"
+                                            wire:change="updateMemberRole({{ $member->id }}, $event.target.value)"
+                                            size="sm"
+                                        />
+                                    @endcan
+                                    @can('removeMember', $okr)
+                                        <x-ui-button variant="danger-ghost" size="xs" wire:click="removeMember({{ $member->id }})">Entfernen</x-ui-button>
+                                    @endcan
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                @can('invite', $okr)
+                    <div class="pt-4 border-t">
+                        <h4 class="text-md font-medium text-[var(--ui-secondary)] mb-3">Teilnehmer hinzufügen</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <x-ui-input-select 
+                                name="memberUserId"
+                                label="Nutzer"
+                                :options="$this->users"
+                                optionValue="id"
+                                optionLabel="name"
+                                wire:model.live="memberUserId"
+                            />
+                            <x-ui-input-select 
+                                name="memberRole"
+                                label="Rolle"
+                                :options="[['value'=>'contributor','label'=>'Contributor'],['value'=>'viewer','label'=>'Viewer']]"
+                                optionValue="value"
+                                optionLabel="label"
+                                wire:model.live="memberRole"
+                            />
+                            <div class="flex items-end">
+                                <x-ui-button variant="primary" wire:click="addMember">Hinzufügen</x-ui-button>
+                            </div>
+                        </div>
+                    </div>
+                @endcan
+            </div>
+            <x-slot name="footer">
+                <x-ui-button variant="secondary-ghost" wire:click="$set('okrSettingsModalShow', false)">Schließen</x-ui-button>
+            </x-slot>
+        </x-ui-modal>
 
         {{-- Cycles Section --}}
         <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">

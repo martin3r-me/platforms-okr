@@ -28,6 +28,7 @@ class OkrShow extends Component
     // Member Management
     public $memberUserId = '';
     public $memberRole = 'contributor'; // contributor|viewer
+    public $okrSettingsModalShow = false;
 
     protected $rules = [
         'okr.title' => 'required|string|max:255',

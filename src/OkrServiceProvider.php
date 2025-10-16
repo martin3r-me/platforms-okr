@@ -11,6 +11,8 @@ use Platform\Core\PlatformCore;
 use Platform\Core\Routing\ModuleRouter;
 use Platform\Okr\Models\Okr;
 use Platform\Okr\Policies\OkrPolicy;
+use Platform\Okr\Models\Cycle;
+use Platform\Okr\Policies\CyclePolicy;
 
 class OkrServiceProvider extends ServiceProvider
 {
@@ -33,6 +35,7 @@ class OkrServiceProvider extends ServiceProvider
     {
         // Policies
         Gate::policy(Okr::class, OkrPolicy::class);
+        Gate::policy(Cycle::class, CyclePolicy::class);
 
         // Schritt 1: Config laden
         $this->mergeConfigFrom(__DIR__.'/../config/okr.php', 'okr');
