@@ -96,26 +96,7 @@
                 </x-ui-button>
             </div>
             
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between text-sm p-2 rounded border border-[var(--ui-border)] bg-white">
-                        <span class="text-[var(--ui-muted)]">Titel</span>
-                        <span class="font-medium text-[var(--ui-body-color)] truncate max-w-[60%]" title="{{ $okr->title }}">{{ $okr->title }}</span>
-                    </div>
-                    <div class="flex items-start justify-between text-sm p-2 rounded border border-[var(--ui-border)] bg-white">
-                        <span class="text-[var(--ui-muted)] mr-3">Beschreibung</span>
-                        <span class="font-medium text-[var(--ui-body-color)] text-right max-w-[60%] line-clamp-3">{{ $okr->description ?: '–' }}</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm p-2 rounded border border-[var(--ui-border)] bg-white">
-                        <span class="text-[var(--ui-muted)]">Manager</span>
-                        <span class="font-medium text-[var(--ui-body-color)]">{{ $okr->manager->name ?? '–' }}</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm p-2 rounded border border-[var(--ui-border)] bg-white">
-                        <span class="text-[var(--ui-muted)]">Auto Transfer</span>
-                        <span class="font-medium text-[var(--ui-body-color)]">{{ $okr->auto_transfer ? 'Ja' : 'Nein' }}</span>
-                    </div>
-                </div>
-            </div>
+            <div class="text-sm text-[var(--ui-muted)]">Alle Einstellungen findest du über den Button oben rechts.</div>
         </div>
         {{-- OKR Settings Modal --}}
         <x-ui-modal model="okrSettingsModalShow" size="lg">
@@ -173,7 +154,7 @@
                                     @can('changeRole', $okr)
                                         <x-ui-input-select
                                             name="memberRoleSelect_{{ $member->id }}"
-                                            :options="['contributor' => 'Contributor', 'viewer' => 'Viewer']"
+                                            :options="['member' => 'Member', 'viewer' => 'Viewer']"
                                             :nullable="false"
                                             :value="$member->pivot->role"
                                             wire:change="updateMemberRole({{ $member->id }}, $event.target.value)"
@@ -195,13 +176,13 @@
                             <x-ui-input-select 
                                 name="memberUserId"
                                 label="Nutzer"
-                                :options="$this->users->pluck('name','id')->toArray()"
+                                :options="$this->availableUsers->pluck('name','id')->toArray()"
                                 wire:model.live="memberUserId"
                             />
                             <x-ui-input-select 
                                 name="memberRole"
                                 label="Rolle"
-                                :options="['contributor' => 'Contributor', 'viewer' => 'Viewer']"
+                                :options="['member' => 'Member', 'viewer' => 'Viewer']"
                                 wire:model.live="memberRole"
                             />
                             <div class="flex items-end">

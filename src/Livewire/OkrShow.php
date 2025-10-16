@@ -27,7 +27,7 @@ class OkrShow extends Component
 
     // Member Management
     public $memberUserId = '';
-    public $memberRole = 'contributor'; // contributor|viewer
+    public $memberRole = 'member'; // member|viewer
     public $okrSettingsModalShow = false;
 
     protected $rules = [
@@ -43,7 +43,7 @@ class OkrShow extends Component
         'cycleForm.notes' => 'nullable|string',
 
         'memberUserId' => 'nullable|exists:users,id',
-        'memberRole' => 'required|in:contributor,viewer',
+        'memberRole' => 'required|in:member,viewer',
     ];
 
     public function mount(Okr $okr)
@@ -59,6 +59,18 @@ class OkrShow extends Component
     public function users()
     {
         return User::where('current_team_id', auth()->user()->current_team_id)->orderBy('name')->get();
+    }
+
+    #[Computed]
+    public function availableUsers()
+    {
+        $currentMemberIds = $this->okr->members->pluck('id')->all();
+        return User::where('current_team_id', auth()->user()->current_team_id)
+            ->when(!empty($currentMemberIds), function ($q) use ($currentMemberIds) {
+                $q->whereNotIn('id', $currentMemberIds);
+            })
+            ->orderBy('name')
+            ->get();
     }
 
     public $cycleTemplates = [];
@@ -105,7 +117,7 @@ class OkrShow extends Component
         $this->authorize('invite', $this->okr);
         $this->validate([
             'memberUserId' => 'required|exists:users,id',
-            'memberRole' => 'required|in:contributor,viewer',
+            'memberRole' => 'required|in:member,viewer',
         ]);
         if ($this->okr->members()->where('user_id', $this->memberUserId)->exists()) {
             $this->okr->members()->updateExistingPivot($this->memberUserId, ['role' => $this->memberRole]);
@@ -114,7 +126,7 @@ class OkrShow extends Component
         }
         $this->okr->load('members');
         $this->memberUserId = '';
-        $this->memberRole = 'contributor';
+        $this->memberRole = 'member';
         session()->flash('message', 'Teilnehmer hinzugefügt/aktualisiert.');
     }
 
@@ -129,7 +141,7 @@ class OkrShow extends Component
     public function updateMemberRole($userId, $role)
     {
         $this->authorize('changeRole', $this->okr);
-        if (!in_array($role, ['contributor','viewer'])) {
+        if (!in_array($role, ['member','viewer'])) {
             return;
         }
         $this->okr->members()->updateExistingPivot($userId, ['role' => $role]);
