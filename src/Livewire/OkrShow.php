@@ -54,6 +54,9 @@ class OkrShow extends Component
         
         // Load cycle templates like in CRM - direct collection
         $this->cycleTemplates = CycleTemplate::orderBy('starts_at')->get();
+        
+        // Set default member user if available
+        $this->setDefaultMemberUser();
     }
 
     #[Computed]
@@ -118,6 +121,13 @@ class OkrShow extends Component
         return $options;
     }
 
+    protected function setDefaultMemberUser(): void
+    {
+        if (empty($this->memberUserId) && $this->availableUsers->isNotEmpty()) {
+            $this->memberUserId = $this->availableUsers->first()->id;
+        }
+    }
+
     public $cycleTemplates = [];
 
     #[Computed]
@@ -172,6 +182,7 @@ class OkrShow extends Component
         $this->okr->load('members');
         $this->memberUserId = '';
         $this->memberRole = 'member';
+        $this->setDefaultMemberUser();
         session()->flash('message', 'Teilnehmer hinzugefügt/aktualisiert.');
     }
 
