@@ -97,27 +97,56 @@
             </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="space-y-4">
-                    <x-ui-input-text
-                        name="okr.title"
-                        label="Titel"
-                        wire:model.live.debounce.500ms="okr.title"
-                        placeholder="OKR Titel eingeben..."
-                        :errorKey="'okr.title'"
-                    />
-                    
-                    <x-ui-input-textarea
-                        name="okr.description"
-                        label="Beschreibung"
-                        wire:model.live.debounce.500ms="okr.description"
-                        placeholder="Detaillierte Beschreibung des OKRs..."
-                        rows="4"
-                        :errorKey="'okr.description'"
-                    />
-                    
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium text-[var(--ui-secondary)]">Einstellungen</label>
-                        <div class="space-y-2">
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between text-sm p-2 rounded border border-[var(--ui-border)] bg-white">
+                        <span class="text-[var(--ui-muted)]">Titel</span>
+                        <span class="font-medium text-[var(--ui-body-color)] truncate max-w-[60%]" title="{{ $okr->title }}">{{ $okr->title }}</span>
+                    </div>
+                    <div class="flex items-start justify-between text-sm p-2 rounded border border-[var(--ui-border)] bg-white">
+                        <span class="text-[var(--ui-muted)] mr-3">Beschreibung</span>
+                        <span class="font-medium text-[var(--ui-body-color)] text-right max-w-[60%] line-clamp-3">{{ $okr->description ?: '–' }}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm p-2 rounded border border-[var(--ui-border)] bg-white">
+                        <span class="text-[var(--ui-muted)]">Manager</span>
+                        <span class="font-medium text-[var(--ui-body-color)]">{{ $okr->manager->name ?? '–' }}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-sm p-2 rounded border border-[var(--ui-border)] bg-white">
+                        <span class="text-[var(--ui-muted)]">Auto Transfer</span>
+                        <span class="font-medium text-[var(--ui-body-color)]">{{ $okr->auto_transfer ? 'Ja' : 'Nein' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{-- OKR Settings Modal --}}
+        <x-ui-modal model="okrSettingsModalShow" size="lg">
+            <x-slot name="header">OKR Einstellungen</x-slot>
+            <div class="space-y-6">
+                @can('update', $okr)
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <x-ui-input-text
+                            name="okr.title"
+                            label="Titel"
+                            wire:model.live.debounce.500ms="okr.title"
+                            placeholder="OKR Titel eingeben..."
+                            :errorKey="'okr.title'"
+                        />
+                        <x-ui-input-select 
+                            name="okr.manager_user_id"
+                            label="Manager"
+                            :options="$this->users->pluck('name','id')->toArray()"
+                            wire:model.live="okr.manager_user_id"
+                        />
+                        <div class="md:col-span-2">
+                            <x-ui-input-textarea
+                                name="okr.description"
+                                label="Beschreibung"
+                                wire:model.live.debounce.500ms="okr.description"
+                                placeholder="Detaillierte Beschreibung des OKRs..."
+                                rows="3"
+                                :errorKey="'okr.description'"
+                            />
+                        </div>
+                        <div class="md:col-span-2">
                             <x-ui-input-checkbox
                                 model="okr.auto_transfer"
                                 checked-label="Automatische Übertragung"
@@ -125,13 +154,7 @@
                             />
                         </div>
                     </div>
-                </div>
-            </div>
-        </div>
-        {{-- OKR Settings Modal --}}
-        <x-ui-modal wire:model="okrSettingsModalShow" size="lg">
-            <x-slot name="header">OKR Einstellungen</x-slot>
-            <div class="space-y-6">
+                @endcan
                 <div>
                     <h4 class="text-md font-medium text-[var(--ui-secondary)] mb-2">Teilnehmer</h4>
                     <div class="space-y-2">
@@ -189,7 +212,15 @@
                 @endcan
             </div>
             <x-slot name="footer">
-                <x-ui-button variant="secondary-ghost" wire:click="$set('okrSettingsModalShow', false)">Schließen</x-ui-button>
+                <div class="flex items-center gap-2">
+                    @can('update', $okr)
+                        <x-ui-button variant="primary" wire:click="save">
+                            @svg('heroicon-o-check', 'w-4 h-4')
+                            <span class="ml-1">Speichern</span>
+                        </x-ui-button>
+                    @endcan
+                    <x-ui-button variant="secondary-ghost" wire:click="$set('okrSettingsModalShow', false)">Schließen</x-ui-button>
+                </div>
             </x-slot>
         </x-ui-modal>
 
