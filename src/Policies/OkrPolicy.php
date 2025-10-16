@@ -19,10 +19,10 @@ class OkrPolicy extends RolePolicy
         return !is_null($user->current_team_id);
     }
 
-    public function delete(User $user, Okr $okr): bool
+    public function delete(User $user, $model): bool
     {
-        // Erbt Löschlogik aus RolePolicy (Owner/Admin Rollen), aber erlaubt zusätzlich Owner des Modells
-        return parent::delete($user, $okr);
+        // Erbt Löschlogik aus RolePolicy (Owner/Admin Rollen)
+        return parent::delete($user, $model);
     }
 
     /**
