@@ -140,15 +140,10 @@
                                 @endphp
                                 
                                 @if($okrPerformance)
-                                    <div class="space-y-2">
-                                        <div class="flex items-center gap-2">
-                                            <x-ui-badge variant="{{ $okrPerformance->performance_score >= 80 ? 'success' : ($okrPerformance->performance_score >= 50 ? 'warning' : 'secondary') }}" size="sm">
-                                                {{ $okrPerformance->performance_score }}%
-                                            </x-ui-badge>
-                                        </div>
-                                        <div class="text-xs text-[var(--ui-muted)]">
-                                            {{ $completedKeyResults }}/{{ $totalKeyResults }} KR
-                                        </div>
+                                    <div class="flex items-center gap-2">
+                                        <x-ui-badge variant="{{ $okrPerformance->performance_score >= 80 ? 'success' : ($okrPerformance->performance_score >= 50 ? 'warning' : 'secondary') }}" size="sm">
+                                            {{ $okrPerformance->performance_score }}%
+                                        </x-ui-badge>
                                     </div>
                                 @else
                                     <span class="text-sm text-[var(--ui-muted)]">–</span>
