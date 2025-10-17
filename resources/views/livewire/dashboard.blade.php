@@ -1,39 +1,10 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar title="OKR Dashboard" icon="heroicon-o-chart-bar">
-            <x-slot name="titleActions">
-                <x-ui-segmented-toggle 
-                    model="perspective"
-                    :current="$perspective"
-                    :options="[
-                        ['value' => 'personal', 'label' => 'Persönlich', 'icon' => 'heroicon-o-user'],
-                        ['value' => 'team', 'label' => 'Team', 'icon' => 'heroicon-o-users'],
-                    ]"
-                    active-variant="secondary"
-                    size="sm"
-                />
-            </x-slot>
-            <div class="text-sm text-[var(--ui-muted)]">{{ now()->translatedFormat('l') }}, {{ now()->format('d.m.Y') }}</div>
-        </x-ui-page-navbar>
+        <x-ui-page-navbar title="OKR Dashboard" />
     </x-slot>
 
     <x-ui-page-container>
-        {{-- Info Banner --}}
-        @if($perspective === 'personal')
-            <x-ui-info-banner 
-                icon="heroicon-o-user"
-                title="Persönliche OKR-Übersicht"
-                message="Deine persönlichen OKRs, Objectives und Key Results im aktuellen Zyklus."
-                variant="secondary"
-            />
-        @else
-            <x-ui-info-banner 
-                icon="heroicon-o-users"
-                title="Team OKR-Übersicht"
-                message="Alle OKRs des Teams in aktiven Zyklen und deren Fortschritt."
-                variant="secondary"
-            />
-        @endif
+        
 
 
         {{-- Performance Stats Grid - Wichtigste Metriken zuerst --}}
