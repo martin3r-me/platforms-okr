@@ -1,18 +1,6 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar :title="$okr->title" icon="heroicon-o-flag">
-            <x-slot name="titleActions">
-                <x-ui-button 
-                    variant="secondary-ghost" 
-                    size="sm"
-                    :href="route('okr.dashboard')" 
-                    wire:navigate
-                >
-                    @svg('heroicon-o-arrow-left', 'w-4 h-4')
-                    <span class="ml-1">Dashboard</span>
-                </x-ui-button>
-            </x-slot>
-        </x-ui-page-navbar>
+        <x-ui-page-navbar :title="$okr->title" />
     </x-slot>
 
     <x-ui-page-container spacing="space-y-8">
@@ -454,65 +442,7 @@
     {{-- Right Sidebar --}}
     <x-slot name="activity">
         <x-ui-page-sidebar title="Aktivitäten" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
-            <div class="p-6 space-y-6">
-                {{-- Recent Activities --}}
-                <div>
-                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Letzte Aktivitäten</h3>
-                    <div class="space-y-3">
-                        @if($this->activities && $this->activities->count() > 0)
-                            @foreach($this->activities as $activity)
-                                <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3">
-                                    <div class="flex items-start gap-3">
-                                        <div class="w-6 h-6 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-full flex items-center justify-center text-xs">
-                                            @svg('heroicon-o-flag', 'w-3 h-3')
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <p class="text-sm text-[var(--ui-secondary)]">{{ $activity->description ?? 'OKR Aktivität' }}</p>
-                                            <p class="text-xs text-[var(--ui-muted)] mt-1">{{ $activity->created_at->diffForHumans() }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="text-center py-8">
-                                <div class="w-12 h-12 bg-[var(--ui-muted-5)] rounded-full flex items-center justify-center mx-auto mb-3">
-                                    @svg('heroicon-o-flag', 'w-6 h-6 text-[var(--ui-muted)]')
-                                </div>
-                                <p class="text-sm text-[var(--ui-muted)]">Keine Aktivitäten vorhanden</p>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- Quick Actions --}}
-                <div>
-                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Schnellaktionen</h3>
-                    <div class="space-y-2">
-                        <x-ui-button
-                            variant="primary"
-                            size="sm"
-                            wire:click="openCycleCreateModal"
-                            class="w-full"
-                        >
-                            <span class="flex items-center gap-2">
-                                @svg('heroicon-o-plus', 'w-4 h-4')
-                                Zyklus hinzufügen
-                            </span>
-                        </x-ui-button>
-                        <x-ui-button
-                            variant="secondary-outline"
-                            size="sm"
-                            wire:click="save"
-                            class="w-full"
-                        >
-                            <span class="flex items-center gap-2">
-                                @svg('heroicon-o-check', 'w-4 h-4')
-                                Speichern
-                            </span>
-                        </x-ui-button>
-                    </div>
-                </div>
-            </div>
+            <div class="p-6 text-sm text-[var(--ui-muted)]">Keine Aktivitäten verfügbar</div>
         </x-ui-page-sidebar>
     </x-slot>
 </x-ui-page>
