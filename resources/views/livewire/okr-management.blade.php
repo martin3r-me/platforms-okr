@@ -72,7 +72,7 @@
 
         {{-- Tabelle --}}
         <x-ui-panel title="OKR-Übersicht" subtitle="Alle Objectives and Key Results im Überblick">
-                <x-ui-table compact="true">
+                <x-ui-table compact="true" class="[&_.x-ui-table-row:hover]:bg-[var(--ui-primary-5)]/40">
                 <x-ui-table-header>
                     <x-ui-table-header-cell compact="true" sortable="true" sortField="title" :currentSort="$sortField" :sortDirection="$sortDirection">Titel</x-ui-table-header-cell>
                     <x-ui-table-header-cell compact="true">Beschreibung</x-ui-table-header-cell>
@@ -80,7 +80,6 @@
                     <x-ui-table-header-cell compact="true">Manager</x-ui-table-header-cell>
                     <x-ui-table-header-cell compact="true" sortable="true" sortField="performance_score" :currentSort="$sortField" :sortDirection="$sortDirection">Score</x-ui-table-header-cell>
                     <x-ui-table-header-cell compact="true">Cycles</x-ui-table-header-cell>
-                    <x-ui-table-header-cell compact="true" align="right">Aktionen</x-ui-table-header-cell>
                 </x-ui-table-header>
                 
                 <x-ui-table-body>
@@ -167,17 +166,7 @@
                                     </div>
                                 </div>
                             </x-ui-table-cell>
-                            <x-ui-table-cell compact="true" align="right">
-                                <x-ui-button 
-                                    size="sm" 
-                                    variant="secondary" 
-                                    href="{{ route('okr.okrs.show', ['okr' => $okr->id]) }}" 
-                                    wire:navigate
-                                >
-                                    @svg('heroicon-o-arrow-right', 'w-3 h-3')
-                                    <span class="ml-1">Öffnen</span>
-                                </x-ui-button>
-                            </x-ui-table-cell>
+                            
                         </x-ui-table-row>
                     @endforeach
                 </x-ui-table-body>
