@@ -1,11 +1,6 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar title="OKRs" icon="heroicon-o-flag">
-            <x-ui-button variant="secondary" wire:click="openCreateModal">
-                @svg('heroicon-o-plus', 'w-4 h-4')
-                <span class="ml-2">Neues OKR</span>
-            </x-ui-button>
-        </x-ui-page-navbar>
+        <x-ui-page-navbar title="OKRs" />
     </x-slot>
 
     <x-ui-page-container>
@@ -23,10 +18,6 @@
                         class="w-80"
                         size="sm"
                     />
-                    <x-ui-button variant="primary" wire:click="openCreateModal">
-                        @svg('heroicon-o-plus', 'w-4 h-4')
-                        <span class="ml-2">Neues OKR</span>
-                    </x-ui-button>
                 </div>
             </div>
         </div>
