@@ -1008,7 +1008,7 @@
                         action="deleteKeyResultAndCloseModal" 
                         text="Löschen" 
                         confirmText="Key Result wirklich löschen?" 
-                        variant="secondary-ghost"
+                        variant="danger"
                         size="sm"
                         :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
                     />
