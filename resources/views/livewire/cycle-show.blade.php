@@ -1004,6 +1004,14 @@
                     @endif
                 </div>
                 <div class="flex gap-3">
+                    <x-ui-confirm-button 
+                        action="deleteKeyResultAndCloseModal" 
+                        text="Löschen" 
+                        confirmText="Key Result wirklich löschen?" 
+                        variant="secondary-ghost"
+                        size="sm"
+                        :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
+                    />
                     <x-ui-button 
                         type="button" 
                         variant="secondary-ghost" 
