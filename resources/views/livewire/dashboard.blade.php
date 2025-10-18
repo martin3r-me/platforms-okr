@@ -134,20 +134,110 @@
         </x-ui-panel>
     </x-ui-page-container>
 
-    {{-- Left Sidebar - Leer für später --}}
+    {{-- Left Sidebar - Dashboard Übersicht --}}
     <x-slot name="sidebar">
-        <x-ui-page-sidebar title="Sidebar" width="w-80" :defaultOpen="false">
-            <div class="p-6">
-                {{-- Leer für später --}}
+        <x-ui-page-sidebar title="Dashboard Übersicht" width="w-80" :defaultOpen="true">
+            <div class="p-6 space-y-6">
+                {{-- Performance Übersicht --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Performance</h3>
+                    <div class="space-y-3">
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-[var(--ui-secondary)]">Team Performance</span>
+                                <span class="text-sm font-bold {{ ($averageScore ?? 0) >= 80 ? 'text-green-600' : (($averageScore ?? 0) >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                                    {{ round($averageScore ?? 0, 1) }}%
+                                </span>
+                            </div>
+                            <div class="w-full bg-[var(--ui-border)]/40 rounded-full h-2 mb-2">
+                                <div class="h-2 rounded-full {{ ($averageScore ?? 0) >= 80 ? 'bg-green-500' : (($averageScore ?? 0) >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}" 
+                                     style="width: {{ $averageScore ?? 0 }}%"></div>
+                            </div>
+                            <div class="text-xs text-[var(--ui-muted)]">
+                                Durchschnitt aller aktiven OKRs
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                                <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $activeOkrsCount ?? 0 }}</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Aktive OKRs</div>
+                            </div>
+                            <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
+                                <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $activeCyclesCount ?? 0 }}</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Aktive Zyklen</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Ziele Übersicht --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Ziele</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between py-3 px-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
+                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Erreichte Ziele</span>
+                            <span class="text-sm text-[var(--ui-muted)]">{{ $achievedObjectivesCount ?? 0 }}/{{ $activeObjectivesCount ?? 0 }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
+                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Erreichte Key Results</span>
+                            <span class="text-sm text-[var(--ui-muted)]">{{ $achievedKeyResultsCount ?? 0 }}/{{ $activeKeyResultsCount ?? 0 }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-3 px-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
+                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Offene Key Results</span>
+                            <span class="text-sm text-[var(--ui-muted)]">{{ $openKeyResultsCount ?? 0 }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Schnellzugriff --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Schnellzugriff</h3>
+                    <div class="space-y-2">
+                        <x-ui-button variant="secondary" size="sm" :href="route('okr.okrs.index')" wire:navigate class="w-full justify-start">
+                            @svg('heroicon-o-flag', 'w-4 h-4')
+                            <span class="ml-2">Alle OKRs</span>
+                        </x-ui-button>
+                        <x-ui-button variant="secondary" size="sm" wire:click="openCreateModal" class="w-full justify-start">
+                            @svg('heroicon-o-plus', 'w-4 h-4')
+                            <span class="ml-2">Neues OKR</span>
+                        </x-ui-button>
+                    </div>
+                </div>
             </div>
         </x-ui-page-sidebar>
     </x-slot>
 
-    {{-- Right Sidebar - Leer für später --}}
+    {{-- Right Sidebar - Aktivitäten --}}
     <x-slot name="activity">
-        <x-ui-page-sidebar title="Aktivitäten" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
-            <div class="p-6">
-                {{-- Leer für später --}}
+        <x-ui-page-sidebar title="Aktivitäten & Timeline" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
+            <div class="p-6 space-y-6">
+                {{-- Recent Activities --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Letzte Aktivitäten</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="text-[var(--ui-muted)]">Keine Aktivitäten verfügbar</div>
+                    </div>
+                </div>
+
+                {{-- Performance Übersicht --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Performance</h3>
+                    <div class="space-y-3">
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-lg font-bold text-[var(--ui-primary)]">{{ round($averageScore ?? 0, 1) }}%</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Durchschnitt Score</div>
+                        </div>
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-lg font-bold text-green-600">{{ $achievedObjectivesCount ?? 0 }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Erreichte Ziele</div>
+                        </div>
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-lg font-bold text-blue-600">{{ $achievedKeyResultsCount ?? 0 }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Erreichte KR</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </x-ui-page-sidebar>
     </x-slot>
