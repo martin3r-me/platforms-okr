@@ -246,6 +246,23 @@ class CycleShow extends Component
         $this->keyResultUnit = '';
     }
 
+    public function deleteKeyResultAndCloseModal()
+    {
+        if ($this->editingKeyResultId) {
+            try {
+                $keyResult = \Platform\Okr\Models\KeyResult::findOrFail($this->editingKeyResultId);
+                $keyResult->delete();
+                
+                $this->cycle->load('objectives.keyResults.performance');
+                session()->flash('message', 'Key Result erfolgreich gelöscht!');
+            } catch (\Exception $e) {
+                session()->flash('error', 'Fehler beim Löschen: ' . $e->getMessage());
+            }
+        }
+        
+        $this->closeKeyResultEditModal();
+    }
+
     public function testMethod()
     {
         \Log::info('testMethod called');
