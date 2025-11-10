@@ -4,6 +4,7 @@ namespace Platform\Okr\Models;
 
 use Platform\Core\Models\Team;
 use Platform\Core\Models\User;
+use Platform\Core\Contracts\HasDisplayName;
 use Platform\ActivityLog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,7 +25,7 @@ use Symfony\Component\Uid\UuidV7;
  * @hint Jeder Cycle gehört zu einem OKR und hat mehrere Objectives
  * @hint Cycles haben Status: draft, active, completed, ending_soon, past
  */
-class Cycle extends Model
+class Cycle extends Model implements HasDisplayName
 {
     protected $table = 'okr_cycles';
     use SoftDeletes, LogsActivity;
@@ -74,6 +75,16 @@ class Cycle extends Model
     public function getLabelAttribute()
     {
         return $this->template?->label;
+    }
+
+    /**
+     * Gibt den anzeigbaren Namen des Cycles zurück.
+     * 
+     * @return string|null
+     */
+    public function getDisplayName(): ?string
+    {
+        return $this->label ?? $this->template?->label ?? null;
     }
 
     // 🔗 Beziehungen

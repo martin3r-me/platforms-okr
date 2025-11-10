@@ -5,6 +5,7 @@ namespace Platform\Okr\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Platform\Core\Models\Team;
 use Platform\Core\Models\User;
+use Platform\Core\Contracts\HasDisplayName;
 use Platform\ActivityLog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -25,7 +26,7 @@ use Symfony\Component\Uid\UuidV7;
  * @hint Jedes OKR hat mehrere Cycles (Zeiträume)
  * @hint OKRs können Templates sein für wiederkehrende Zyklen
  */
-class Okr extends Model
+class Okr extends Model implements HasDisplayName
 {
     protected $table = 'okr_okrs';
     use SoftDeletes, LogsActivity;
@@ -157,6 +158,16 @@ class Okr extends Model
         return $this->belongsToMany(User::class, 'okr_okr_user')
             ->withPivot('role')
             ->withTimestamps();
+    }
+
+    /**
+     * Gibt den anzeigbaren Namen des OKRs zurück.
+     * 
+     * @return string|null
+     */
+    public function getDisplayName(): ?string
+    {
+        return $this->title;
     }
 
 }
