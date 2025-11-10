@@ -128,6 +128,36 @@ class OkrShow extends Component
         }
     }
 
+    public function rendered()
+    {
+        $this->dispatch('comms', [
+            'model' => get_class($this->okr),
+            'modelId' => $this->okr->id,
+            'subject' => $this->okr->title,
+            'description' => $this->okr->description ?? '',
+            'url' => route('okr.okrs.show', $this->okr),
+            'source' => 'okr.okr.view',
+            'recipients' => [],
+            'meta' => [
+                'performance_score' => $this->okr->performance_score,
+                'auto_transfer' => $this->okr->auto_transfer,
+                'is_template' => $this->okr->is_template,
+                'team_id' => $this->okr->team_id ?? null,
+            ],
+        ]);
+
+        // Organization-Kontext setzen - beides erlauben: Zeiten + Entity-Verknüpfung (analog zu Project)
+        $this->dispatch('organization', [
+            'context_type' => get_class($this->okr),
+            'context_id' => $this->okr->id,
+            'allow_time_entry' => true,
+            'allow_context_management' => true,
+            'can_link_to_entity' => true,
+            // Verfügbare Relations für Children-Cascade (z.B. Cycles mit Objectives/KeyResults)
+            'include_children_relations' => ['cycles', 'cycles.objectives', 'cycles.objectives.keyResults'],
+        ]);
+    }
+
     public $cycleTemplates = [];
 
     #[Computed]
