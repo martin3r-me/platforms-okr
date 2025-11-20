@@ -50,6 +50,15 @@ class Sidebar extends Component
     {
         $this->validate();
         
+        $user = Auth::user();
+        $baseTeam = $user->currentTeamRelation;
+        
+        // Für Parent Tools (scope_type = 'parent') das Root-Team verwenden
+        $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
+        $teamId = ($okrModule && $okrModule->isRootScoped()) 
+            ? $baseTeam->getRootTeam()->id 
+            : $baseTeam->id;
+        
         $okr = \Platform\Okr\Models\Okr::create([
             'title' => $this->title,
             'description' => $this->description ?: null,
@@ -57,8 +66,8 @@ class Sidebar extends Component
             'auto_transfer' => $this->auto_transfer,
             'is_template' => $this->is_template,
             'manager_user_id' => $this->manager_user_id ?: null,
-            'team_id' => auth()->user()->currentTeam?->id,
-            'user_id' => auth()->id(),
+            'team_id' => $teamId,
+            'user_id' => $user->id,
         ]);
 
         $this->resetForm();
@@ -85,16 +94,34 @@ class Sidebar extends Component
 
     public function render()
     {
-        // Team-basierte OKRs holen
-        $teamId = auth()->user()?->current_team_id ?? null;
+        if (!Auth::check() || !Auth::user()->currentTeamRelation) {
+            return view('okr::livewire.sidebar', [
+                'okrs' => collect(),
+                'users' => collect(),
+            ]);
+        }
+
+        $user = Auth::user();
+        $baseTeam = $user->currentTeamRelation;
         
+        // Für Parent Tools (scope_type = 'parent') das Root-Team verwenden
+        $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
+        $teamId = ($okrModule && $okrModule->isRootScoped()) 
+            ? $baseTeam->getRootTeam()->id 
+            : $baseTeam->id;
+        
+        // Team-basierte OKRs holen
         $okrs = Okr::query()
             ->where('team_id', $teamId)
             ->orderBy('title')
             ->get();
 
-        // Users für Manager-Dropdown
-        $users = \Platform\Core\Models\User::where('current_team_id', $teamId)
+        // Users für Manager-Dropdown (vom Root-Team wenn Parent Tool)
+        $rootTeam = ($okrModule && $okrModule->isRootScoped()) 
+            ? $baseTeam->getRootTeam() 
+            : $baseTeam;
+        
+        $users = $rootTeam->users()
             ->orderBy('name')
             ->get();
 

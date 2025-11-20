@@ -16,6 +16,8 @@ class KeyResultContext extends Model
         'depth',
         'is_primary',
         'is_root',
+        'root_context_type',
+        'root_context_id',
         'context_label',
     ];
 
@@ -33,6 +35,11 @@ class KeyResultContext extends Model
     public function context(): \Illuminate\Database\Eloquent\Relations\MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function rootContext(): \Illuminate\Database\Eloquent\Relations\MorphTo
+    {
+        return $this->morphTo('rootContext', 'root_context_type', 'root_context_id');
     }
 }
 

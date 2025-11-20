@@ -15,6 +15,8 @@ class StoreKeyResultContext
 
     /**
      * Verknüpft einen KeyResult mit einem Kontext (z.B. Task, Project) mit automatischer Kontext-Kaskade.
+     * Ein KeyResult kann mit MEHREREN verschiedenen Kontexten verknüpft sein.
+     * Jeder Kontext hat seinen eigenen Root-Kontext in der KeyResultContext Tabelle.
      *
      * @param int $keyResultId KeyResult-ID
      * @param string $contextType Kontext-Typ (z.B. 'Platform\Planner\Models\PlannerTask')
@@ -37,7 +39,28 @@ class StoreKeyResultContext
             // Wenn keine Ancestors vorhanden sind, ist der primäre Kontext selbst der Root
             $isPrimaryRoot = !$hasAncestors;
 
-            // 3. Primärkontext anlegen (depth=0, is_primary=true)
+            // 3. Root-Kontext bestimmen
+            if ($hasAncestors) {
+                // Suche ersten Root-Kontext in Ancestors
+                foreach ($ancestors as $ancestor) {
+                    if (($ancestor['is_root'] ?? false)) {
+                        $firstRoot = [
+                            'type' => $ancestor['type'],
+                            'id' => $ancestor['id'],
+                        ];
+                        break;
+                    }
+                }
+            } else {
+                // Keine Ancestors = primärer Kontext ist selbst der Root
+                $firstRoot = [
+                    'type' => $contextType,
+                    'id' => $contextId,
+                ];
+            }
+
+            // 4. Primärkontext in Contexts-Tabelle anlegen (depth=0, is_primary=true)
+            // Jeder Kontext hat seinen eigenen root_context_type/root_context_id
             $primaryLabel = $this->resolver->resolveLabel($contextType, $contextId);
             $primaryContext = KeyResultContext::updateOrCreate(
                 [
@@ -49,23 +72,18 @@ class StoreKeyResultContext
                     'depth' => 0,
                     'is_primary' => true,
                     'is_root' => $isPrimaryRoot,
+                    'root_context_type' => $firstRoot['type'],
+                    'root_context_id' => $firstRoot['id'],
                     'context_label' => $primaryLabel,
                 ]
             );
 
-            // 4. Vorfahren-Kontexte auflösen und anlegen
+            // 5. Vorfahren-Kontexte auflösen und anlegen
+            // Alle Ancestors bekommen den gleichen root_context_type/root_context_id wie der primäre Kontext
             foreach ($ancestors as $depth => $ancestor) {
                 $ancestorDepth = $depth + 1;
                 $isRoot = $ancestor['is_root'] ?? false;
                 $ancestorLabel = $ancestor['label'] ?? $this->resolver->resolveLabel($ancestor['type'], $ancestor['id']);
-
-                // Ersten Root-Kontext merken
-                if ($firstRoot === null && $isRoot) {
-                    $firstRoot = [
-                        'type' => $ancestor['type'],
-                        'id' => $ancestor['id'],
-                    ];
-                }
 
                 KeyResultContext::updateOrCreate(
                     [
@@ -77,6 +95,8 @@ class StoreKeyResultContext
                         'depth' => $ancestorDepth,
                         'is_primary' => false,
                         'is_root' => $isRoot,
+                        'root_context_type' => $firstRoot['type'],
+                        'root_context_id' => $firstRoot['id'],
                         'context_label' => $ancestorLabel,
                     ]
                 );
@@ -98,20 +118,8 @@ class StoreKeyResultContext
     public function detach(int $keyResultId, string $contextType, int $contextId): bool
     {
         return DB::transaction(function () use ($keyResultId, $contextType, $contextId) {
-            // Finde den primären Kontext
-            $primaryContext = KeyResultContext::where('key_result_id', $keyResultId)
-                ->where('context_type', $contextType)
-                ->where('context_id', $contextId)
-                ->where('is_primary', true)
-                ->first();
-
-            if (!$primaryContext) {
-                return false;
-            }
-
             // Lösche alle Kontexte für diesen KeyResult (primär + ancestors)
-            // Da wir keine direkte Parent-Child-Beziehung haben, löschen wir alle Kontexte
-            // die zu diesem KeyResult gehören und den gleichen Kontext-Typ/ID haben
+            // (Ancestors werden automatisch gelöscht wenn sie nicht mehr referenziert werden)
             return KeyResultContext::where('key_result_id', $keyResultId)
                 ->where('context_type', $contextType)
                 ->where('context_id', $contextId)

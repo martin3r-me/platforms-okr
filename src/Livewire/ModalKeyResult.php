@@ -117,6 +117,7 @@ class ModalKeyResult extends Component
         }
 
         // Lade alle KeyResults, die bereits mit diesem Kontext verknüpft sind
+        // (über die KeyResultContext Tabelle, da ein KeyResult mehrere Kontexte haben kann)
         $linkedContexts = KeyResultContext::where('context_type', $this->contextType)
             ->where('context_id', $this->contextId)
             ->where('is_primary', true)
@@ -125,7 +126,7 @@ class ModalKeyResult extends Component
 
         $this->linkedKeyResults = $linkedContexts->map(function ($context) {
             return $context->keyResult;
-        });
+        })->filter();
     }
 
     public function attachKeyResult(int $keyResultId): void
