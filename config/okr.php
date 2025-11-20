@@ -1,6 +1,13 @@
 <?php
 
 return [
+    'name' => 'OKR',
+    'description' => 'OKR Module',
+    'version' => '1.0.0',
+    
+    // Scope-Type: 'parent' = root-scoped (immer Root-Team-ID), 'single' = team-spezifisch
+    'scope_type' => 'parent',
+    
     'routing' => [
         'mode' => env('OKR_MODE', 'path'),
         'prefix' => 'okr',
