@@ -179,6 +179,29 @@
                                                 @if($keyResult->description)
                                                     <div class="text-xs text-[var(--ui-muted)] mt-1">{{ Str::limit($keyResult->description, 60) }}</div>
                                                 @endif
+                                                
+                                                {{-- Verknüpfungen (Contexts) --}}
+                                                @php
+                                                    $primaryContexts = $keyResult->primaryContexts()->with('context')->get();
+                                                @endphp
+                                                @if($primaryContexts->count() > 0)
+                                                    <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                                                        @foreach($primaryContexts as $context)
+                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-[var(--ui-primary-10)] text-[var(--ui-primary)] border border-[var(--ui-primary)]/20">
+                                                                @svg('heroicon-o-link', 'w-3 h-3')
+                                                                {{ $context->context_label ?? class_basename($context->context_type) }}
+                                                            </span>
+                                                        @endforeach
+                                                    </div>
+                                                @endif
+                                                
+                                                {{-- Verantwortlicher --}}
+                                                @if($keyResult->manager)
+                                                    <div class="flex items-center gap-1.5 mt-1.5">
+                                                        <span class="text-xs text-[var(--ui-muted)]">Verantwortlich:</span>
+                                                        <span class="text-xs font-medium text-[var(--ui-secondary)]">{{ $keyResult->manager->fullname ?? $keyResult->manager->name }}</span>
+                                                    </div>
+                                                @endif
                                             </div>
                                             <div class="flex items-center gap-4 flex-shrink-0" wire:click.stop>
                                                 @php
@@ -736,6 +759,16 @@
                     </div>
                 </div>
             @endif
+            
+            {{-- Verantwortlicher (nur aus OKR-Mitgliedern) --}}
+            <x-ui-input-select
+                name="keyResultManagerUserId"
+                label="Verantwortlicher"
+                wire:model.live="keyResultManagerUserId"
+                :options="$this->okrMembers->pluck('fullname', 'id')->toArray()"
+                nullLabel="– Verantwortlichen auswählen –"
+                :nullable="true"
+            />
         </div>
 
         <x-slot name="footer">
@@ -785,7 +818,40 @@
                     placeholder="Beschreibung des Key Result (optional)"
                     rows="3"
                 />
+                
+                {{-- Verantwortlicher (nur aus OKR-Mitgliedern) --}}
+                <x-ui-input-select
+                    name="keyResultManagerUserId"
+                    label="Verantwortlicher"
+                    wire:model.live="keyResultManagerUserId"
+                    :options="$this->okrMembers->pluck('fullname', 'id')->toArray()"
+                    nullLabel="– Verantwortlichen auswählen –"
+                    :nullable="true"
+                />
             </div>
+            
+            {{-- Verknüpfungen (Contexts) --}}
+            @php
+                $editingKeyResult = null;
+                if($this->editingKeyResultId) {
+                    $editingKeyResult = \Platform\Okr\Models\KeyResult::with('primaryContexts.context')->find($this->editingKeyResultId);
+                }
+                $primaryContexts = $editingKeyResult?->primaryContexts ?? collect();
+            @endphp
+            @if($primaryContexts->count() > 0)
+                <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                    <h3 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">Verknüpfungen</h3>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($primaryContexts as $context)
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-[var(--ui-primary-10)] text-[var(--ui-primary)] border border-[var(--ui-primary)]/20">
+                                @svg('heroicon-o-link', 'w-4 h-4')
+                                {{ $context->context_label ?? class_basename($context->context_type) }}
+                            </span>
+                        @endforeach
+                    </div>
+                    <p class="text-xs text-[var(--ui-muted)] mt-2">Diese KeyResult ist mit den oben genannten Kontexten verknüpft.</p>
+                </div>
+            @endif
 
             {{-- Performance Info und Update --}}
             <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">

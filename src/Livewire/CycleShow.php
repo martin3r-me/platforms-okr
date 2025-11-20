@@ -34,6 +34,7 @@ class CycleShow extends Component
     public $keyResultTargetValue = '';
     public $keyResultCurrentValue = '';
     public $keyResultUnit = '';
+    public $keyResultManagerUserId = null;
 
     // Delete Modal Properties
     public $deleteModalShow = false;
@@ -50,7 +51,7 @@ class CycleShow extends Component
     public function mount(Cycle $cycle)
     {
         $this->cycle = $cycle;
-        $this->cycle->load(['okr', 'template', 'objectives.keyResults.performance']);
+        $this->cycle->load(['okr', 'template', 'objectives.keyResults.performance', 'objectives.keyResults.primaryContexts', 'objectives.keyResults.manager', 'okr.members']);
     }
 
     public function rendered()
@@ -95,6 +96,17 @@ class CycleShow extends Component
     public function users()
     {
         return User::where('current_team_id', auth()->user()->current_team_id)->get();
+    }
+
+    #[Computed]
+    public function okrMembers()
+    {
+        if (!$this->cycle->okr) {
+            return collect();
+        }
+        
+        // Lade OKR-Mitglieder (nur diese dürfen als Verantwortliche ausgewählt werden)
+        return $this->cycle->okr->members()->orderBy('name')->get();
     }
 
     public function updated($property)
@@ -216,6 +228,7 @@ class CycleShow extends Component
         $this->editingKeyResultObjectiveId = null;
         $this->keyResultTitle = '';
         $this->keyResultDescription = '';
+        $this->keyResultManagerUserId = null;
         $this->keyResultValueType = 'absolute';
         $this->keyResultTargetValue = '';
         $this->keyResultCurrentValue = '';
@@ -232,6 +245,7 @@ class CycleShow extends Component
             $this->editingKeyResultObjectiveId = $keyResult->objective_id;
             $this->keyResultTitle = $keyResult->title;
             $this->keyResultDescription = $keyResult->description ?? '';
+            $this->keyResultManagerUserId = $keyResult->manager_user_id;
             // Zielwert aus Performance wenn vorhanden
             $this->keyResultTargetValue = $keyResult->performance?->target_value ?? '';
             // Einheit wird aktuell nicht persistiert; leer lassen
@@ -256,6 +270,7 @@ class CycleShow extends Component
         $this->editingKeyResultId = null;
         $this->keyResultTitle = '';
         $this->keyResultDescription = '';
+        $this->keyResultManagerUserId = null;
         $this->keyResultValueType = 'absolute';
         $this->keyResultTargetValue = '';
         $this->keyResultCurrentValue = '';
@@ -321,6 +336,7 @@ class CycleShow extends Component
                 $keyResult->update([
                     'title' => $this->keyResultTitle,
                     'description' => $this->keyResultDescription,
+                    'manager_user_id' => $this->keyResultManagerUserId ?: null,
                 ]);
 
                 // Immer eine neue Performance-Version erstellen (Versionierung)
@@ -344,6 +360,7 @@ class CycleShow extends Component
                     'title' => $this->keyResultTitle,
                     'description' => $this->keyResultDescription,
                     'order' => $nextOrder,
+                    'manager_user_id' => $this->keyResultManagerUserId ?: null,
                     'team_id' => auth()->user()->currentTeam?->id,
                     'user_id' => auth()->id(),
                 ]);
