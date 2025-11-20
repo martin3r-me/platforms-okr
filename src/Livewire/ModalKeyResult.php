@@ -63,7 +63,8 @@ class ModalKeyResult extends Component
     public function close(): void
     {
         $this->resetValidation();
-        $this->reset('open', 'search', 'selectedKeyResultId', 'contextType', 'contextId');
+        // Kontext NICHT zurücksetzen, damit er beim erneuten Öffnen erhalten bleibt
+        $this->reset('open', 'search', 'selectedKeyResultId');
         $this->availableKeyResults = collect();
         $this->linkedKeyResults = collect();
     }

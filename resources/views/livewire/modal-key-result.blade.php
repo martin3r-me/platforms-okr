@@ -3,7 +3,7 @@
         <div class="flex items-center gap-3">
             <div class="flex-shrink-0">
                 <div class="w-12 h-12 bg-gradient-to-br from-[var(--ui-primary-10)] to-[var(--ui-primary-5)] rounded-xl flex items-center justify-center shadow-sm">
-                    @svg('heroicon-o-flag', 'w-6 h-6 text-[var(--ui-primary)]')
+                    @svg('heroicon-o-sparkles', 'w-6 h-6 text-[var(--ui-primary)]')
                 </div>
             </div>
             <div class="flex-1 min-w-0">
@@ -38,7 +38,7 @@
                                     <div class="flex items-center gap-3">
                                         <div class="flex-shrink-0">
                                             <div class="w-10 h-10 rounded-lg bg-[var(--ui-primary-5)] flex items-center justify-center">
-                                                @svg('heroicon-o-flag', 'w-5 h-5 text-[var(--ui-primary)]')
+                                                @svg('heroicon-o-sparkles', 'w-5 h-5 text-[var(--ui-primary)]')
                                             </div>
                                         </div>
                                         <div class="flex-1 min-w-0">
@@ -102,7 +102,7 @@
                                     <div class="flex items-center gap-3">
                                         <div class="flex-shrink-0">
                                             <div class="w-10 h-10 rounded-lg bg-[var(--ui-primary-5)] flex items-center justify-center">
-                                                @svg('heroicon-o-flag', 'w-5 h-5 text-[var(--ui-primary)]')
+                                                @svg('heroicon-o-sparkles', 'w-5 h-5 text-[var(--ui-primary)]')
                                             </div>
                                         </div>
                                         <div class="flex-1 min-w-0">
@@ -147,7 +147,7 @@
                 @else
                     <div class="p-8 text-center rounded-lg border border-[var(--ui-border)]/60 bg-[var(--ui-muted-5)]">
                         <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--ui-surface)] flex items-center justify-center">
-                            @svg('heroicon-o-flag', 'w-8 h-8 text-[var(--ui-muted)]')
+                            @svg('heroicon-o-sparkles', 'w-8 h-8 text-[var(--ui-muted)]')
                         </div>
                         <p class="text-sm font-medium text-[var(--ui-secondary)]">Keine KeyResults gefunden</p>
                         <p class="text-xs text-[var(--ui-muted)] mt-1">
