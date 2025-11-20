@@ -105,8 +105,19 @@ class CycleShow extends Component
             return collect();
         }
         
-        // Lade OKR-Mitglieder (nur diese dürfen als Verantwortliche ausgewählt werden)
-        return $this->cycle->okr->members()->orderBy('name')->get();
+        // Lade OKR-Mitglieder + OKR-Manager (dürfen als Verantwortliche ausgewählt werden)
+        $members = $this->cycle->okr->members()->orderBy('name')->get();
+        
+        // Füge OKR-Manager hinzu, falls vorhanden und noch nicht in der Liste
+        if ($this->cycle->okr->manager_user_id && $this->cycle->okr->manager) {
+            $manager = $this->cycle->okr->manager;
+            // Prüfe ob Manager bereits in Mitgliedern ist
+            if (!$members->contains('id', $manager->id)) {
+                $members->push($manager);
+            }
+        }
+        
+        return $members->sortBy('name')->values();
     }
 
     public function updated($property)

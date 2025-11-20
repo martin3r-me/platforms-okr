@@ -125,37 +125,43 @@
                     </div>
                 @endcan
                 <div>
-                    <h4 class="text-md font-medium text-[var(--ui-secondary)] mb-2">Teilnehmer</h4>
-                    <div class="space-y-2">
-                        @foreach($this->members as $member)
-                            <div class="flex items-center justify-between p-3 bg-[var(--ui-muted-5)] rounded-lg">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-[var(--ui-primary)]/10 text-[var(--ui-primary)] rounded-full flex items-center justify-center text-sm font-medium">
-                                        {{ substr($member->name, 0, 1) }}
+                    <h4 class="text-md font-medium text-[var(--ui-secondary)] mb-3">Teilnehmer</h4>
+                    @if($this->members->count() > 0)
+                        <div class="space-y-2 mb-4">
+                            @foreach($this->members as $member)
+                                <div class="flex items-center justify-between p-3 bg-[var(--ui-muted-5)] rounded-lg">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 bg-[var(--ui-primary)]/10 text-[var(--ui-primary)] rounded-full flex items-center justify-center text-sm font-medium">
+                                            {{ substr($member->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <div class="font-medium">{{ $member->name }}</div>
+                                            <div class="text-sm text-[var(--ui-muted)]">{{ $member->email }}</div>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <div class="font-medium">{{ $member->name }}</div>
-                                        <div class="text-sm text-[var(--ui-muted)]">{{ $member->email }}</div>
+                                    <div class="flex items-center gap-2">
+                                        @can('changeRole', $okr)
+                                            <x-ui-input-select
+                                                name="memberRoleSelect_{{ $member->id }}"
+                                                :options="$this->roleOptions"
+                                                :nullable="false"
+                                                :value="$member->pivot->role"
+                                                wire:change="updateMemberRole({{ $member->id }}, $event.target.value)"
+                                                size="sm"
+                                            />
+                                        @endcan
+                                        @can('removeMember', $okr)
+                                            <x-ui-button variant="danger-ghost" size="xs" wire:click="removeMember({{ $member->id }})">Entfernen</x-ui-button>
+                                        @endcan
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2">
-                                    @can('changeRole', $okr)
-                                        <x-ui-input-select
-                                            name="memberRoleSelect_{{ $member->id }}"
-                                            :options="$this->roleOptions"
-                                            :nullable="false"
-                                            :value="$member->pivot->role"
-                                            wire:change="updateMemberRole({{ $member->id }}, $event.target.value)"
-                                            size="sm"
-                                        />
-                                    @endcan
-                                    @can('removeMember', $okr)
-                                        <x-ui-button variant="danger-ghost" size="xs" wire:click="removeMember({{ $member->id }})">Entfernen</x-ui-button>
-                                    @endcan
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="p-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 text-center mb-4">
+                            <p class="text-sm text-[var(--ui-muted)]">Noch keine Teilnehmer hinzugefügt</p>
+                        </div>
+                    @endif
                 </div>
                 @can('invite', $okr)
                     <div class="pt-4 border-t">
