@@ -19,6 +19,7 @@ class ModalKeyResult extends Component
 
     public $availableKeyResults = [];
     public $linkedKeyResults = [];
+    public $coveredKeyResults = []; // KeyResults, die über Parent-Kontext (z.B. Project) abgedeckt sind
     public ?int $selectedKeyResultId = null;
 
     public string $search = '';
@@ -27,6 +28,7 @@ class ModalKeyResult extends Component
     {
         $this->availableKeyResults = collect();
         $this->linkedKeyResults = collect();
+        $this->coveredKeyResults = collect();
     }
 
     #[On('keyresult')]
@@ -39,6 +41,7 @@ class ModalKeyResult extends Component
         if ($this->open && $this->contextType && $this->contextId) {
             $this->loadKeyResults();
             $this->loadLinkedKeyResults();
+            $this->loadCoveredKeyResults();
         }
     }
 
@@ -55,6 +58,7 @@ class ModalKeyResult extends Component
         if ($this->contextType && $this->contextId) {
             $this->loadKeyResults();
             $this->loadLinkedKeyResults();
+            $this->loadCoveredKeyResults();
         }
 
         $this->open = true;
@@ -67,6 +71,7 @@ class ModalKeyResult extends Component
         $this->reset('open', 'search', 'selectedKeyResultId');
         $this->availableKeyResults = collect();
         $this->linkedKeyResults = collect();
+        $this->coveredKeyResults = collect();
     }
 
     public function updatedSearch(): void
@@ -116,8 +121,8 @@ class ModalKeyResult extends Component
             return;
         }
 
-        // Lade alle KeyResults, die bereits mit diesem Kontext verknüpft sind
-        // (über die KeyResultContext Tabelle, da ein KeyResult mehrere Kontexte haben kann)
+        // Lade nur KeyResults, die DIREKT mit diesem Kontext verknüpft sind
+        // (loose coupling: keine automatische Verknüpfung über Parent-Kontexte)
         $linkedContexts = KeyResultContext::where('context_type', $this->contextType)
             ->where('context_id', $this->contextId)
             ->where('is_primary', true)
@@ -129,6 +134,36 @@ class ModalKeyResult extends Component
         })->filter();
     }
 
+    protected function loadCoveredKeyResults(): void
+    {
+        if (! $this->contextType || ! $this->contextId) {
+            $this->coveredKeyResults = collect();
+            return;
+        }
+
+        // Prüfe ob dieser Kontext über einen Parent-Kontext (z.B. Project) abgedeckt ist
+        // (loose coupling: Tasks sind über Project abgedeckt, aber nicht direkt verknüpft)
+        if ($this->contextType === 'Platform\Planner\Models\PlannerTask') {
+            $task = \Platform\Planner\Models\PlannerTask::find($this->contextId);
+            if ($task && $task->project_id) {
+                // Lade KeyResults, die über das Project verknüpft sind
+                $projectLinkedContexts = KeyResultContext::where('context_type', 'Platform\Planner\Models\PlannerProject')
+                    ->where('context_id', $task->project_id)
+                    ->where('is_primary', true)
+                    ->with(['keyResult.objective.cycle.okr', 'keyResult.performance', 'keyResult.user'])
+                    ->get();
+                
+                $this->coveredKeyResults = $projectLinkedContexts->map(function ($context) {
+                    return $context->keyResult;
+                })->filter();
+            } else {
+                $this->coveredKeyResults = collect();
+            }
+        } else {
+            $this->coveredKeyResults = collect();
+        }
+    }
+
     public function attachKeyResult(int $keyResultId): void
     {
         if (! $this->contextType || ! $this->contextId) {
@@ -137,6 +172,24 @@ class ModalKeyResult extends Component
         }
 
         try {
+            // Prüfe: Wenn es eine Task ist, prüfe ob das zugehörige Project bereits verknüpft ist
+            if ($this->contextType === 'Platform\Planner\Models\PlannerTask') {
+                $task = \Platform\Planner\Models\PlannerTask::find($this->contextId);
+                if ($task && $task->project_id) {
+                    // Prüfe ob das Project bereits mit diesem KeyResult verknüpft ist
+                    $projectLinked = KeyResultContext::where('key_result_id', $keyResultId)
+                        ->where('context_type', 'Platform\Planner\Models\PlannerProject')
+                        ->where('context_id', $task->project_id)
+                        ->where('is_primary', true)
+                        ->exists();
+                    
+                    if ($projectLinked) {
+                        session()->flash('error', 'Das zugehörige Project ist bereits mit diesem KeyResult verknüpft. Alle Tasks im Project sind daher bereits abgedeckt.');
+                        return;
+                    }
+                }
+            }
+
             $storeService = app(StoreKeyResultContext::class);
             $storeService->store($keyResultId, $this->contextType, $this->contextId);
 
@@ -145,6 +198,7 @@ class ModalKeyResult extends Component
             // Daten neu laden
             $this->loadKeyResults();
             $this->loadLinkedKeyResults();
+            $this->loadCoveredKeyResults();
         } catch (\Exception $e) {
             session()->flash('error', 'Fehler beim Verknüpfen: ' . $e->getMessage());
         }
@@ -166,6 +220,7 @@ class ModalKeyResult extends Component
             // Daten neu laden
             $this->loadKeyResults();
             $this->loadLinkedKeyResults();
+            $this->loadCoveredKeyResults();
         } catch (\Exception $e) {
             session()->flash('error', 'Fehler beim Entfernen: ' . $e->getMessage());
         }

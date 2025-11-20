@@ -3,7 +3,7 @@
         <div class="flex items-center gap-3">
             <div class="flex-shrink-0">
                 <div class="w-12 h-12 bg-gradient-to-br from-[var(--ui-primary-10)] to-[var(--ui-primary-5)] rounded-xl flex items-center justify-center shadow-sm">
-                    @svg('heroicon-o-sparkles', 'w-6 h-6 text-[var(--ui-primary)]')
+                    @svg('heroicon-o-chart-bar', 'w-6 h-6 text-[var(--ui-primary)]')
                 </div>
             </div>
             <div class="flex-1 min-w-0">
@@ -16,6 +16,12 @@
                     @if($label)
                         <p class="text-sm text-[var(--ui-muted)] mt-1">
                             Kontext: <span class="font-semibold text-[var(--ui-secondary)]">{{ $label }}</span>
+                            @if($coveredKeyResults && $coveredKeyResults->count() > 0)
+                                <span class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-[var(--ui-success-10)] text-[var(--ui-success)] border border-[var(--ui-success)]/20">
+                                    @svg('heroicon-o-check-circle', 'w-3 h-3')
+                                    {{ $coveredKeyResults->count() }} KeyResult(s) über Parent-Kontext abgedeckt
+                                </span>
+                            @endif
                         </p>
                     @endif
                 @else
@@ -27,10 +33,50 @@
 
     <div class="space-y-6">
         @if($contextType && $contextId)
-            <!-- Verknüpfte KeyResults -->
+            <!-- Über Parent-Kontext abgedeckte KeyResults (z.B. über Project) -->
+            @if($coveredKeyResults && $coveredKeyResults->count() > 0)
+                <div>
+                    <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">Über Parent-Kontext abgedeckt</h4>
+                    <p class="text-xs text-[var(--ui-muted)] mb-3">Diese KeyResults sind über einen übergeordneten Kontext (z.B. Project) abgedeckt. Alle Tasks im Project zahlen auf diese KeyResults ein.</p>
+                    <div class="space-y-2">
+                        @foreach($coveredKeyResults as $keyResult)
+                            <div class="flex items-center justify-between p-4 rounded-lg border border-[var(--ui-success)]/40 bg-[var(--ui-success-5)]">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-shrink-0">
+                                            <div class="w-10 h-10 rounded-lg bg-[var(--ui-success-10)] flex items-center justify-center">
+                                                @svg('heroicon-o-chart-bar', 'w-5 h-5 text-[var(--ui-success)]')
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="font-semibold text-[var(--ui-secondary)] truncate">{{ $keyResult->title }}</div>
+                                            @if($keyResult->objective)
+                                                <div class="text-xs text-[var(--ui-muted)] mt-0.5">
+                                                    Objective: {{ $keyResult->objective->title }}
+                                                    @if($keyResult->objective->cycle)
+                                                        • Cycle: {{ $keyResult->objective->cycle->template?->label ?? 'Unbekannt' }}
+                                                    @endif
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0 ml-4">
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium bg-[var(--ui-success-10)] text-[var(--ui-success)] border border-[var(--ui-success)]/20">
+                                        @svg('heroicon-o-check-circle', 'w-3 h-3')
+                                        Abgedeckt
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            <!-- Direkt verknüpfte KeyResults -->
             @if($linkedKeyResults && $linkedKeyResults->count() > 0)
                 <div>
-                    <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">Verknüpfte KeyResults</h4>
+                    <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">Direkt verknüpfte KeyResults</h4>
                     <div class="space-y-2">
                         @foreach($linkedKeyResults as $keyResult)
                             <div class="flex items-center justify-between p-4 rounded-lg border border-[var(--ui-border)]/60 bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] transition-colors">
@@ -38,7 +84,7 @@
                                     <div class="flex items-center gap-3">
                                         <div class="flex-shrink-0">
                                             <div class="w-10 h-10 rounded-lg bg-[var(--ui-primary-5)] flex items-center justify-center">
-                                                @svg('heroicon-o-sparkles', 'w-5 h-5 text-[var(--ui-primary)]')
+                                                @svg('heroicon-o-chart-bar', 'w-5 h-5 text-[var(--ui-primary)]')
                                             </div>
                                         </div>
                                         <div class="flex-1 min-w-0">
@@ -96,13 +142,14 @@
                         @foreach($availableKeyResults as $keyResult)
                             @php
                                 $isLinked = $linkedKeyResults && $linkedKeyResults->contains('id', $keyResult->id);
+                                $isCovered = $coveredKeyResults && $coveredKeyResults->contains('id', $keyResult->id);
                             @endphp
-                            <div class="flex items-center justify-between p-4 rounded-lg border border-[var(--ui-border)]/60 bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] transition-colors {{ $isLinked ? 'opacity-50' : '' }}">
+                            <div class="flex items-center justify-between p-4 rounded-lg border border-[var(--ui-border)]/60 bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] transition-colors {{ $isLinked || $isCovered ? 'opacity-50' : '' }}">
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-3">
                                         <div class="flex-shrink-0">
                                             <div class="w-10 h-10 rounded-lg bg-[var(--ui-primary-5)] flex items-center justify-center">
-                                                @svg('heroicon-o-sparkles', 'w-5 h-5 text-[var(--ui-primary)]')
+                                                @svg('heroicon-o-chart-bar', 'w-5 h-5 text-[var(--ui-primary)]')
                                             </div>
                                         </div>
                                         <div class="flex-1 min-w-0">
@@ -124,6 +171,8 @@
                                 <div class="flex-shrink-0 ml-4">
                                     @if($isLinked)
                                         <span class="text-xs font-medium text-[var(--ui-muted)]">Bereits verknüpft</span>
+                                    @elseif($isCovered)
+                                        <span class="text-xs font-medium text-[var(--ui-success)]">Über Parent abgedeckt</span>
                                     @else
                                         <x-ui-button 
                                             variant="primary" 
@@ -147,7 +196,7 @@
                 @else
                     <div class="p-8 text-center rounded-lg border border-[var(--ui-border)]/60 bg-[var(--ui-muted-5)]">
                         <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--ui-surface)] flex items-center justify-center">
-                            @svg('heroicon-o-sparkles', 'w-8 h-8 text-[var(--ui-muted)]')
+                            @svg('heroicon-o-chart-bar', 'w-8 h-8 text-[var(--ui-muted)]')
                         </div>
                         <p class="text-sm font-medium text-[var(--ui-secondary)]">Keine KeyResults gefunden</p>
                         <p class="text-xs text-[var(--ui-muted)] mt-1">
