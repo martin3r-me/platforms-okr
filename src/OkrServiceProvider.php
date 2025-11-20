@@ -90,6 +90,7 @@ class OkrServiceProvider extends ServiceProvider
         Livewire::component('okr.cycle-show', \Platform\Okr\Livewire\CycleShow::class);
         Livewire::component('okr.objective-show', \Platform\Okr\Livewire\ObjectiveShow::class);
         Livewire::component('okr.sidebar', \Platform\Okr\Livewire\Sidebar::class);
+        Livewire::component('okr.modal-key-result', \Platform\Okr\Livewire\ModalKeyResult::class);
 
         // Embedded Components
         if (class_exists(\Platform\Okr\Livewire\Embedded\Cycle::class)) {
