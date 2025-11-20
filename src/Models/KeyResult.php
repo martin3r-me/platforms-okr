@@ -55,7 +55,15 @@ class KeyResult extends Model
 
             if (empty($kr->team_id)) {
                 // Für Parent Tools (scope_type = 'parent') wird automatisch das Root-Team verwendet
-                $kr->team_id = Auth::user()?->currentTeam?->id;
+                $user = Auth::user();
+                $baseTeam = $user?->currentTeamRelation;
+                
+                if ($baseTeam) {
+                    $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
+                    $kr->team_id = ($okrModule && $okrModule->isRootScoped()) 
+                        ? $baseTeam->getRootTeam()->id 
+                        : $baseTeam->id;
+                }
             }
         });
     }

@@ -195,13 +195,21 @@ class CycleShow extends Component
             ]);
             session()->flash('message', 'Objective erfolgreich aktualisiert!');
         } else {
+            // Für Parent Tools (scope_type = 'parent') das Root-Team verwenden
+            $user = auth()->user();
+            $baseTeam = $user->currentTeamRelation;
+            $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
+            $teamId = ($okrModule && $okrModule->isRootScoped()) 
+                ? $baseTeam->getRootTeam()->id 
+                : $baseTeam->id;
+            
             $this->cycle->objectives()->create([
                 'title' => $this->objectiveForm['title'],
                 'description' => $this->objectiveForm['description'],
                 'order' => $this->objectiveForm['order'],
                 'okr_id' => $this->cycle->okr_id,
-                'team_id' => auth()->user()->currentTeam?->id,
-                'user_id' => auth()->id(),
+                'team_id' => $teamId,
+                'user_id' => $user->id,
             ]);
             session()->flash('message', 'Objective erfolgreich hinzugefügt!');
         }
@@ -351,13 +359,14 @@ class CycleShow extends Component
                 ]);
 
                 // Immer eine neue Performance-Version erstellen (Versionierung)
+                // Verwende die Team-ID des KeyResults (bereits korrekt gesetzt)
                 $keyResult->performances()->create([
                     'type' => $this->keyResultValueType,
                     'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
                     'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
                     'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
                     'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
-                    'team_id' => auth()->user()->currentTeam?->id,
+                    'team_id' => $keyResult->team_id,
                     'user_id' => auth()->id(),
                 ]);
                 
@@ -367,23 +376,32 @@ class CycleShow extends Component
                 // Create new Key Result
                 $nextOrder = $objective->keyResults()->max('order') + 1;
                 
+                // Für Parent Tools (scope_type = 'parent') das Root-Team verwenden
+                $user = auth()->user();
+                $baseTeam = $user->currentTeamRelation;
+                $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
+                $teamId = ($okrModule && $okrModule->isRootScoped()) 
+                    ? $baseTeam->getRootTeam()->id 
+                    : $baseTeam->id;
+                
                 $keyResult = $objective->keyResults()->create([
                     'title' => $this->keyResultTitle,
                     'description' => $this->keyResultDescription,
                     'order' => $nextOrder,
                     'manager_user_id' => $this->keyResultManagerUserId ?: null,
-                    'team_id' => auth()->user()->currentTeam?->id,
-                    'user_id' => auth()->id(),
+                    'team_id' => $teamId,
+                    'user_id' => $user->id,
                 ]);
 
                 // Create initial performance record (erste Version)
+                // Verwende die Team-ID des KeyResults (bereits korrekt gesetzt)
                 $keyResult->performances()->create([
                     'type' => $this->keyResultValueType,
                     'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
                     'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
                     'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
                     'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
-                    'team_id' => auth()->user()->currentTeam?->id,
+                    'team_id' => $keyResult->team_id,
                     'user_id' => auth()->id(),
                 ]);
                 
@@ -420,13 +438,14 @@ class CycleShow extends Component
             $newStatus = !$keyResult->performance->is_completed;
             
             // Neue Performance-Version erstellen
+            // Verwende die Team-ID des KeyResults (bereits korrekt gesetzt)
             $keyResult->performances()->create([
                 'type' => 'boolean',
                 'target_value' => 1.0, // Boolean Ziel ist immer 1
                 'current_value' => $newStatus ? 1.0 : 0.0,
                 'is_completed' => $newStatus,
                 'performance_score' => $newStatus ? 1.0 : 0.0,
-                'team_id' => auth()->user()->currentTeam?->id,
+                'team_id' => $keyResult->team_id,
                 'user_id' => auth()->id(),
             ]);
             
@@ -447,13 +466,14 @@ class CycleShow extends Component
             $keyResult = \Platform\Okr\Models\KeyResult::findOrFail($keyResultId);
             
             // Neue Performance-Version erstellen
+            // Verwende die Team-ID des KeyResults (bereits korrekt gesetzt)
             $keyResult->performances()->create([
                 'type' => $keyResult->performance->type,
                 'target_value' => $keyResult->performance->target_value, // Zielwert bleibt unverändert
                 'current_value' => (float) $newCurrentValue,
                 'is_completed' => $keyResult->performance->type === 'boolean' ? (bool) $newCurrentValue : ($newCurrentValue >= $keyResult->performance->target_value),
                 'performance_score' => $keyResult->performance->type === 'boolean' ? ($newCurrentValue ? 1.0 : 0.0) : ($newCurrentValue / $keyResult->performance->target_value),
-                'team_id' => auth()->user()->currentTeam?->id,
+                'team_id' => $keyResult->team_id,
                 'user_id' => auth()->id(),
             ]);
             
