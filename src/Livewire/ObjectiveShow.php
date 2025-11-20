@@ -139,7 +139,7 @@ class ObjectiveShow extends Component
                 'current_value' => $this->keyResultForm['current_value'],
                 'unit' => $this->keyResultForm['unit'],
                 'order' => $this->keyResultForm['order'],
-                'team_id' => auth()->user()->current_team_id,
+                'team_id' => auth()->user()->currentTeam?->id,
                 'user_id' => auth()->id(),
             ]);
             session()->flash('message', 'Key Result erfolgreich hinzugefügt!');

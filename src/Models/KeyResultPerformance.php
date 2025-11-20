@@ -54,7 +54,8 @@ class KeyResultPerformance extends Model
             }
 
             if (empty($performance->team_id)) {
-                $performance->team_id = Auth::user()?->current_team_id;
+                // Für Parent Tools (scope_type = 'parent') wird automatisch das Root-Team verwendet
+                $performance->team_id = Auth::user()?->currentTeam?->id;
             }
         });
     }

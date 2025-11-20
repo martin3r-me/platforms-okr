@@ -98,7 +98,7 @@ class OkrManagement extends Component
             'auto_transfer' => $this->auto_transfer,
             'is_template' => $this->is_template,
             'manager_user_id' => $this->manager_user_id ?: null,
-            'team_id' => auth()->user()->current_team_id,
+            'team_id' => auth()->user()->currentTeam?->id,
             'user_id' => auth()->id(),
         ]);
 

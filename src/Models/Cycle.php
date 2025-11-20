@@ -57,7 +57,8 @@ class Cycle extends Model implements HasDisplayName
             }
 
             if (empty($cycle->team_id)) {
-                $cycle->team_id = Auth::user()?->current_team_id;
+                // Für Parent Tools (scope_type = 'parent') wird automatisch das Root-Team verwendet
+                $cycle->team_id = Auth::user()?->currentTeam?->id;
             }
         });
     }

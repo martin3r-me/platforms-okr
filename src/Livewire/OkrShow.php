@@ -307,7 +307,7 @@ class OkrShow extends Component
                 'cycle_template_id' => $this->cycleForm['cycle_template_id'],
                 'status' => $this->cycleForm['status'],
                 'notes' => $this->cycleForm['notes'],
-                'team_id' => auth()->user()->current_team_id,
+                'team_id' => auth()->user()->currentTeam?->id,
                 'user_id' => auth()->id(),
             ]);
             session()->flash('message', 'Cycle erfolgreich hinzugefügt!');

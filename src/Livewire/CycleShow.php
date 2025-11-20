@@ -177,7 +177,7 @@ class CycleShow extends Component
                 'description' => $this->objectiveForm['description'],
                 'order' => $this->objectiveForm['order'],
                 'okr_id' => $this->cycle->okr_id,
-                'team_id' => auth()->user()->current_team_id,
+                'team_id' => auth()->user()->currentTeam?->id,
                 'user_id' => auth()->id(),
             ]);
             session()->flash('message', 'Objective erfolgreich hinzugefügt!');
@@ -330,7 +330,7 @@ class CycleShow extends Component
                     'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
                     'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
                     'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
-                    'team_id' => auth()->user()->current_team_id,
+                    'team_id' => auth()->user()->currentTeam?->id,
                     'user_id' => auth()->id(),
                 ]);
                 
@@ -344,7 +344,7 @@ class CycleShow extends Component
                     'title' => $this->keyResultTitle,
                     'description' => $this->keyResultDescription,
                     'order' => $nextOrder,
-                    'team_id' => auth()->user()->current_team_id,
+                    'team_id' => auth()->user()->currentTeam?->id,
                     'user_id' => auth()->id(),
                 ]);
 
@@ -355,7 +355,7 @@ class CycleShow extends Component
                     'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
                     'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
                     'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
-                    'team_id' => auth()->user()->current_team_id,
+                    'team_id' => auth()->user()->currentTeam?->id,
                     'user_id' => auth()->id(),
                 ]);
                 
@@ -398,7 +398,7 @@ class CycleShow extends Component
                 'current_value' => $newStatus ? 1.0 : 0.0,
                 'is_completed' => $newStatus,
                 'performance_score' => $newStatus ? 1.0 : 0.0,
-                'team_id' => auth()->user()->current_team_id,
+                'team_id' => auth()->user()->currentTeam?->id,
                 'user_id' => auth()->id(),
             ]);
             
@@ -425,7 +425,7 @@ class CycleShow extends Component
                 'current_value' => (float) $newCurrentValue,
                 'is_completed' => $keyResult->performance->type === 'boolean' ? (bool) $newCurrentValue : ($newCurrentValue >= $keyResult->performance->target_value),
                 'performance_score' => $keyResult->performance->type === 'boolean' ? ($newCurrentValue ? 1.0 : 0.0) : ($newCurrentValue / $keyResult->performance->target_value),
-                'team_id' => auth()->user()->current_team_id,
+                'team_id' => auth()->user()->currentTeam?->id,
                 'user_id' => auth()->id(),
             ]);
             

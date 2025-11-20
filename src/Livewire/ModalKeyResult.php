@@ -81,7 +81,16 @@ class ModalKeyResult extends Component
             return;
         }
 
-        $teamId = Auth::user()->current_team_id;
+        // Für Parent Tools (scope_type = 'parent') das Root-Team verwenden
+        $user = Auth::user();
+        $baseTeam = $user->currentTeamRelation;
+        $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
+        
+        // Wenn OKR ein Parent Tool ist, verwende das Root-Team
+        $teamId = ($okrModule && $okrModule->isRootScoped()) 
+            ? $baseTeam->getRootTeam()->id 
+            : $baseTeam->id;
+        
         $query = KeyResult::with(['objective.cycle.okr', 'performance', 'user'])
             ->where('team_id', $teamId)
             ->orderBy('created_at', 'desc');

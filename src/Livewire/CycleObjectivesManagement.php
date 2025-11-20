@@ -105,7 +105,7 @@ class CycleObjectivesManagement extends Component
                 'description' => $this->objectiveForm['description'],
                 'order' => $this->objectiveForm['order'],
                 'okr_id' => $this->cycle->okr_id,
-                'team_id' => auth()->user()->current_team_id,
+                'team_id' => auth()->user()->currentTeam?->id,
                 'user_id' => auth()->id(),
             ]);
             session()->flash('message', 'Objective erfolgreich hinzugefügt!');

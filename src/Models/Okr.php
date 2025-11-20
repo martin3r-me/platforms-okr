@@ -63,7 +63,8 @@ class Okr extends Model implements HasDisplayName
             }
 
             if (empty($okr->team_id)) {
-                $okr->team_id = Auth::user()?->current_team_id;
+                // Für Parent Tools (scope_type = 'parent') wird automatisch das Root-Team verwendet
+                $okr->team_id = Auth::user()?->currentTeam?->id;
             }
         });
     }
@@ -81,7 +82,8 @@ class Okr extends Model implements HasDisplayName
      */
     public function scopeVisibleFor(Builder $query, User $user): Builder
     {
-        $teamId = $user->current_team_id;
+        // Für Parent Tools (scope_type = 'parent') wird automatisch das Root-Team verwendet
+        $teamId = $user->currentTeam?->id ?? $user->current_team_id;
         $query->where('team_id', $teamId);
 
         // Owner/Admin sieht alles

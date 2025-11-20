@@ -55,7 +55,8 @@ class Objective extends Model
             }
 
             if (empty($objective->team_id)) {
-                $objective->team_id = Auth::user()?->current_team_id;
+                // Für Parent Tools (scope_type = 'parent') wird automatisch das Root-Team verwendet
+                $objective->team_id = Auth::user()?->currentTeam?->id;
             }
         });
     }
