@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
+use Platform\Okr\Models\KeyResultContext;
 
 /**
  * OKR Key Result Model
@@ -88,5 +89,16 @@ class KeyResult extends Model
     public function performances(): HasMany
     {
         return $this->hasMany(KeyResultPerformance::class);
+    }
+
+    public function contexts(): HasMany
+    {
+        return $this->hasMany(KeyResultContext::class, 'key_result_id');
+    }
+
+    public function primaryContexts(): HasMany
+    {
+        return $this->hasMany(KeyResultContext::class, 'key_result_id')
+            ->where('is_primary', true);
     }
 }

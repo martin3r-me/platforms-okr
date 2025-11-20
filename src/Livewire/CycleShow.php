@@ -83,6 +83,12 @@ class CycleShow extends Component
             'allow_context_management' => false,
             'can_link_to_entity' => false,
         ]);
+
+        // KeyResult-Kontext setzen - ermöglicht Verknüpfung von KeyResults mit diesem Cycle
+        $this->dispatch('keyresult', [
+            'context_type' => get_class($this->cycle),
+            'context_id' => $this->cycle->id,
+        ]);
     }
 
     #[Computed]
