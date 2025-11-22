@@ -64,6 +64,11 @@ class OkrServiceProvider extends ServiceProvider
             ModuleRouter::group('okr', function () {
                 $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
             });
+
+            // API-Routen registrieren
+            ModuleRouter::apiGroup('okr', function () {
+                $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
+            });
         }
 
         // Schritt 4: Migrationen laden
