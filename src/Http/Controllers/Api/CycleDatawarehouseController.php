@@ -47,7 +47,7 @@ class CycleDatawarehouseController extends ApiController
         $query->with([
             'team:id,name',
             'user:id,name,email',
-            'okr:id,name,status',
+            'okr:id,title',
             'template:id,label,starts_at,ends_at',
             'performance:id,cycle_id,performance_score,completion_percentage,completed_objectives,total_objectives,completed_key_results,total_key_results,is_completed,updated_at',
             'objectives' => function ($q) {
@@ -140,8 +140,7 @@ class CycleDatawarehouseController extends ApiController
                 'id' => $cycle->id,
                 'uuid' => $cycle->uuid,
                 'okr_id' => $cycle->okr_id,
-                'okr_name' => $cycle->okr?->name, // OKR-Name mitliefern (denormalisiert)
-                'okr_status' => $cycle->okr?->status, // OKR-Status mitliefern
+                'okr_title' => $cycle->okr?->title, // OKR-Titel mitliefern (denormalisiert)
                 'team_id' => $cycle->team_id,
                 'team_name' => $cycle->team?->name, // Team-Name mitliefern (denormalisiert)
                 'user_id' => $cycle->user_id,
@@ -335,7 +334,7 @@ class CycleDatawarehouseController extends ApiController
             $example = Cycle::with([
                 'team:id,name',
                 'user:id,name,email',
-                'okr:id,name,status',
+                'okr:id,title',
                 'template:id,label,starts_at,ends_at',
                 'performance:id,cycle_id,performance_score,completion_percentage',
             ])
@@ -355,8 +354,7 @@ class CycleDatawarehouseController extends ApiController
                 'id' => $example->id,
                 'uuid' => $example->uuid,
                 'okr_id' => $example->okr_id,
-                'okr_name' => $example->okr?->name,
-                'okr_status' => $example->okr?->status,
+                'okr_title' => $example->okr?->title,
                 'team_id' => $example->team_id,
                 'team_name' => $example->team?->name,
                 'user_id' => $example->user_id,
