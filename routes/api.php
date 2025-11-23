@@ -9,4 +9,5 @@ use Platform\Okr\Http\Controllers\Api\CycleDatawarehouseController;
  * Datawarehouse-Endpunkte für OKR Cycles
  */
 Route::get('/cycles/datawarehouse', [CycleDatawarehouseController::class, 'index']);
+Route::get('/cycles/datawarehouse/health', [CycleDatawarehouseController::class, 'health']);
 

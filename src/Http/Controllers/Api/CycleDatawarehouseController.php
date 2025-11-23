@@ -324,5 +324,67 @@ class CycleDatawarehouseController extends ApiController
             $query->withTrashed();
         }
     }
+
+    /**
+     * Health Check Endpoint
+     * Gibt einen Beispiel-Datensatz zurück für Tests
+     */
+    public function health(Request $request)
+    {
+        try {
+            $example = Cycle::with([
+                'team:id,name',
+                'user:id,name,email',
+                'okr:id,name,status',
+                'template:id,label,starts_at,ends_at',
+                'performance:id,cycle_id,performance_score,completion_percentage',
+            ])
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if (!$example) {
+                return $this->success([
+                    'status' => 'ok',
+                    'message' => 'API ist erreichbar, aber keine Cycles vorhanden',
+                    'example' => null,
+                    'timestamp' => now()->toIso8601String(),
+                ], 'Health Check');
+            }
+
+            $exampleData = [
+                'id' => $example->id,
+                'uuid' => $example->uuid,
+                'okr_id' => $example->okr_id,
+                'okr_name' => $example->okr?->name,
+                'okr_status' => $example->okr?->status,
+                'team_id' => $example->team_id,
+                'team_name' => $example->team?->name,
+                'user_id' => $example->user_id,
+                'user_name' => $example->user?->name,
+                'user_email' => $example->user?->email,
+                'cycle_template_id' => $example->cycle_template_id,
+                'label' => $example->label,
+                'type' => $example->type,
+                'status' => $example->status,
+                'template_label' => $example->template?->label,
+                'starts_at' => $example->starts_at?->format('Y-m-d'),
+                'ends_at' => $example->ends_at?->format('Y-m-d'),
+                'performance_score' => $example->performance?->performance_score,
+                'performance_completion_percentage' => $example->performance?->completion_percentage,
+                'created_at' => $example->created_at->toIso8601String(),
+                'updated_at' => $example->updated_at->toIso8601String(),
+            ];
+
+            return $this->success([
+                'status' => 'ok',
+                'message' => 'API ist erreichbar',
+                'example' => $exampleData,
+                'timestamp' => now()->toIso8601String(),
+            ], 'Health Check');
+
+        } catch (\Exception $e) {
+            return $this->error('Health Check fehlgeschlagen: ' . $e->getMessage(), 500);
+        }
+    }
 }
 
