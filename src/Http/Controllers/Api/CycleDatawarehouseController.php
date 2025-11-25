@@ -215,12 +215,19 @@ class CycleDatawarehouseController extends ApiController
             }
         }
 
-        // Status-Filter (Standard: nur aktuelle Zyklen)
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
+        // Status-Filter
+        $status = $request->input('status');
+        if ($status) {
+            if ($status === 'current') {
+                // "current" bedeutet: Zyklus ist aktuell aktiv (basierend auf Template-Zeitraum)
+                $this->applyCurrentlyActiveFilter($query);
+            } else {
+                // Alle anderen Statuswerte kommen direkt aus der Cycle-Tabelle
+                $query->where('status', $status);
+            }
         } else {
-            // Default: nur aktuelle Zyklen
-            $query->where('status', 'current');
+            // Default: nur aktuell laufende Zyklen (Template-Zeitraum)
+            $this->applyCurrentlyActiveFilter($query);
         }
 
         // OKR-Filter
@@ -280,11 +287,7 @@ class CycleDatawarehouseController extends ApiController
 
         // Aktuell laufende Zyklen (basierend auf Template-Daten)
         if ($request->boolean('currently_active')) {
-            $today = Carbon::today();
-            $query->whereHas('template', function ($q) use ($today) {
-                $q->whereDate('starts_at', '<=', $today)
-                  ->whereDate('ends_at', '>=', $today);
-            });
+            $this->applyCurrentlyActiveFilter($query);
         }
 
         // Hat Notizen
@@ -322,6 +325,18 @@ class CycleDatawarehouseController extends ApiController
         if ($request->boolean('with_trashed')) {
             $query->withTrashed();
         }
+    }
+
+    /**
+     * Filtert auf aktuell laufende Zyklen (basierend auf Template-Zeiträumen)
+     */
+    protected function applyCurrentlyActiveFilter($query): void
+    {
+        $today = Carbon::today();
+        $query->whereHas('template', function ($q) use ($today) {
+            $q->whereDate('starts_at', '<=', $today)
+              ->whereDate('ends_at', '>=', $today);
+        });
     }
 
     /**
