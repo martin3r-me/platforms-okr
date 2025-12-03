@@ -227,6 +227,14 @@ class CycleDatawarehouseController extends ApiController
                 $query->whereHas('template', function ($q) {
                     $q->where('is_current', true);
                 });
+                
+                // Debug: Logge wie viele Templates mit is_current=true existieren
+                \Log::debug('OKR Cycles Filter: current_template', [
+                    'templates_with_is_current' => \Platform\Okr\Models\CycleTemplate::where('is_current', true)->count(),
+                    'cycles_with_current_template' => \Platform\Okr\Models\Cycle::whereHas('template', function ($q) {
+                        $q->where('is_current', true);
+                    })->count(),
+                ]);
             } elseif ($status === 'all') {
                 // "all" bedeutet: Alle Cycles zurückgeben (kein Status-Filter)
                 // Wird für Datawarehouse-Imports verwendet, um alle Cycles zu importieren
