@@ -221,6 +221,16 @@ class CycleDatawarehouseController extends ApiController
             if ($status === 'current') {
                 // "current" bedeutet: Zyklus ist aktuell aktiv (basierend auf Template-Zeitraum)
                 $this->applyCurrentlyActiveFilter($query);
+            } elseif ($status === 'current_template') {
+                // "current_template" bedeutet: Alle Cycles, die zu einem CycleTemplate mit is_current=true gehören
+                // Wird für Datawarehouse-Imports verwendet, um alle Cycles des aktuellen Templates zu importieren
+                $query->whereHas('template', function ($q) {
+                    $q->where('is_current', true);
+                });
+            } elseif ($status === 'all') {
+                // "all" bedeutet: Alle Cycles zurückgeben (kein Status-Filter)
+                // Wird für Datawarehouse-Imports verwendet, um alle Cycles zu importieren
+                // Kein Filter wird angewendet
             } else {
                 // Alle anderen Statuswerte kommen direkt aus der Cycle-Tabelle
                 $query->where('status', $status);
