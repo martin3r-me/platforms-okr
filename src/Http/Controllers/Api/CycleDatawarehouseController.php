@@ -4,9 +4,11 @@ namespace Platform\Okr\Http\Controllers\Api;
 
 use Platform\Core\Http\Controllers\ApiController;
 use Platform\Okr\Models\Cycle;
+use Platform\Okr\Models\CycleTemplate;
 use Platform\Core\Models\Team;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 /**
@@ -224,17 +226,25 @@ class CycleDatawarehouseController extends ApiController
             } elseif ($status === 'current_template') {
                 // "current_template" bedeutet: Alle Cycles, die zu einem CycleTemplate mit is_current=true gehören
                 // Wird für Datawarehouse-Imports verwendet, um alle Cycles des aktuellen Templates zu importieren
-                $query->whereHas('template', function ($q) {
-                    $q->where('is_current', true);
-                });
+                // Wichtig: Nur Cycles mit cycle_template_id (nicht NULL) und Template mit is_current=true
+                $query->whereNotNull('cycle_template_id')
+                      ->whereHas('template', function ($q) {
+                          $q->where('is_current', true);
+                      });
                 
                 // Debug: Logge wie viele Templates mit is_current=true existieren
-                \Log::debug('OKR Cycles Filter: current_template', [
-                    'templates_with_is_current' => \Platform\Okr\Models\CycleTemplate::where('is_current', true)->count(),
-                    'cycles_with_current_template' => \Platform\Okr\Models\Cycle::whereHas('template', function ($q) {
-                        $q->where('is_current', true);
-                    })->count(),
-                ]);
+                try {
+                    Log::debug('OKR Cycles Filter: current_template', [
+                        'templates_with_is_current' => CycleTemplate::where('is_current', true)->count(),
+                        'cycles_with_current_template' => Cycle::whereNotNull('cycle_template_id')
+                            ->whereHas('template', function ($q) {
+                                $q->where('is_current', true);
+                            })->count(),
+                    ]);
+                } catch (\Exception $e) {
+                    // Debug-Logging sollte den Request nicht blockieren
+                    Log::warning('Failed to log OKR Cycles debug info: ' . $e->getMessage());
+                }
             } elseif ($status === 'all') {
                 // "all" bedeutet: Alle Cycles zurückgeben (kein Status-Filter)
                 // Wird für Datawarehouse-Imports verwendet, um alle Cycles zu importieren
