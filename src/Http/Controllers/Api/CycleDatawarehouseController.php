@@ -240,10 +240,22 @@ class CycleDatawarehouseController extends ApiController
                 // "current_template" bedeutet: Alle Cycles, die zu einem CycleTemplate mit is_current=true gehören
                 // Wird für Datawarehouse-Imports verwendet, um alle Cycles des aktuellen Templates zu importieren
                 // Wichtig: Nur Cycles mit cycle_template_id (nicht NULL) und Template mit is_current=true
-                $query->whereNotNull('cycle_template_id')
-                      ->whereHas('template', function ($q) {
-                          $q->where('is_current', true);
-                      });
+                
+                // Debug: Logge welche Templates is_current=true haben
+                $currentTemplateIds = CycleTemplate::where('is_current', true)->pluck('id')->toArray();
+                Log::debug('OKR Cycles Filter: current_template', [
+                    'current_template_ids' => $currentTemplateIds,
+                    'current_template_count' => count($currentTemplateIds),
+                ]);
+                
+                if (empty($currentTemplateIds)) {
+                    // Kein Template ist als current markiert - logge Warnung
+                    Log::warning('No CycleTemplate with is_current=true found. No cycles will be returned.');
+                    $query->whereRaw('1 = 0'); // Leeres Ergebnis
+                } else {
+                    // Filtere nach cycle_template_id in den aktuellen Templates
+                    $query->whereIn('cycle_template_id', $currentTemplateIds);
+                }
             } elseif ($status === 'all') {
                 // "all" bedeutet: Alle Cycles zurückgeben (kein Status-Filter)
                 // Wird für Datawarehouse-Imports verwendet, um alle Cycles zu importieren
