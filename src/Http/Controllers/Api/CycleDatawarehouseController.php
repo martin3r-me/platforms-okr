@@ -26,27 +26,28 @@ class CycleDatawarehouseController extends ApiController
      */
     public function index(Request $request)
     {
-        $query = Cycle::query();
+        try {
+            $query = Cycle::query();
 
-        // ===== FILTER =====
-        $this->applyFilters($query, $request);
+            // ===== FILTER =====
+            $this->applyFilters($query, $request);
 
-        // ===== SORTING =====
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortDir = $request->get('sort_dir', 'desc');
-        
-        // Validierung der Sort-Spalte (Security)
-        $allowedSortColumns = ['id', 'created_at', 'updated_at', 'status'];
-        if (in_array($sortBy, $allowedSortColumns)) {
-            $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
-        } else {
-            $query->orderBy('created_at', 'desc');
-        }
+            // ===== SORTING =====
+            $sortBy = $request->get('sort_by', 'created_at');
+            $sortDir = $request->get('sort_dir', 'desc');
+            
+            // Validierung der Sort-Spalte (Security)
+            $allowedSortColumns = ['id', 'created_at', 'updated_at', 'status'];
+            if (in_array($sortBy, $allowedSortColumns)) {
+                $query->orderBy($sortBy, $sortDir === 'asc' ? 'asc' : 'desc');
+            } else {
+                $query->orderBy('created_at', 'desc');
+            }
 
-        // ===== PAGINATION =====
-        $perPage = min($request->get('per_page', 100), 1000); // Max 1000 pro Seite
-        // Relationen laden - mit Objectives, KeyResults und Performance-Daten
-        $query->with([
+            // ===== PAGINATION =====
+            $perPage = min($request->get('per_page', 100), 1000); // Max 1000 pro Seite
+            // Relationen laden - mit Objectives, KeyResults und Performance-Daten
+            $query->with([
             'team:id,name',
             'user:id,name,email',
             'okr:id,title',
@@ -183,6 +184,18 @@ class CycleDatawarehouseController extends ApiController
             $cycles->setCollection($formatted),
             'Zyklen erfolgreich geladen'
         );
+        } catch (\Exception $e) {
+            Log::error('CycleDatawarehouseController::index error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_params' => $request->all(),
+            ]);
+            return $this->error('Fehler beim Laden der Cycles: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
     }
 
     /**
@@ -231,20 +244,6 @@ class CycleDatawarehouseController extends ApiController
                       ->whereHas('template', function ($q) {
                           $q->where('is_current', true);
                       });
-                
-                // Debug: Logge wie viele Templates mit is_current=true existieren
-                try {
-                    Log::debug('OKR Cycles Filter: current_template', [
-                        'templates_with_is_current' => CycleTemplate::where('is_current', true)->count(),
-                        'cycles_with_current_template' => Cycle::whereNotNull('cycle_template_id')
-                            ->whereHas('template', function ($q) {
-                                $q->where('is_current', true);
-                            })->count(),
-                    ]);
-                } catch (\Exception $e) {
-                    // Debug-Logging sollte den Request nicht blockieren
-                    Log::warning('Failed to log OKR Cycles debug info: ' . $e->getMessage());
-                }
             } elseif ($status === 'all') {
                 // "all" bedeutet: Alle Cycles zurückgeben (kein Status-Filter)
                 // Wird für Datawarehouse-Imports verwendet, um alle Cycles zu importieren
