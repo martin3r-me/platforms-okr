@@ -62,7 +62,7 @@ class CycleDatawarehouseController extends ApiController
                         $kr->with([
                             'user:id,name,email',
                             'manager:id,name,email',
-                            'performance:id,key_result_id,type,current_value,target_value,calculated_value,performance_score,tendency,is_completed,updated_at'
+                            'performance:id,type,current_value,target_value,calculated_value,performance_score,tendency,is_completed,updated_at'
                         ])->orderBy('order');
                     }
                 ])->orderBy('order');
