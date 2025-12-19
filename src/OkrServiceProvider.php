@@ -8,16 +8,23 @@ use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use Platform\Core\PlatformCore;
+use Platform\Core\Contracts\CounterKeyResultSyncer;
 use Platform\Core\Routing\ModuleRouter;
 use Platform\Okr\Models\Okr;
 use Platform\Okr\Policies\OkrPolicy;
 use Platform\Okr\Models\Cycle;
 use Platform\Okr\Policies\CyclePolicy;
+use Platform\Okr\Services\CounterKeyResultSyncService;
 
 class OkrServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        // Counter→KeyResult Sync: echte Implementierung binden (überschreibt Core-Default No-Op)
+        $this->app->singleton(CounterKeyResultSyncer::class, function () {
+            return new CounterKeyResultSyncService();
+        });
+
         if ($this->app->runningInConsole()) {
             $this->commands([
                 \Platform\Okr\Console\Commands\GenerateQuarterCycleTemplates::class,
@@ -110,6 +117,12 @@ class OkrServiceProvider extends ServiceProvider
         // Tägliche Performance Updates um 02:00 Uhr (inkl. Team Performance)
         Schedule::command('okr:update-performance')
             ->dailyAt('02:00')
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        // Counter→KeyResult Sync (alle 15 Minuten)
+        Schedule::command('core:sync-counter-key-results')
+            ->everyFifteenMinutes()
             ->withoutOverlapping()
             ->runInBackground();
     }

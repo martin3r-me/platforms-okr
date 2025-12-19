@@ -17,6 +17,14 @@ class ModalKeyResult extends Component
     public ?string $contextType = null;
     public ?int $contextId = null;
 
+    /**
+     * Optionaler Context-Stack, damit temporäre Kontexte (z.B. aus Counter-Modal)
+     * den bestehenden Kontext (z.B. Task) nicht dauerhaft überschreiben.
+     *
+     * Jeder Eintrag: ['type' => string|null, 'id' => int|null]
+     */
+    public array $contextStack = [];
+
     public $availableKeyResults = [];
     public $linkedKeyResults = [];
     public $coveredKeyResults = []; // KeyResults, die über Parent-Kontext (z.B. Project) abgedeckt sind
@@ -34,6 +42,18 @@ class ModalKeyResult extends Component
     #[On('keyresult')]
     public function setContext(array $payload = []): void
     {
+        $push = (bool) ($payload['push'] ?? false);
+
+        if ($push) {
+            // Aktuellen Kontext sichern (falls vorhanden), damit wir nach dem Schließen zurückspringen können
+            if ($this->contextType && $this->contextId) {
+                $this->contextStack[] = [
+                    'type' => $this->contextType,
+                    'id' => $this->contextId,
+                ];
+            }
+        }
+
         $this->contextType = $payload['context_type'] ?? null;
         $this->contextId = isset($payload['context_id']) ? (int) $payload['context_id'] : null;
 
@@ -72,6 +92,13 @@ class ModalKeyResult extends Component
         $this->availableKeyResults = collect();
         $this->linkedKeyResults = collect();
         $this->coveredKeyResults = collect();
+
+        // Wenn der Kontext temporär überschrieben wurde (push=true), restore den vorherigen Kontext
+        if (!empty($this->contextStack)) {
+            $prev = array_pop($this->contextStack);
+            $this->contextType = $prev['type'] ?? null;
+            $this->contextId = isset($prev['id']) ? (int) $prev['id'] : null;
+        }
     }
 
     public function updatedSearch(): void
