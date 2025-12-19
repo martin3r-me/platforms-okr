@@ -187,9 +187,20 @@
                                                 @if($primaryContexts->count() > 0)
                                                     <div class="flex flex-wrap items-center gap-1.5 mt-2">
                                                         @foreach($primaryContexts as $context)
-                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-[var(--ui-primary-10)] text-[var(--ui-primary)] border border-[var(--ui-primary)]/20">
-                                                                @svg('heroicon-o-link', 'w-3 h-3')
-                                                                {{ $context->context_label ?? class_basename($context->context_type) }}
+                                                            @php
+                                                                // Loose coupling: wenn das Kontext-Modell ein done_at hat und es nicht null ist -> als erledigt markieren
+                                                                $contextModel = $context->context;
+                                                                $isContextDone = $contextModel && !is_null(data_get($contextModel, 'done_at'));
+                                                            @endphp
+                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border {{ $isContextDone ? 'bg-[var(--ui-success-10)] text-[var(--ui-success)] border-[var(--ui-success)]/20' : 'bg-[var(--ui-primary-10)] text-[var(--ui-primary)] border-[var(--ui-primary)]/20' }}">
+                                                                @if($isContextDone)
+                                                                    @svg('heroicon-o-check-circle', 'w-3 h-3')
+                                                                @else
+                                                                    @svg('heroicon-o-link', 'w-3 h-3')
+                                                                @endif
+                                                                <span class="{{ $isContextDone ? 'line-through' : '' }}">
+                                                                    {{ $context->context_label ?? class_basename($context->context_type) }}
+                                                                </span>
                                                             </span>
                                                         @endforeach
                                                     </div>
@@ -843,9 +854,20 @@
                     <h3 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">Verknüpfungen</h3>
                     <div class="flex flex-wrap gap-2">
                         @foreach($primaryContexts as $context)
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-[var(--ui-primary-10)] text-[var(--ui-primary)] border border-[var(--ui-primary)]/20">
-                                @svg('heroicon-o-link', 'w-4 h-4')
-                                {{ $context->context_label ?? class_basename($context->context_type) }}
+                            @php
+                                // Loose coupling: wenn das Kontext-Modell ein done_at hat und es nicht null ist -> als erledigt markieren
+                                $contextModel = $context->context;
+                                $isContextDone = $contextModel && !is_null(data_get($contextModel, 'done_at'));
+                            @endphp
+                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium border {{ $isContextDone ? 'bg-[var(--ui-success-10)] text-[var(--ui-success)] border-[var(--ui-success)]/20' : 'bg-[var(--ui-primary-10)] text-[var(--ui-primary)] border-[var(--ui-primary)]/20' }}">
+                                @if($isContextDone)
+                                    @svg('heroicon-o-check-circle', 'w-4 h-4')
+                                @else
+                                    @svg('heroicon-o-link', 'w-4 h-4')
+                                @endif
+                                <span class="{{ $isContextDone ? 'line-through' : '' }}">
+                                    {{ $context->context_label ?? class_basename($context->context_type) }}
+                                </span>
                             </span>
                         @endforeach
                     </div>
