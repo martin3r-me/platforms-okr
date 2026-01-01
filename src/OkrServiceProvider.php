@@ -30,6 +30,7 @@ class OkrServiceProvider extends ServiceProvider
                 \Platform\Okr\Console\Commands\GenerateQuarterCycleTemplates::class,
                 \Platform\Okr\Console\Commands\GenerateCycleTemplates::class,
                 \Platform\Okr\Console\Commands\UpdateCurrentCycle::class,
+                \Platform\Okr\Console\Commands\UpdateCycleStatuses::class,
                 \Platform\Okr\Console\Commands\MaintainCycleTemplates::class,
                 \Platform\Okr\Console\Commands\SeedOkrData::class,
                 \Platform\Okr\Console\Commands\SeedOkrLookupData::class,
@@ -138,6 +139,14 @@ class OkrServiceProvider extends ServiceProvider
         
         Schedule::command('okr:update-current-cycle --type=monthly')
             ->monthlyOn(1, '01:00')
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        // Monatliche Aktualisierung der Cycle-Status (active, past, draft)
+        // Läuft am 1. des Monats um 01:05 Uhr, nach der Template-Aktualisierung
+        // Setzt Status basierend auf Template-Zeitraum: past, active, draft
+        Schedule::command('okr:update-cycle-statuses')
+            ->monthlyOn(1, '01:05')
             ->withoutOverlapping()
             ->runInBackground();
 
