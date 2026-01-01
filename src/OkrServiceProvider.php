@@ -116,6 +116,31 @@ class OkrServiceProvider extends ServiceProvider
 
     private function schedulePerformanceUpdates(): void
     {
+        // Monatliche Wartung der Cycle Templates (erstellt neue Templates)
+        // Läuft am 1. des Monats um 00:30 Uhr
+        Schedule::command('okr:maintain-cycles')
+            ->monthlyOn(1, '00:30')
+            ->withoutOverlapping()
+            ->runInBackground();
+
+        // Monatliche Aktualisierung der aktuellen Cycles (is_current auf CycleTemplates)
+        // Läuft am 1. des Monats um 01:00 Uhr, nach der Template-Wartung
+        // Da alle Zyklen >= 1 Monat sind, ändert sich is_current nur monatlich
+        Schedule::command('okr:update-current-cycle --type=quarter')
+            ->monthlyOn(1, '01:00')
+            ->withoutOverlapping()
+            ->runInBackground();
+        
+        Schedule::command('okr:update-current-cycle --type=annual')
+            ->monthlyOn(1, '01:00')
+            ->withoutOverlapping()
+            ->runInBackground();
+        
+        Schedule::command('okr:update-current-cycle --type=monthly')
+            ->monthlyOn(1, '01:00')
+            ->withoutOverlapping()
+            ->runInBackground();
+
         // Tägliche Performance Updates um 02:00 Uhr (inkl. Team Performance)
         Schedule::command('okr:update-performance')
             ->dailyAt('02:00')
