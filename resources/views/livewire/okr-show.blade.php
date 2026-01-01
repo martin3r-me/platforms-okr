@@ -93,7 +93,7 @@
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
-                            @svg('heroicon-o-compass', 'w-4 h-4')
+                            @svg('heroicon-o-document-text', 'w-4 h-4')
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Strategische Orientierung</h3>
@@ -112,7 +112,7 @@
                         <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-6">
                             <div class="flex items-center gap-2 mb-3">
                                 <div class="w-6 h-6 bg-blue-500 text-white rounded flex items-center justify-center">
-                                    @svg('heroicon-o-compass', 'w-4 h-4')
+                                    @svg('heroicon-o-document-text', 'w-4 h-4')
                                 </div>
                                 <h4 class="font-semibold text-[var(--ui-secondary)]">🧭 Mission</h4>
                                 <span class="text-xs text-[var(--ui-muted)] ml-auto">

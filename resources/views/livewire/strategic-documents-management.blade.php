@@ -25,7 +25,7 @@
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-blue-500 text-white rounded-lg flex items-center justify-center">
-                        @svg('heroicon-o-compass', 'w-6 h-6')
+                        @svg('heroicon-o-document-text', 'w-6 h-6')
                     </div>
                     <div>
                         <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">🧭 Mission</h3>

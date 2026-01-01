@@ -265,7 +265,7 @@ class StrategicDocumentsManagement extends Component
     public function getTypeIcon($type)
     {
         return match($type) {
-            'mission' => 'heroicon-o-compass',
+            'mission' => 'heroicon-o-document-text',
             'vision' => 'heroicon-o-sun',
             'regnose' => 'heroicon-o-sparkles',
             default => 'heroicon-o-document',
