@@ -147,13 +147,13 @@ class OkrShow extends Component
             ],
         ]);
 
-        // Organization-Kontext setzen - beides erlauben: Zeiten + Entity-Verknüpfung (analog zu Project)
+        // Organization-Kontext setzen - beides erlauben: Zeiten + Entity-Verknüpfung + Dimensionen
         $this->dispatch('organization', [
             'context_type' => get_class($this->okr),
             'context_id' => $this->okr->id,
             'allow_time_entry' => true,
-            'allow_context_management' => true,
-            'can_link_to_entity' => true,
+            'allow_entities' => true,
+            'allow_dimensions' => true,
             // Verfügbare Relations für Children-Cascade (z.B. Cycles mit Objectives/KeyResults)
             'include_children_relations' => ['cycles', 'cycles.objectives', 'cycles.objectives.keyResults'],
         ]);

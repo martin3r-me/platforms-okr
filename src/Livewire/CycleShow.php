@@ -76,14 +76,14 @@ class CycleShow extends Component
             ],
         ]);
 
-        // Organization-Kontext setzen - nur Zeiten erlauben, keine Entity-Verknüpfung (analog zu Task)
+        // Organization-Kontext setzen - nur Zeiten erlauben, keine Entity-Verknüpfung, keine Dimensionen
         $this->dispatch('organization', [
             'context_type' => get_class($this->cycle),
             'context_id' => $this->cycle->id,
             'linked_contexts' => $this->cycle->okr ? [['type' => get_class($this->cycle->okr), 'id' => $this->cycle->okr->id]] : [],
             'allow_time_entry' => true,
-            'allow_context_management' => false,
-            'can_link_to_entity' => false,
+            'allow_entities' => false,
+            'allow_dimensions' => false,
         ]);
 
         // KeyResult-Kontext setzen - ermöglicht Verknüpfung von KeyResults mit diesem Cycle
