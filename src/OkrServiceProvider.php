@@ -142,11 +142,12 @@ class OkrServiceProvider extends ServiceProvider
             ->withoutOverlapping()
             ->runInBackground();
 
-        // Monatliche Aktualisierung der Cycle-Status (active, past, draft)
-        // Läuft am 1. des Monats um 01:05 Uhr, nach der Template-Aktualisierung
-        // Setzt Status basierend auf Template-Zeitraum: past, active, draft
+        // Tägliche Aktualisierung der Cycle-Status (active, ending_soon, past, draft)
+        // Läuft täglich um 01:05 Uhr, nach der Template-Aktualisierung
+        // Setzt Status basierend auf Template-Zeitraum: past, ending_soon, active, draft
+        // Muss täglich laufen, da sich Status jeden Tag ändern kann (z.B. active → ending_soon → past)
         Schedule::command('okr:update-cycle-statuses')
-            ->monthlyOn(1, '01:05')
+            ->dailyAt('01:05')
             ->withoutOverlapping()
             ->runInBackground();
 
