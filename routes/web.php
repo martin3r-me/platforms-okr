@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Platform\Okr\Livewire\Dashboard;
 use Platform\Okr\Livewire\OkrManagement;
 use Platform\Okr\Livewire\OkrShow;
+use Platform\Okr\Livewire\StrategicDocumentsManagement;
 use Illuminate\Http\Middleware\FrameGuard;
 
 // Dashboard
@@ -18,6 +19,9 @@ Route::get('/cycles/{cycle}', \Platform\Okr\Livewire\CycleShow::class)->name('ok
 
 // Objective Management
 Route::get('/objectives/{objective}', \Platform\Okr\Livewire\ObjectiveShow::class)->name('okr.objectives.show');
+
+// Strategic Documents Management
+Route::get('/strategic-documents', StrategicDocumentsManagement::class)->name('okr.strategic-documents.index');
 
 // Embedded Teams Config (OKR) – Platzhalter
 Route::middleware([\Platform\Core\Middleware\EmbeddedHeaderAuth::class])->get('/embedded/teams/config', function() {

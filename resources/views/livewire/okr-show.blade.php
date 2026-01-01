@@ -86,6 +86,97 @@
             
             <div class="text-sm text-[var(--ui-muted)]">Alle Einstellungen findest du über den Button oben rechts.</div>
         </div>
+
+        {{-- Strategic Documents Section (Read-Only) --}}
+        @if($this->mission || $this->vision || $this->regnose)
+            <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                            @svg('heroicon-o-compass', 'w-4 h-4')
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Strategische Orientierung</h3>
+                            <p class="text-sm text-[var(--ui-muted)]">Mission, Vision & Regnose (Read-Only)</p>
+                        </div>
+                    </div>
+                    <x-ui-button variant="secondary" size="sm" :href="route('okr.strategic-documents.index')" wire:navigate>
+                        @svg('heroicon-o-pencil', 'w-4 h-4')
+                        <span class="ml-1">Verwalten</span>
+                    </x-ui-button>
+                </div>
+
+                <div class="space-y-6">
+                    {{-- Mission --}}
+                    @if($this->mission)
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-6">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="w-6 h-6 bg-blue-500 text-white rounded flex items-center justify-center">
+                                    @svg('heroicon-o-compass', 'w-4 h-4')
+                                </div>
+                                <h4 class="font-semibold text-[var(--ui-secondary)]">🧭 Mission</h4>
+                                <span class="text-xs text-[var(--ui-muted)] ml-auto">
+                                    Version {{ $this->mission->version }} • Aktiv seit {{ $this->mission->valid_from->format('d.m.Y') }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-[var(--ui-muted)] mb-3 italic">
+                                Die Mission beschreibt, warum die Organisation heute existiert und welchen übergeordneten Zweck sie erfüllt. 
+                                Zeitlich stabil, selten geändert, keine KPIs/OKRs, Referenz für Entscheidungen.
+                            </p>
+                            <div class="prose prose-sm max-w-none text-[var(--ui-secondary)]">
+                                {!! \Illuminate\Support\Str::markdown($this->mission->content ?? '') !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Vision --}}
+                    @if($this->vision)
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-6">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="w-6 h-6 bg-purple-500 text-white rounded flex items-center justify-center">
+                                    @svg('heroicon-o-sun', 'w-4 h-4')
+                                </div>
+                                <h4 class="font-semibold text-[var(--ui-secondary)]">🌄 Vision</h4>
+                                <span class="text-xs text-[var(--ui-muted)] ml-auto">
+                                    Version {{ $this->vision->version }} • Aktiv seit {{ $this->vision->valid_from->format('d.m.Y') }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-[var(--ui-muted)] mb-3 italic">
+                                Die Vision beschreibt einen bewusst angestrebten zukünftigen Zustand der Organisation. 
+                                Normativ (gewollt, nicht prognostiziert), langfristig (5–10 Jahre), keine Key Results, dient als "North Star".
+                            </p>
+                            <div class="prose prose-sm max-w-none text-[var(--ui-secondary)]">
+                                {!! \Illuminate\Support\Str::markdown($this->vision->content ?? '') !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Regnose --}}
+                    @if($this->regnose)
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-6">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="w-6 h-6 bg-indigo-500 text-white rounded flex items-center justify-center">
+                                    @svg('heroicon-o-sparkles', 'w-4 h-4')
+                                </div>
+                                <h4 class="font-semibold text-[var(--ui-secondary)]">🔮 Regnose (Strategic Outlook)</h4>
+                                <span class="text-xs text-[var(--ui-muted)] ml-auto">
+                                    Version {{ $this->regnose->version }} • Aktiv seit {{ $this->regnose->valid_from->format('d.m.Y') }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-[var(--ui-muted)] mb-3 italic">
+                                Die Regnose beschreibt erwartete Entwicklungen im Markt, in der Technologie oder Organisation – 
+                                unabhängig vom eigenen Handeln. Deskriptiv, nicht wertend, annahmenbasiert, änderbar/überprüfbar, 
+                                Begründung für strategische Entscheidungen.
+                            </p>
+                            <div class="prose prose-sm max-w-none text-[var(--ui-secondary)]">
+                                {!! \Illuminate\Support\Str::markdown($this->regnose->content ?? '') !!}
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         {{-- OKR Settings Modal --}}
         <x-ui-modal model="okrSettingsModalShow" size="lg">
             <x-slot name="header">OKR Einstellungen</x-slot>

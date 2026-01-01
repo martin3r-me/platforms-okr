@@ -92,6 +92,83 @@
 
         {{-- Cycle Details entfernt (Info im Header enthalten) --}}
 
+        {{-- Strategic Documents Section (Read-Only) --}}
+        @if($this->mission || $this->vision || $this->regnose)
+            <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                            @svg('heroicon-o-compass', 'w-4 h-4')
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Strategische Orientierung</h3>
+                            <p class="text-sm text-[var(--ui-muted)]">Mission, Vision & Regnose (Read-Only)</p>
+                        </div>
+                    </div>
+                    <x-ui-button variant="secondary" size="sm" :href="route('okr.strategic-documents.index')" wire:navigate>
+                        @svg('heroicon-o-pencil', 'w-4 h-4')
+                        <span class="ml-1">Verwalten</span>
+                    </x-ui-button>
+                </div>
+
+                <div class="space-y-4">
+                    {{-- Mission --}}
+                    @if($this->mission)
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-5 h-5 bg-blue-500 text-white rounded flex items-center justify-center">
+                                    @svg('heroicon-o-compass', 'w-3 h-3')
+                                </div>
+                                <h4 class="font-semibold text-[var(--ui-secondary)] text-sm">🧭 Mission</h4>
+                                <span class="text-xs text-[var(--ui-muted)] ml-auto">
+                                    v{{ $this->mission->version }} • {{ $this->mission->valid_from->format('d.m.Y') }}
+                                </span>
+                            </div>
+                            <div class="prose prose-sm max-w-none text-[var(--ui-secondary)] text-sm">
+                                {!! \Illuminate\Support\Str::markdown(\Illuminate\Support\Str::limit($this->mission->content ?? '', 200)) !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Vision --}}
+                    @if($this->vision)
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-5 h-5 bg-purple-500 text-white rounded flex items-center justify-center">
+                                    @svg('heroicon-o-sun', 'w-3 h-3')
+                                </div>
+                                <h4 class="font-semibold text-[var(--ui-secondary)] text-sm">🌄 Vision</h4>
+                                <span class="text-xs text-[var(--ui-muted)] ml-auto">
+                                    v{{ $this->vision->version }} • {{ $this->vision->valid_from->format('d.m.Y') }}
+                                </span>
+                            </div>
+                            <div class="prose prose-sm max-w-none text-[var(--ui-secondary)] text-sm">
+                                {!! \Illuminate\Support\Str::markdown(\Illuminate\Support\Str::limit($this->vision->content ?? '', 200)) !!}
+                            </div>
+                        </div>
+                    @endif
+
+                    {{-- Regnose --}}
+                    @if($this->regnose)
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
+                            <div class="flex items-center gap-2 mb-2">
+                                <div class="w-5 h-5 bg-indigo-500 text-white rounded flex items-center justify-center">
+                                    @svg('heroicon-o-sparkles', 'w-3 h-3')
+                                </div>
+                                <h4 class="font-semibold text-[var(--ui-secondary)] text-sm">🔮 Regnose</h4>
+                                <span class="text-xs text-[var(--ui-muted)] ml-auto">
+                                    v{{ $this->regnose->version }} • {{ $this->regnose->valid_from->format('d.m.Y') }}
+                                </span>
+                            </div>
+                            <div class="prose prose-sm max-w-none text-[var(--ui-secondary)] text-sm">
+                                {!! \Illuminate\Support\Str::markdown(\Illuminate\Support\Str::limit($this->regnose->content ?? '', 200)) !!}
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         {{-- Objectives & Key Results --}}
         <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
             <div class="flex items-center justify-between mb-6">

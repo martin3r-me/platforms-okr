@@ -61,6 +61,37 @@
                         :errorKey="'objective.description'"
                     />
                 </div>
+                <div class="mt-4 grid grid-cols-2 gap-4">
+                    <x-ui-input-select
+                        name="objective.vision_id"
+                        label="Vision (optional)"
+                        :options="$this->availableVisions->toArray()"
+                        wire:model.live.debounce.500ms="objective.vision_id"
+                        :nullable="true"
+                        placeholder="Keine Vision ausgewählt"
+                    />
+                    <x-ui-input-select
+                        name="objective.regnose_id"
+                        label="Regnose (optional)"
+                        :options="$this->availableRegnoses->toArray()"
+                        wire:model.live.debounce.500ms="objective.regnose_id"
+                        :nullable="true"
+                        placeholder="Keine Regnose ausgewählt"
+                    />
+                </div>
+                @if($objective->vision || $objective->regnose)
+                    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p class="text-sm text-blue-800 font-medium mb-2">Strategische Referenzen:</p>
+                        <div class="space-y-1 text-sm text-blue-700">
+                            @if($objective->vision)
+                                <div>🌄 Vision: {{ $objective->vision->title }}</div>
+                            @endif
+                            @if($objective->regnose)
+                                <div>🔮 Regnose: {{ $objective->regnose->title }}</div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
             </div>
 
             {{-- Key Results --}}

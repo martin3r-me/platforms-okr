@@ -39,6 +39,8 @@ class Objective extends Model
         'is_mountain',
         'performance_score',
         'order',
+        'vision_id',
+        'regnose_id',
     ];
 
     protected static function booted(): void
@@ -101,5 +103,21 @@ class Objective extends Model
     public function performance(): HasOne
     {
         return $this->hasOne(ObjectivePerformance::class)->latest();
+    }
+
+    /**
+     * Vision, die dieses Objective referenziert (optional)
+     */
+    public function vision(): BelongsTo
+    {
+        return $this->belongsTo(StrategicDocument::class, 'vision_id');
+    }
+
+    /**
+     * Regnose, die dieses Objective referenziert (optional)
+     */
+    public function regnose(): BelongsTo
+    {
+        return $this->belongsTo(StrategicDocument::class, 'regnose_id');
     }
 }

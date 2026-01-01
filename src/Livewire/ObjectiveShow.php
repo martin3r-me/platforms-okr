@@ -5,6 +5,7 @@ namespace Platform\Okr\Livewire;
 use Livewire\Component;
 use Platform\Okr\Models\Objective;
 use Platform\Okr\Models\KeyResult;
+use Platform\Okr\Models\StrategicDocument;
 use Platform\Core\Models\User;
 use Livewire\Attributes\Computed;
 
@@ -30,6 +31,8 @@ class ObjectiveShow extends Component
         'objective.title' => 'required|string|max:255',
         'objective.description' => 'nullable|string',
         'objective.order' => 'required|integer|min:0',
+        'objective.vision_id' => 'nullable|exists:okr_strategic_documents,id',
+        'objective.regnose_id' => 'nullable|exists:okr_strategic_documents,id',
 
         'keyResultForm.title' => 'required|string|max:255',
         'keyResultForm.description' => 'nullable|string',
@@ -42,13 +45,37 @@ class ObjectiveShow extends Component
     public function mount(Objective $objective)
     {
         $this->objective = $objective;
-        $this->objective->load(['cycle', 'okr', 'keyResults.performances']);
+        $this->objective->load(['cycle', 'okr', 'keyResults.performances', 'vision', 'regnose']);
     }
 
     #[Computed]
     public function users()
     {
         return User::where('current_team_id', auth()->user()->current_team_id)->get();
+    }
+
+    #[Computed]
+    public function availableVisions()
+    {
+        if (!$this->objective->okr) {
+            return collect();
+        }
+        return StrategicDocument::active('vision')
+            ->forTeam($this->objective->okr->team_id)
+            ->get()
+            ->mapWithKeys(fn($doc) => [$doc->id => $doc->title]);
+    }
+
+    #[Computed]
+    public function availableRegnoses()
+    {
+        if (!$this->objective->okr) {
+            return collect();
+        }
+        return StrategicDocument::active('regnose')
+            ->forTeam($this->objective->okr->team_id)
+            ->get()
+            ->mapWithKeys(fn($doc) => [$doc->id => $doc->title]);
     }
 
     public function updated($property)
@@ -68,6 +95,8 @@ class ObjectiveShow extends Component
             'objective.title' => 'required|string|max:255',
             'objective.description' => 'nullable|string',
             'objective.order' => 'required|integer|min:0',
+            'objective.vision_id' => 'nullable|exists:okr_strategic_documents,id',
+            'objective.regnose_id' => 'nullable|exists:okr_strategic_documents,id',
         ]);
 
         $this->objective->save();

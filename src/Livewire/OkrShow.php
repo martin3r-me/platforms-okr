@@ -6,6 +6,7 @@ use Livewire\Component;
 use Platform\Okr\Models\Okr;
 use Platform\Okr\Models\Cycle;
 use Platform\Okr\Models\CycleTemplate;
+use Platform\Okr\Models\StrategicDocument;
 use Platform\Core\Models\User;
 use Platform\Core\Enums\StandardRole;
 use Livewire\Attributes\Computed;
@@ -170,6 +171,30 @@ class OkrShow extends Component
     public function members()
     {
         return $this->okr->members()->withPivot('role')->orderBy('name')->get();
+    }
+
+    #[Computed]
+    public function mission()
+    {
+        return StrategicDocument::active('mission')
+            ->forTeam($this->okr->team_id)
+            ->first();
+    }
+
+    #[Computed]
+    public function vision()
+    {
+        return StrategicDocument::active('vision')
+            ->forTeam($this->okr->team_id)
+            ->first();
+    }
+
+    #[Computed]
+    public function regnose()
+    {
+        return StrategicDocument::active('regnose')
+            ->forTeam($this->okr->team_id)
+            ->first();
     }
 
     public function updated($property)

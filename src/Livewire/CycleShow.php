@@ -5,6 +5,7 @@ namespace Platform\Okr\Livewire;
 use Livewire\Component;
 use Platform\Okr\Models\Cycle;
 use Platform\Okr\Models\Objective;
+use Platform\Okr\Models\StrategicDocument;
 use Platform\Core\Models\User;
 use Livewire\Attributes\Computed;
 
@@ -118,6 +119,39 @@ class CycleShow extends Component
         }
         
         return $members->sortBy('name')->values();
+    }
+
+    #[Computed]
+    public function mission()
+    {
+        if (!$this->cycle->okr) {
+            return null;
+        }
+        return StrategicDocument::active('mission')
+            ->forTeam($this->cycle->okr->team_id)
+            ->first();
+    }
+
+    #[Computed]
+    public function vision()
+    {
+        if (!$this->cycle->okr) {
+            return null;
+        }
+        return StrategicDocument::active('vision')
+            ->forTeam($this->cycle->okr->team_id)
+            ->first();
+    }
+
+    #[Computed]
+    public function regnose()
+    {
+        if (!$this->cycle->okr) {
+            return null;
+        }
+        return StrategicDocument::active('regnose')
+            ->forTeam($this->cycle->okr->team_id)
+            ->first();
     }
 
     public function updated($property)

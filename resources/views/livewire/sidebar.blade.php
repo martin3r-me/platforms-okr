@@ -15,6 +15,10 @@
             @svg('heroicon-o-flag', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">OKRs</span>
         </x-ui-sidebar-item>
+        <x-ui-sidebar-item :href="route('okr.strategic-documents.index')">
+            @svg('heroicon-o-compass', 'w-4 h-4 text-[var(--ui-secondary)]')
+            <span class="ml-2 text-sm">Strategische Dokumente</span>
+        </x-ui-sidebar-item>
         <x-ui-sidebar-item type="button" wire:click="openCreateModal">
             @svg('heroicon-o-plus', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">OKR anlegen</span>
@@ -29,6 +33,9 @@
             </a>
             <a href="{{ route('okr.okrs.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
                 @svg('heroicon-o-flag', 'w-5 h-5')
+            </a>
+            <a href="{{ route('okr.strategic-documents.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
+                @svg('heroicon-o-compass', 'w-5 h-5')
             </a>
             <button type="button" wire:click="openCreateModal" class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
                 @svg('heroicon-o-plus', 'w-5 h-5')

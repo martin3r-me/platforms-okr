@@ -43,6 +43,7 @@ class ModalKeyResult extends Component
     public function setContext(array $payload = []): void
     {
         $push = (bool) ($payload['push'] ?? false);
+        $shouldOpen = (bool) ($payload['open_modal'] ?? false);
 
         if ($push) {
             // Aktuellen Kontext sichern (falls vorhanden), damit wir nach dem Schließen zurückspringen können
@@ -62,6 +63,11 @@ class ModalKeyResult extends Component
             $this->loadKeyResults();
             $this->loadLinkedKeyResults();
             $this->loadCoveredKeyResults();
+        }
+
+        // Optional: Modal direkt öffnen (verhindert Race Conditions zwischen keyresult und keyresult:open)
+        if ($shouldOpen) {
+            $this->open();
         }
     }
 
