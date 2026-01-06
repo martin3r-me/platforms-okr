@@ -81,6 +81,9 @@ class GetKeyResultTool implements ToolContract, ToolMetadataContract
                     'description' => $kr->description,
                     'order' => $kr->order,
                     'performance_score' => $kr->performance_score,
+                    // Normalisierte Sicht: value_type = boolean|absolute|relative (relative == percentage)
+                    'value_summary' => $this->buildKeyResultValueSummary($kr->performance),
+                    // Raw: bleibt kompatibel zu bestehenden Clients
                     'latest_performance' => $kr->performance ? [
                         'type' => $kr->performance->type,
                         'is_completed' => (bool)$kr->performance->is_completed,

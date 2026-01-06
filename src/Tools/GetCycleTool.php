@@ -79,7 +79,7 @@ class GetCycleTool implements ToolContract, ToolMetadataContract
                         'order' => $o->order,
                         'performance_score' => $o->performance_score,
                         'performance' => $o->performance ? [
-                            'performance_date' => $o->performance->performance_date?->toDateString(),
+                            'performance_date' => $this->dateToYmd($o->performance->performance_date),
                             'performance_score' => $o->performance->performance_score,
                             'completion_percentage' => $o->performance->completion_percentage,
                         ] : null,
@@ -91,6 +91,7 @@ class GetCycleTool implements ToolContract, ToolMetadataContract
                                 'description' => $kr->description,
                                 'order' => $kr->order,
                                 'performance_score' => $kr->performance_score,
+                                'value_summary' => $this->buildKeyResultValueSummary($kr->performance),
                                 'latest_performance' => $kr->performance ? [
                                     'type' => $kr->performance->type,
                                     'is_completed' => (bool)$kr->performance->is_completed,
@@ -119,12 +120,12 @@ class GetCycleTool implements ToolContract, ToolMetadataContract
                         'id' => $cycle->template->id,
                         'label' => $cycle->template->label,
                         'type' => $cycle->template->type,
-                        'starts_at' => $cycle->template->starts_at?->toDateString(),
-                        'ends_at' => $cycle->template->ends_at?->toDateString(),
+                        'starts_at' => $this->dateToYmd($cycle->template->starts_at),
+                        'ends_at' => $this->dateToYmd($cycle->template->ends_at),
                         'is_current' => (bool)$cycle->template->is_current,
                     ] : null,
                     'performance' => $cycle->performance ? [
-                        'performance_date' => $cycle->performance->performance_date?->toDateString(),
+                        'performance_date' => $this->dateToYmd($cycle->performance->performance_date),
                         'performance_score' => $cycle->performance->performance_score,
                         'completion_percentage' => $cycle->performance->completion_percentage,
                     ] : null,

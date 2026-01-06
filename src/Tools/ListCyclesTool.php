@@ -110,8 +110,8 @@ class ListCyclesTool implements ToolContract, ToolMetadataContract
                         'id' => $c->template->id,
                         'label' => $c->template->label,
                         'type' => $c->template->type,
-                        'starts_at' => $c->template->starts_at?->toDateString(),
-                        'ends_at' => $c->template->ends_at?->toDateString(),
+                        'starts_at' => $this->dateToYmd($c->template->starts_at),
+                        'ends_at' => $this->dateToYmd($c->template->ends_at),
                         'is_current' => (bool)$c->template->is_current,
                     ] : null,
                     'counts' => $includeCounts ? [

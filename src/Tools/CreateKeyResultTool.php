@@ -7,6 +7,7 @@ use Platform\Core\Contracts\ToolContext;
 use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
 use Platform\Okr\Models\KeyResult;
+use Platform\Okr\Models\KeyResultPerformance;
 use Platform\Okr\Models\Objective;
 use Platform\Okr\Tools\Concerns\ResolvesOkrScope;
 
@@ -35,6 +36,27 @@ class CreateKeyResultTool implements ToolContract, ToolMetadataContract
                 'description' => ['type' => 'string'],
                 'order' => ['type' => 'integer', 'description' => 'Optional: Reihenfolge. Wenn nicht gesetzt, ans Ende.'],
                 'manager_user_id' => ['type' => 'integer'],
+                // UI parity (optional): KR-Typ + initiale Performance-Version
+                'value_type' => [
+                    'type' => 'string',
+                    'enum' => ['boolean', 'absolute', 'relative'],
+                    'description' => 'Optional: Typ des Key Results. boolean=erledigt/offen, absolute=current/target, relative=current/target (intern percentage).',
+                ],
+                'target_value' => [
+                    'type' => 'number',
+                    'description' => 'Optional: Zielwert. Erforderlich, wenn du beim Erstellen eine Performance setzen willst und value_type != boolean.',
+                ],
+                'current_value' => [
+                    'description' => 'Optional: Aktueller Wert. Bei boolean kannst du true/false senden; sonst Zahl.',
+                    'oneOf' => [
+                        ['type' => 'number'],
+                        ['type' => 'boolean'],
+                    ],
+                ],
+                'is_completed' => [
+                    'type' => 'boolean',
+                    'description' => 'Optional: Nur relevant für boolean (erledigt/offen). Wenn gesetzt, wird current_value entsprechend normalisiert.',
+                ],
             ],
             'required' => ['cycle_id', 'objective_id', 'title'],
         ];
@@ -85,6 +107,50 @@ class CreateKeyResultTool implements ToolContract, ToolMetadataContract
                 'description' => $arguments['description'] ?? null,
                 'order' => $order,
             ]);
+
+            // Optional: initiale Performance-Version erzeugen (wie UI), aber nur wenn Felder mitgegeben wurden
+            $valueType = array_key_exists('value_type', $arguments) ? ($arguments['value_type'] ?? null) : null;
+            $hasPerfInput = array_key_exists('value_type', $arguments)
+                || array_key_exists('target_value', $arguments)
+                || array_key_exists('current_value', $arguments)
+                || array_key_exists('is_completed', $arguments);
+            if ($hasPerfInput) {
+                $perfType = $this->mapValueTypeToPerformanceType(is_string($valueType) ? $valueType : null);
+                if (!$perfType) {
+                    return ToolResult::error('VALIDATION_ERROR', "value_type muss einer der Werte sein: boolean|absolute|relative.");
+                }
+
+                $isCompleted = (bool)($arguments['is_completed'] ?? false);
+
+                $target = $arguments['target_value'] ?? null;
+                if ($perfType !== 'boolean' && !is_numeric($target)) {
+                    return ToolResult::error('VALIDATION_ERROR', "target_value ist erforderlich (number), wenn value_type != boolean und eine Performance gesetzt wird.");
+                }
+
+                $currentArg = $arguments['current_value'] ?? null;
+                $current = null;
+                if ($perfType === 'boolean') {
+                    // UI: boolean target=1, current=1/0, is_completed spiegelt current
+                    $completed = array_key_exists('is_completed', $arguments)
+                        ? (bool)$arguments['is_completed']
+                        : (bool)$currentArg;
+                    $isCompleted = $completed;
+                    $target = 1.0;
+                    $current = $completed ? 1.0 : 0.0;
+                } else {
+                    $current = is_numeric($currentArg) ? (float)$currentArg : 0.0;
+                }
+
+                $kr->performances()->create([
+                    'type' => $perfType,
+                    'target_value' => $perfType === 'boolean' ? 1.0 : (float)$target,
+                    'current_value' => $current,
+                    'is_completed' => $perfType === 'boolean' ? $isCompleted : false,
+                    'performance_score' => $perfType === 'boolean' ? ($isCompleted ? 1.0 : 0.0) : 0.0,
+                    'team_id' => $kr->team_id,
+                    'user_id' => $context->user->id,
+                ]);
+            }
 
             return ToolResult::success([
                 'id' => $kr->id,

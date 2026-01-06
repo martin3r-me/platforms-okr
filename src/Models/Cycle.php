@@ -140,7 +140,9 @@ class Cycle extends Model implements HasDisplayName
             'objective_id',   // Foreign key on KeyResult
             'id',             // Local key on Cycle
             'id'              // Local key on Objective
-        )->join('okr_objectives', 'okr_objectives.id', '=', 'okr_key_results.objective_id')
+        )
+         // NOTE: HasManyThrough already joins the through table (okr_objectives).
+         // Adding an extra join here causes "Not unique table/alias: okr_objectives" on count() queries.
          ->orderBy('okr_objectives.order')
          ->orderBy('okr_key_results.order')
          ->select('okr_key_results.*'); // wichtig: damit du nicht auch alle Objective-Spalten bekommst

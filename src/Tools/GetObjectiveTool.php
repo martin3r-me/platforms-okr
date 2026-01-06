@@ -72,6 +72,7 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
                         'description' => $kr->description,
                         'order' => $kr->order,
                         'performance_score' => $kr->performance_score,
+                        'value_summary' => $this->buildKeyResultValueSummary($kr->performance),
                         'latest_performance' => $kr->performance ? [
                             'type' => $kr->performance->type,
                             'is_completed' => (bool)$kr->performance->is_completed,
@@ -96,7 +97,7 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
                     'performance_score' => $obj->performance_score,
                     'order' => $obj->order,
                     'performance' => $obj->performance ? [
-                        'performance_date' => $obj->performance->performance_date?->toDateString(),
+                        'performance_date' => $this->dateToYmd($obj->performance->performance_date),
                         'performance_score' => $obj->performance->performance_score,
                         'completion_percentage' => $obj->performance->completion_percentage,
                     ] : null,

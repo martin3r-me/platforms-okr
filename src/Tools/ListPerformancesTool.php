@@ -86,7 +86,7 @@ class ListPerformancesTool implements ToolContract, ToolMetadataContract
                         ->limit($limit)
                         ->get();
                     $items = $rows->map(fn(TeamPerformance $p) => [
-                        'performance_date' => $p->performance_date?->toDateString(),
+                        'performance_date' => $this->dateToYmd($p->performance_date),
                         'average_score' => $p->average_score,
                         'active_cycles' => $p->active_cycles,
                         'current_cycles' => $p->current_cycles,
@@ -114,7 +114,7 @@ class ListPerformancesTool implements ToolContract, ToolMetadataContract
                         ->limit($limit)
                         ->get();
                     $items = $rows->map(fn(OkrPerformance $p) => [
-                        'performance_date' => $p->performance_date?->toDateString(),
+                        'performance_date' => $this->dateToYmd($p->performance_date),
                         'performance_score' => $p->performance_score,
                         'completion_percentage' => $p->completion_percentage,
                         'completed_cycles' => $p->completed_cycles,
@@ -137,7 +137,7 @@ class ListPerformancesTool implements ToolContract, ToolMetadataContract
                         ->limit($limit)
                         ->get();
                     $items = $rows->map(fn(CyclePerformance $p) => [
-                        'performance_date' => $p->performance_date?->toDateString(),
+                        'performance_date' => $this->dateToYmd($p->performance_date),
                         'performance_score' => $p->performance_score,
                         'completion_percentage' => $p->completion_percentage,
                         'completed_objectives' => $p->completed_objectives,
@@ -158,7 +158,7 @@ class ListPerformancesTool implements ToolContract, ToolMetadataContract
                         ->limit($limit)
                         ->get();
                     $items = $rows->map(fn(ObjectivePerformance $p) => [
-                        'performance_date' => $p->performance_date?->toDateString(),
+                        'performance_date' => $this->dateToYmd($p->performance_date),
                         'performance_score' => $p->performance_score,
                         'completion_percentage' => $p->completion_percentage,
                         'completed_key_results' => $p->completed_key_results,

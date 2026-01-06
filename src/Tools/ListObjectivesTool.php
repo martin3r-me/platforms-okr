@@ -105,6 +105,7 @@ class ListObjectivesTool implements ToolContract, ToolMetadataContract
                             'title' => $kr->title,
                             'order' => $kr->order,
                             'performance_score' => $kr->performance_score,
+                            'value_summary' => $this->buildKeyResultValueSummary($kr->performance),
                             'latest_performance' => $kr->performance ? [
                                 'type' => $kr->performance->type,
                                 'is_completed' => (bool)$kr->performance->is_completed,

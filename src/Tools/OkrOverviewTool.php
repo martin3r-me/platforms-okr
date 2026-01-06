@@ -57,6 +57,29 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                 ],
                 'key_results' => [
                     'description' => 'Messbare Ergebnisse zu einem Objective. Gehören indirekt immer zu einem Cycle (über objective).',
+                    'value_types' => [
+                        'note' => 'Der KR-Typ ist aktuell am latest_performance.type (okr_key_result_performances.type) gespeichert.',
+                        'supported' => [
+                            'boolean' => [
+                                'meaning' => 'Binär: erreicht oder nicht erreicht.',
+                                'fields' => ['is_completed'],
+                            ],
+                            'absolute' => [
+                                'meaning' => 'Absolut: current_value / target_value.',
+                                'fields' => ['current_value', 'target_value'],
+                            ],
+                            'relative' => [
+                                'meaning' => 'Relativ: current_value / target_value (intern als percentage gespeichert).',
+                                'mapping' => ['relative' => 'percentage'],
+                                'fields' => ['current_value', 'target_value'],
+                            ],
+                        ],
+                        'internal_types' => [
+                            'percentage' => 'wird nach außen als relative gezeigt',
+                            'calculated' => 'wird nach außen als absolute gezeigt (z.B. Counter Sync)',
+                        ],
+                        'tool_output' => 'Tools liefern zusätzlich value_summary.value_type (boolean|absolute|relative) + value + progress_percent.',
+                    ],
                 ],
                 'performances' => [
                     'description' => 'Snapshots/Performance-Daten (Team/Okr/Cycle/Objective/KeyResult). READ-ONLY.',
