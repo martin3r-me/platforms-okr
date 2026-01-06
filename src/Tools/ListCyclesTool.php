@@ -22,7 +22,7 @@ class ListCyclesTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/cycles?okr_id={id}&filters=[...]&search=...&sort=[...] - Listet Cycles (root-scoped) inkl. Template.';
+        return 'GET /okr/cycles?okr_id={id}&okr_ids[]=&cycle_template_id={id}&only_current=true&filters=[...]&search=...&sort=[...] - Listet Cycles (root-scoped) inkl. Template. okr_id ist optional; für mehrere OKRs nutze okr_ids[].';
     }
 
     public function getSchema(): array
@@ -38,6 +38,15 @@ class ListCyclesTool implements ToolContract, ToolMetadataContract
                     'okr_id' => [
                         'type' => 'integer',
                         'description' => 'Optional: Filter nach OKR-ID.',
+                    ],
+                    'okr_ids' => [
+                        'type' => 'array',
+                        'items' => ['type' => 'integer'],
+                        'description' => 'Optional: Filter nach mehreren OKR-IDs (Batch). Wenn gesetzt, werden Cycles über alle okr_ids gelistet.',
+                    ],
+                    'cycle_template_id' => [
+                        'type' => 'integer',
+                        'description' => 'Optional: Direkter Filter nach cycle_template_id (gleichwertig zu filters: [{field:cycle_template_id,op:eq,value:"..."}]).',
                     ],
                     'only_current' => [
                         'type' => 'boolean',
@@ -65,6 +74,17 @@ class ListCyclesTool implements ToolContract, ToolMetadataContract
             }
 
             $okrId = $this->normalizeId($arguments['okr_id'] ?? null);
+            $okrIds = $arguments['okr_ids'] ?? null;
+            $okrIdsNormalized = [];
+            if (is_array($okrIds)) {
+                foreach ($okrIds as $v) {
+                    $id = $this->normalizeId($v);
+                    if ($id) $okrIdsNormalized[] = $id;
+                }
+                $okrIdsNormalized = array_values(array_unique($okrIdsNormalized));
+            }
+
+            $cycleTemplateId = $this->normalizeId($arguments['cycle_template_id'] ?? null);
             $onlyCurrent = (bool)($arguments['only_current'] ?? false);
             $includeCounts = (bool)($arguments['include_objectives_count'] ?? false);
 
@@ -72,11 +92,22 @@ class ListCyclesTool implements ToolContract, ToolMetadataContract
                 ->where('team_id', $teamId)
                 ->with(['template', 'okr']);
 
-            if ($okrId) {
-                $query->where('okr_id', $okrId);
+            // okr_id / okr_ids: beides optional; wenn beides gesetzt, wird zusammengeführt
+            if ($okrId || !empty($okrIdsNormalized)) {
+                $ids = $okrIdsNormalized;
+                if ($okrId) $ids[] = $okrId;
+                $ids = array_values(array_unique($ids));
+                if (count($ids) === 1) {
+                    $query->where('okr_id', $ids[0]);
+                } else {
+                    $query->whereIn('okr_id', $ids);
+                }
             }
             if ($onlyCurrent) {
                 $query->whereHas('template', fn($q) => $q->where('is_current', true));
+            }
+            if ($cycleTemplateId) {
+                $query->where('cycle_template_id', $cycleTemplateId);
             }
 
             $this->applyStandardFilters($query, $arguments, [
@@ -86,14 +117,19 @@ class ListCyclesTool implements ToolContract, ToolMetadataContract
             $this->applyStandardSort($query, $arguments, ['status', 'type', 'created_at', 'updated_at'], 'created_at', 'desc');
             $this->applyStandardPagination($query, $arguments);
 
+            if ($includeCounts) {
+                // Avoid N+1: compute counts in the DB
+                $query->withCount(['objectives', 'keyResults']);
+            }
+
             $cycles = $query->get();
 
             $items = $cycles->map(function (Cycle $c) use ($includeCounts) {
                 $objCount = null;
                 $krCount = null;
                 if ($includeCounts) {
-                    $objCount = $c->objectives()->count();
-                    $krCount = $c->keyResults()->count();
+                    $objCount = (int)($c->objectives_count ?? 0);
+                    $krCount = (int)($c->key_results_count ?? 0);
                 }
 
                 return [
