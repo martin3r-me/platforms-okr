@@ -93,6 +93,9 @@ class OkrServiceProvider extends ServiceProvider
         
         // Schritt 7: Scheduler für Performance Updates
         $this->schedulePerformanceUpdates();
+
+        // Schritt 8: Tools registrieren (für AI/Chat) – analog zum Planner-Modul
+        $this->registerTools();
     }
 
     private function registerLivewireComponents(): void
@@ -162,5 +165,45 @@ class OkrServiceProvider extends ServiceProvider
             ->everyFifteenMinutes()
             ->withoutOverlapping()
             ->runInBackground();
+    }
+
+    /**
+     * Registriert OKR-Tools für die AI/Chat-Funktionalität.
+     */
+    protected function registerTools(): void
+    {
+        try {
+            $registry = resolve(\Platform\Core\Tools\ToolRegistry::class);
+
+            // Entry / Overview
+            $registry->register(new \Platform\Okr\Tools\OkrOverviewTool());
+
+            // Read tools
+            $registry->register(new \Platform\Okr\Tools\ListOkrsTool());
+            $registry->register(new \Platform\Okr\Tools\GetOkrTool());
+            $registry->register(new \Platform\Okr\Tools\ListCycleTemplatesTool());
+            $registry->register(new \Platform\Okr\Tools\ListCyclesTool());
+            $registry->register(new \Platform\Okr\Tools\GetCycleTool());
+            $registry->register(new \Platform\Okr\Tools\ListObjectivesTool());
+            $registry->register(new \Platform\Okr\Tools\GetObjectiveTool());
+            $registry->register(new \Platform\Okr\Tools\ListKeyResultsTool());
+            $registry->register(new \Platform\Okr\Tools\GetKeyResultTool());
+            $registry->register(new \Platform\Okr\Tools\ListPerformancesTool());
+
+            // Write tools (Cycles/Objectives/KRs)
+            $registry->register(new \Platform\Okr\Tools\CreateCycleTool());
+            $registry->register(new \Platform\Okr\Tools\UpdateCycleTool());
+            $registry->register(new \Platform\Okr\Tools\DeleteCycleTool());
+
+            $registry->register(new \Platform\Okr\Tools\CreateObjectiveTool());
+            $registry->register(new \Platform\Okr\Tools\UpdateObjectiveTool());
+            $registry->register(new \Platform\Okr\Tools\DeleteObjectiveTool());
+
+            $registry->register(new \Platform\Okr\Tools\CreateKeyResultTool());
+            $registry->register(new \Platform\Okr\Tools\UpdateKeyResultTool());
+            $registry->register(new \Platform\Okr\Tools\DeleteKeyResultTool());
+        } catch (\Throwable $e) {
+            \Log::warning('OKR: Tool-Registrierung fehlgeschlagen', ['error' => $e->getMessage()]);
+        }
     }
 }
