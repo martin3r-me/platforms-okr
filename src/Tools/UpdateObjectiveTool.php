@@ -6,6 +6,7 @@ use Platform\Core\Contracts\ToolContract;
 use Platform\Core\Contracts\ToolContext;
 use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
+use Platform\Core\Models\User;
 use Platform\Okr\Models\Objective;
 use Platform\Okr\Tools\Concerns\ResolvesOkrScope;
 
@@ -20,7 +21,7 @@ class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'PUT /okr/objectives/{id} - Aktualisiert ein Objective. Optional kann cycle_id mitgegeben werden, wird aber nicht geändert.';
+        return 'PUT /okr/objectives/{id} - Aktualisiert ein Objective. cycle_id optional nur zur Kontext-Validierung. Hinweis: manager_user_id nur setzen, wenn du den Owner wirklich ändern willst.';
     }
 
     public function getSchema(): array
@@ -68,11 +69,24 @@ class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
             }
 
             $dirty = false;
-            foreach (['title', 'description', 'is_mountain', 'order', 'manager_user_id'] as $field) {
+            foreach (['title', 'description', 'is_mountain', 'order'] as $field) {
                 if (array_key_exists($field, $arguments)) {
                     $obj->{$field} = $arguments[$field];
                     $dirty = true;
                 }
+            }
+
+            // manager_user_id: nur ändern, wenn explizit mitgegeben; 0/'' => null; sonst FK-validieren
+            if (array_key_exists('manager_user_id', $arguments)) {
+                $mgr = $this->normalizeId($arguments['manager_user_id'] ?? null); // 0 => null
+                if ($mgr !== null) {
+                    $exists = User::query()->where('id', $mgr)->exists();
+                    if (!$exists) {
+                        return ToolResult::error('VALIDATION_ERROR', "manager_user_id={$mgr} existiert nicht.");
+                    }
+                }
+                $obj->manager_user_id = $mgr;
+                $dirty = true;
             }
             if ($dirty) {
                 $obj->save();
