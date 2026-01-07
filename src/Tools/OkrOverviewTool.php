@@ -38,6 +38,11 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                 'team_resolution' => 'Tools sollten intern die Root-Team-ID aus dem aktuellen Team ableiten.',
             ],
             'entities' => [
+                'strategic_documents' => [
+                    'description' => 'Strategische Dokumente im Root-Team: Mission, Vision, Regnose. Versionierbar; genau eine Version pro Typ kann aktiv sein. Objectives können Vision/Regnose referenzieren.',
+                    'types' => ['mission', 'vision', 'regnose'],
+                    'relations' => ['objective -> vision (optional)', 'objective -> regnose (optional)'],
+                ],
                 'okrs' => [
                     'description' => 'OKR-Container (z.B. Company/Team OKR). Enthält mehrere Cycles.',
                     'relations' => ['okr -> cycles', 'okr -> objectives (über cycles)', 'okr -> key_results (über objectives)'],
@@ -97,7 +102,7 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                 ],
                 'create_objective' => [
                     'step_1' => 'okr.cycles.GET oder okr.cycle.GET → cycle_id auswählen',
-                    'step_2' => 'okr.objectives.POST (cycle_id + title + ...)',
+                    'step_2' => 'okr.objectives.POST (cycle_id + title + ... + optional vision_id/regnose_id)',
                 ],
                 'create_key_result' => [
                     'step_1' => 'okr.objectives.GET (cycle_id) → objective_id auswählen',
@@ -113,6 +118,7 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                     'overview' => 'okr.overview.GET',
                 ],
                 'read' => [
+                    'strategic_documents' => ['okr.strategic_documents.GET', 'okr.strategic_document.GET'],
                     'okrs' => ['okr.okrs.GET', 'okr.okr.GET'],
                     'cycle_templates' => ['okr.cycle_templates.GET'],
                     'cycles' => ['okr.cycles.GET', 'okr.cycle.GET'],
@@ -121,6 +127,7 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                     'performances' => ['okr.performances.GET'],
                 ],
                 'write' => [
+                    'strategic_documents' => ['okr.strategic_documents.POST', 'okr.strategic_documents.PUT'],
                     'cycles' => ['okr.cycles.POST', 'okr.cycles.PUT', 'okr.cycles.DELETE'],
                     'objectives' => ['okr.objectives.POST', 'okr.objectives.PUT', 'okr.objectives.DELETE'],
                     'key_results' => ['okr.key_results.POST', 'okr.key_results.PUT', 'okr.key_results.DELETE'],

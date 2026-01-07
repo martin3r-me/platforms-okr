@@ -189,6 +189,8 @@ class OkrServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Okr\Tools\ListKeyResultsTool());
             $registry->register(new \Platform\Okr\Tools\GetKeyResultTool());
             $registry->register(new \Platform\Okr\Tools\ListPerformancesTool());
+            $registry->register(new \Platform\Okr\Tools\ListStrategicDocumentsTool());
+            $registry->register(new \Platform\Okr\Tools\GetStrategicDocumentTool());
 
             // Write tools (Cycles/Objectives/KRs)
             $registry->register(new \Platform\Okr\Tools\CreateCycleTool());
@@ -202,6 +204,9 @@ class OkrServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Okr\Tools\CreateKeyResultTool());
             $registry->register(new \Platform\Okr\Tools\UpdateKeyResultTool());
             $registry->register(new \Platform\Okr\Tools\DeleteKeyResultTool());
+
+            $registry->register(new \Platform\Okr\Tools\CreateStrategicDocumentTool());
+            $registry->register(new \Platform\Okr\Tools\UpdateStrategicDocumentTool());
         } catch (\Throwable $e) {
             \Log::warning('OKR: Tool-Registrierung fehlgeschlagen', ['error' => $e->getMessage()]);
         }

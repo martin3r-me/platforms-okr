@@ -8,6 +8,7 @@ use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
 use Platform\Core\Models\User;
 use Platform\Okr\Models\Objective;
+use Platform\Okr\Models\StrategicDocument;
 use Platform\Okr\Tools\Concerns\ResolvesOkrScope;
 
 class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
@@ -36,6 +37,8 @@ class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
                 'is_mountain' => ['type' => 'boolean'],
                 'order' => ['type' => 'integer'],
                 'manager_user_id' => ['type' => 'integer'],
+                'vision_id' => ['type' => 'integer', 'description' => 'Optional: StrategicDocument-ID vom Typ vision (0/"" => null).'],
+                'regnose_id' => ['type' => 'integer', 'description' => 'Optional: StrategicDocument-ID vom Typ regnose (0/"" => null).'],
             ],
             'required' => ['id'],
         ];
@@ -86,6 +89,39 @@ class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
                     }
                 }
                 $obj->manager_user_id = $mgr;
+                $dirty = true;
+            }
+
+            // vision_id/regnose_id: optional setzen/entfernen (UI-Parität)
+            if (array_key_exists('vision_id', $arguments)) {
+                $visionId = $this->normalizeId($arguments['vision_id'] ?? null);
+                if ($visionId !== null) {
+                    $ok = StrategicDocument::query()
+                        ->where('team_id', $teamId)
+                        ->where('type', 'vision')
+                        ->where('id', $visionId)
+                        ->exists();
+                    if (!$ok) {
+                        return ToolResult::error('VALIDATION_ERROR', "vision_id={$visionId} ist ungültig (muss existieren, Typ=vision, Team-ID={$teamId}).");
+                    }
+                }
+                $obj->vision_id = $visionId;
+                $dirty = true;
+            }
+
+            if (array_key_exists('regnose_id', $arguments)) {
+                $regnoseId = $this->normalizeId($arguments['regnose_id'] ?? null);
+                if ($regnoseId !== null) {
+                    $ok = StrategicDocument::query()
+                        ->where('team_id', $teamId)
+                        ->where('type', 'regnose')
+                        ->where('id', $regnoseId)
+                        ->exists();
+                    if (!$ok) {
+                        return ToolResult::error('VALIDATION_ERROR', "regnose_id={$regnoseId} ist ungültig (muss existieren, Typ=regnose, Team-ID={$teamId}).");
+                    }
+                }
+                $obj->regnose_id = $regnoseId;
                 $dirty = true;
             }
             if ($dirty) {

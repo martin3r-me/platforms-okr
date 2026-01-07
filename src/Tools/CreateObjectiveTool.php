@@ -8,6 +8,7 @@ use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
 use Platform\Okr\Models\Cycle;
 use Platform\Okr\Models\Objective;
+use Platform\Okr\Models\StrategicDocument;
 use Platform\Okr\Tools\Concerns\ResolvesOkrScope;
 
 class CreateObjectiveTool implements ToolContract, ToolMetadataContract
@@ -35,6 +36,8 @@ class CreateObjectiveTool implements ToolContract, ToolMetadataContract
                 'is_mountain' => ['type' => 'boolean'],
                 'order' => ['type' => 'integer', 'description' => 'Optional: Reihenfolge. Wenn nicht gesetzt, wird ans Ende gehängt.'],
                 'manager_user_id' => ['type' => 'integer'],
+                'vision_id' => ['type' => 'integer', 'description' => 'Optional: StrategicDocument-ID vom Typ vision.'],
+                'regnose_id' => ['type' => 'integer', 'description' => 'Optional: StrategicDocument-ID vom Typ regnose.'],
             ],
             'required' => ['cycle_id', 'title'],
         ];
@@ -63,6 +66,30 @@ class CreateObjectiveTool implements ToolContract, ToolMetadataContract
                 return ToolResult::error('NOT_FOUND', "Cycle {$cycleId} nicht gefunden (Team-ID: {$teamId}).");
             }
 
+            $visionId = $this->normalizeId($arguments['vision_id'] ?? null);
+            if ($visionId) {
+                $ok = StrategicDocument::query()
+                    ->where('team_id', $teamId)
+                    ->where('type', 'vision')
+                    ->where('id', $visionId)
+                    ->exists();
+                if (!$ok) {
+                    return ToolResult::error('VALIDATION_ERROR', "vision_id={$visionId} ist ungültig (muss existieren, Typ=vision, Team-ID={$teamId}).");
+                }
+            }
+
+            $regnoseId = $this->normalizeId($arguments['regnose_id'] ?? null);
+            if ($regnoseId) {
+                $ok = StrategicDocument::query()
+                    ->where('team_id', $teamId)
+                    ->where('type', 'regnose')
+                    ->where('id', $regnoseId)
+                    ->exists();
+                if (!$ok) {
+                    return ToolResult::error('VALIDATION_ERROR', "regnose_id={$regnoseId} ist ungültig (muss existieren, Typ=regnose, Team-ID={$teamId}).");
+                }
+            }
+
             $order = array_key_exists('order', $arguments) ? $this->normalizeId($arguments['order']) : null;
             if ($order === null) {
                 $max = Objective::where('cycle_id', $cycleId)->max('order');
@@ -79,6 +106,8 @@ class CreateObjectiveTool implements ToolContract, ToolMetadataContract
                 'description' => $arguments['description'] ?? null,
                 'is_mountain' => (bool)($arguments['is_mountain'] ?? false),
                 'order' => $order,
+                'vision_id' => $visionId,
+                'regnose_id' => $regnoseId,
             ]);
 
             return ToolResult::success([

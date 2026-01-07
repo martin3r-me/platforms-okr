@@ -7,6 +7,7 @@ use Platform\Core\Contracts\ToolContext;
 use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
 use Platform\Okr\Models\Objective;
+use Platform\Okr\Models\StrategicDocument;
 use Platform\Okr\Tools\Concerns\ResolvesOkrScope;
 
 class GetObjectiveTool implements ToolContract, ToolMetadataContract
@@ -55,7 +56,9 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
             $includeKrs = (bool)($arguments['include_key_results'] ?? true);
             $q = Objective::query()->where('team_id', $teamId);
             if ($includeKrs) {
-                $q->with(['keyResults.performance', 'performance']);
+                $q->with(['keyResults.performance', 'performance', 'vision', 'regnose']);
+            } else {
+                $q->with(['vision', 'regnose']);
             }
             $obj = $q->find($id);
             if (!$obj) {
@@ -96,6 +99,22 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
                     'is_mountain' => (bool)$obj->is_mountain,
                     'performance_score' => $obj->performance_score,
                     'order' => $obj->order,
+                    'vision' => $obj->vision ? [
+                        'id' => $obj->vision->id,
+                        'type' => $obj->vision->type,
+                        'title' => $obj->vision->title,
+                        'version' => $obj->vision->version,
+                        'is_active' => (bool)$obj->vision->is_active,
+                        'valid_from' => $this->dateToYmd($obj->vision->valid_from),
+                    ] : null,
+                    'regnose' => $obj->regnose ? [
+                        'id' => $obj->regnose->id,
+                        'type' => $obj->regnose->type,
+                        'title' => $obj->regnose->title,
+                        'version' => $obj->regnose->version,
+                        'is_active' => (bool)$obj->regnose->is_active,
+                        'valid_from' => $this->dateToYmd($obj->regnose->valid_from),
+                    ] : null,
                     'performance' => $obj->performance ? [
                         'performance_date' => $this->dateToYmd($obj->performance->performance_date),
                         'performance_score' => $obj->performance->performance_score,
