@@ -36,7 +36,6 @@ class Cycle extends Model implements HasDisplayName
         'team_id',
         'user_id',
         'label',
-        'type',
         'status',
         'notes',
         'description',
@@ -76,6 +75,11 @@ class Cycle extends Model implements HasDisplayName
     public function getLabelAttribute()
     {
         return $this->template?->label;
+    }
+
+    public function getTypeAttribute()
+    {
+        return $this->template?->type;
     }
 
     /**

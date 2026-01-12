@@ -80,11 +80,13 @@ class CreateCycleTool implements ToolContract, ToolMetadataContract
                 'cycle_template_id' => $tpl->id,
                 'team_id' => $teamId,
                 'user_id' => $context->user->id,
-                'type' => $tpl->type,
                 'status' => $status,
                 'notes' => $arguments['notes'] ?? null,
                 'description' => $arguments['description'] ?? null,
             ]);
+
+            // Template-Beziehung laden für type
+            $cycle->load('template');
 
             return ToolResult::success([
                 'id' => $cycle->id,
@@ -92,7 +94,7 @@ class CreateCycleTool implements ToolContract, ToolMetadataContract
                 'okr_id' => $cycle->okr_id,
                 'team_id' => $cycle->team_id,
                 'cycle_template_id' => $cycle->cycle_template_id,
-                'type' => $cycle->type,
+                'type' => $cycle->template?->type,
                 'status' => $cycle->status,
                 'message' => 'Cycle erfolgreich erstellt.',
             ]);
