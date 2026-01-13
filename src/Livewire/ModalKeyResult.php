@@ -5,6 +5,7 @@ namespace Platform\Okr\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Platform\Core\Contracts\HasKeyResultAncestors;
 use Platform\Okr\Models\KeyResult;
 use Platform\Okr\Models\KeyResultContext;
 use Platform\Okr\Services\KeyResultContextResolver;
@@ -174,24 +175,53 @@ class ModalKeyResult extends Component
             return;
         }
 
-        // Prüfe ob dieser Kontext über einen Parent-Kontext (z.B. Project) abgedeckt ist
-        // (loose coupling: Tasks sind über Project abgedeckt, aber nicht direkt verknüpft)
-        if ($this->contextType === 'Platform\Planner\Models\PlannerTask') {
-            $task = \Platform\Planner\Models\PlannerTask::find($this->contextId);
-            if ($task && $task->project_id) {
-                // Lade KeyResults, die über das Project verknüpft sind
-                $projectLinkedContexts = KeyResultContext::where('context_type', 'Platform\Planner\Models\PlannerProject')
-                    ->where('context_id', $task->project_id)
+        // Prüfe ob dieser Kontext über einen Parent-Kontext (Root-Kontext) abgedeckt ist
+        // (loose coupling: z.B. Tasks sind über Project abgedeckt, aber nicht direkt verknüpft)
+        if (! class_exists($this->contextType)) {
+            $this->coveredKeyResults = collect();
+            return;
+        }
+
+        $contextModel = $this->contextType::find($this->contextId);
+        
+        if (! $contextModel || ! $contextModel instanceof HasKeyResultAncestors) {
+            $this->coveredKeyResults = collect();
+            return;
+        }
+
+        // Hole alle Ancestors über das Interface
+        $ancestors = $contextModel->keyResultAncestors();
+        
+        if (empty($ancestors)) {
+            $this->coveredKeyResults = collect();
+            return;
+        }
+
+        // Sammle alle KeyResults, die über Root-Kontexte (is_root = true) abgedeckt sind
+        $coveredKeyResultIds = collect();
+        
+        foreach ($ancestors as $ancestor) {
+            // Nur Root-Kontexte berücksichtigen (diese decken alle Child-Kontexte ab)
+            if ($ancestor['is_root'] ?? false) {
+                $rootLinkedContexts = KeyResultContext::where('context_type', $ancestor['type'])
+                    ->where('context_id', $ancestor['id'])
                     ->where('is_primary', true)
                     ->with(['keyResult.objective.cycle.okr', 'keyResult.performance', 'keyResult.user'])
                     ->get();
                 
-                $this->coveredKeyResults = $projectLinkedContexts->map(function ($context) {
-                    return $context->keyResult;
-                })->filter();
-            } else {
-                $this->coveredKeyResults = collect();
+                foreach ($rootLinkedContexts as $context) {
+                    if ($context->keyResult) {
+                        $coveredKeyResultIds->push($context->keyResult->id);
+                    }
+                }
             }
+        }
+
+        // Lade alle abgedeckten KeyResults mit allen Relations
+        if ($coveredKeyResultIds->isNotEmpty()) {
+            $this->coveredKeyResults = KeyResult::whereIn('id', $coveredKeyResultIds->unique())
+                ->with(['objective.cycle.okr', 'performance', 'user'])
+                ->get();
         } else {
             $this->coveredKeyResults = collect();
         }
@@ -205,20 +235,29 @@ class ModalKeyResult extends Component
         }
 
         try {
-            // Prüfe: Wenn es eine Task ist, prüfe ob das zugehörige Project bereits verknüpft ist
-            if ($this->contextType === 'Platform\Planner\Models\PlannerTask') {
-                $task = \Platform\Planner\Models\PlannerTask::find($this->contextId);
-                if ($task && $task->project_id) {
-                    // Prüfe ob das Project bereits mit diesem KeyResult verknüpft ist
-                    $projectLinked = KeyResultContext::where('key_result_id', $keyResultId)
-                        ->where('context_type', 'Platform\Planner\Models\PlannerProject')
-                        ->where('context_id', $task->project_id)
-                        ->where('is_primary', true)
-                        ->exists();
+            // Prüfe generisch: Wenn der Kontext Ancestors hat, prüfe ob ein Root-Kontext bereits verknüpft ist
+            if (class_exists($this->contextType)) {
+                $contextModel = $this->contextType::find($this->contextId);
+                
+                if ($contextModel && $contextModel instanceof HasKeyResultAncestors) {
+                    $ancestors = $contextModel->keyResultAncestors();
                     
-                    if ($projectLinked) {
-                        session()->flash('error', 'Das zugehörige Project ist bereits mit diesem KeyResult verknüpft. Alle Tasks im Project sind daher bereits abgedeckt.');
-                        return;
+                    // Prüfe für jeden Root-Kontext, ob bereits eine Verknüpfung existiert
+                    foreach ($ancestors as $ancestor) {
+                        if ($ancestor['is_root'] ?? false) {
+                            $rootLinked = KeyResultContext::where('key_result_id', $keyResultId)
+                                ->where('context_type', $ancestor['type'])
+                                ->where('context_id', $ancestor['id'])
+                                ->where('is_primary', true)
+                                ->exists();
+                            
+                            if ($rootLinked) {
+                                $resolver = app(KeyResultContextResolver::class);
+                                $rootLabel = $ancestor['label'] ?? $resolver->resolveLabel($ancestor['type'], $ancestor['id']) ?? 'Root-Kontext';
+                                session()->flash('error', "Der übergeordnete Kontext \"{$rootLabel}\" ist bereits mit diesem KeyResult verknüpft. Alle untergeordneten Kontexte sind daher bereits abgedeckt.");
+                                return;
+                            }
+                        }
                     }
                 }
             }

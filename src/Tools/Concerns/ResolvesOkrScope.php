@@ -8,7 +8,8 @@ use Platform\Core\Models\Module;
 trait ResolvesOkrScope
 {
     /**
-     * OKR ist root-scoped (scope_type=parent). Daher müssen Tools i.d.R. im Root-Team laufen.
+     * OKR ist root-scoped (scope_type=parent). Daher müssen Tools IMMER im Root-Team laufen.
+     * Gibt IMMER das Root-Team zurück, unabhängig davon, in welchem Kind-Team der User ist.
      */
     protected function resolveOkrTeamId(ToolContext $context): ?int
     {
@@ -17,19 +18,22 @@ trait ResolvesOkrScope
             return null;
         }
 
-        // base team (kann child team sein)
-        $baseTeam = $user->currentTeamRelation ?? $user->currentTeam ?? null;
+        // currentTeamRelation ist das Basis-Team (kann Kind-Team sein)
+        $baseTeam = $user->currentTeamRelation ?? null;
         if (!$baseTeam) {
             return null;
         }
 
+        // OKR ist root-scoped: IMMER Root-Team zurückgeben
         $module = Module::where('key', 'okr')->first();
         if ($module && method_exists($module, 'isRootScoped') && $module->isRootScoped()) {
             if (method_exists($baseTeam, 'getRootTeam')) {
-                return $baseTeam->getRootTeam()->id ?? $baseTeam->id;
+                $rootTeam = $baseTeam->getRootTeam();
+                return $rootTeam->id ?? $baseTeam->id;
             }
         }
 
+        // Fallback: sollte nicht passieren, da OKR root-scoped ist
         return $baseTeam->id ?? null;
     }
 

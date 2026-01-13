@@ -188,6 +188,8 @@ class OkrServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Okr\Tools\GetObjectiveTool());
             $registry->register(new \Platform\Okr\Tools\ListKeyResultsTool());
             $registry->register(new \Platform\Okr\Tools\GetKeyResultTool());
+            $registry->register(new \Platform\Okr\Tools\GetKeyResultContextsTool());
+            $registry->register(new \Platform\Okr\Tools\GetContextKeyResultsTool());
             $registry->register(new \Platform\Okr\Tools\ListPerformancesTool());
             $registry->register(new \Platform\Okr\Tools\ListStrategicDocumentsTool());
             $registry->register(new \Platform\Okr\Tools\GetStrategicDocumentTool());
