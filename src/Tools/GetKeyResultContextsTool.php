@@ -16,11 +16,19 @@ class GetKeyResultContextsTool implements ToolContract, ToolMetadataContract
 {
     use ResolvesOkrScope;
 
-    protected KeyResultContextResolver $resolver;
+    protected ?KeyResultContextResolver $resolver = null;
 
-    public function __construct(KeyResultContextResolver $resolver)
+    public function __construct(?KeyResultContextResolver $resolver = null)
     {
         $this->resolver = $resolver;
+    }
+
+    protected function getResolver(): KeyResultContextResolver
+    {
+        if ($this->resolver === null) {
+            $this->resolver = app(KeyResultContextResolver::class);
+        }
+        return $this->resolver;
     }
 
     public function getName(): string
@@ -132,7 +140,7 @@ class GetKeyResultContextsTool implements ToolContract, ToolMetadataContract
                 if ($model instanceof HasDisplayName) {
                     $displayName = $model->getDisplayName();
                 } else {
-                    $displayName = $this->resolver->resolveLabel($type, $contextRecord->context_id);
+                    $displayName = $this->getResolver()->resolveLabel($type, $contextRecord->context_id);
                 }
 
                 // Basis-Daten für alle Entitäten

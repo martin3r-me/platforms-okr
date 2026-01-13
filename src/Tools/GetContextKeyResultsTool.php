@@ -17,11 +17,19 @@ class GetContextKeyResultsTool implements ToolContract, ToolMetadataContract
 {
     use ResolvesOkrScope;
 
-    protected KeyResultContextResolver $resolver;
+    protected ?KeyResultContextResolver $resolver = null;
 
-    public function __construct(KeyResultContextResolver $resolver)
+    public function __construct(?KeyResultContextResolver $resolver = null)
     {
         $this->resolver = $resolver;
+    }
+
+    protected function getResolver(): KeyResultContextResolver
+    {
+        if ($this->resolver === null) {
+            $this->resolver = app(KeyResultContextResolver::class);
+        }
+        return $this->resolver;
     }
 
     public function getName(): string
@@ -99,7 +107,7 @@ class GetContextKeyResultsTool implements ToolContract, ToolMetadataContract
             if ($contextModel instanceof HasDisplayName) {
                 $contextLabel = $contextModel->getDisplayName();
             } else {
-                $contextLabel = $this->resolver->resolveLabel($contextType, $contextId);
+                $contextLabel = $this->getResolver()->resolveLabel($contextType, $contextId);
             }
 
             // 1. Direkt verknüpfte KeyResults
