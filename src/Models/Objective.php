@@ -58,7 +58,15 @@ class Objective extends Model
 
             if (empty($objective->team_id)) {
                 // Für Parent Tools (scope_type = 'parent') wird automatisch das Root-Team verwendet
-                $objective->team_id = Auth::user()?->currentTeam?->id;
+                $user = Auth::user();
+                $baseTeam = $user?->currentTeamRelation ?? $user?->currentTeam ?? null;
+                
+                if ($baseTeam) {
+                    $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
+                    $objective->team_id = ($okrModule && method_exists($okrModule, 'isRootScoped') && $okrModule->isRootScoped()) 
+                        ? ($baseTeam->getRootTeam()->id ?? $baseTeam->id)
+                        : $baseTeam->id;
+                }
             }
         });
     }

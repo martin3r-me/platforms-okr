@@ -57,7 +57,15 @@ class Cycle extends Model implements HasDisplayName
 
             if (empty($cycle->team_id)) {
                 // Für Parent Tools (scope_type = 'parent') wird automatisch das Root-Team verwendet
-                $cycle->team_id = Auth::user()?->currentTeam?->id;
+                $user = Auth::user();
+                $baseTeam = $user?->currentTeamRelation ?? $user?->currentTeam ?? null;
+                
+                if ($baseTeam) {
+                    $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
+                    $cycle->team_id = ($okrModule && method_exists($okrModule, 'isRootScoped') && $okrModule->isRootScoped()) 
+                        ? ($baseTeam->getRootTeam()->id ?? $baseTeam->id)
+                        : $baseTeam->id;
+                }
             }
         });
     }

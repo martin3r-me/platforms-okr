@@ -23,7 +23,7 @@ class ListOkrsTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/okrs?team_id={id}&filters=[...]&search=...&sort=[...] - Listet OKRs (root-scoped). team_id ist optional und wird i.d.R. aus dem Root-Team des aktuellen Teams abgeleitet.';
+        return 'GET /okr/okrs?team_id={id}&filters=[...]&search=...&sort=[...] - Listet OKRs (root-scoped, alle Team-Mitglieder sehen alle OKRs). team_id ist optional und wird i.d.R. aus dem Root-Team des aktuellen Teams abgeleitet. WICHTIG: Um "meine OKRs" (die ich angelegt habe) zu finden, verwende filters=[{"field":"user_id","value":USER_ID}]. Um "OKRs die ich verwalte" zu finden, verwende filters=[{"field":"manager_user_id","value":USER_ID}]. Ohne Filter werden alle OKRs des Teams zurückgegeben.';
     }
 
     public function getSchema(): array
@@ -39,6 +39,14 @@ class ListOkrsTool implements ToolContract, ToolMetadataContract
                     'include_templates' => [
                         'type' => 'boolean',
                         'description' => 'Optional: Wenn true, werden auch is_template OKRs gelistet. Default: true.',
+                    ],
+                    'my_okrs' => [
+                        'type' => 'boolean',
+                        'description' => 'Optional: Wenn true, werden nur OKRs zurückgegeben, die der aktuelle Benutzer angelegt hat (user_id = aktueller User). Default: false.',
+                    ],
+                    'managed_okrs' => [
+                        'type' => 'boolean',
+                        'description' => 'Optional: Wenn true, werden nur OKRs zurückgegeben, die der aktuelle Benutzer verwaltet (manager_user_id = aktueller User). Default: false.',
                     ],
                 ],
             ]
@@ -58,10 +66,29 @@ class ListOkrsTool implements ToolContract, ToolMetadataContract
             }
 
             $includeTemplates = (bool)($arguments['include_templates'] ?? true);
+            $myOkrs = (bool)($arguments['my_okrs'] ?? false);
+            $managedOkrs = (bool)($arguments['managed_okrs'] ?? false);
 
             $query = Okr::query()
                 ->where('team_id', $teamId)
                 ->with(['user', 'managerUser']);
+
+            // Filter nach "meine OKRs" und/oder "OKRs die ich verwalte"
+            if ($myOkrs || $managedOkrs) {
+                $query->where(function ($q) use ($context, $myOkrs, $managedOkrs) {
+                    if ($myOkrs && $managedOkrs) {
+                        // Beide: OKRs die ich angelegt habe ODER die ich verwalte
+                        $q->where('user_id', $context->user->id)
+                          ->orWhere('manager_user_id', $context->user->id);
+                    } elseif ($myOkrs) {
+                        // Nur meine OKRs (die ich angelegt habe)
+                        $q->where('user_id', $context->user->id);
+                    } elseif ($managedOkrs) {
+                        // Nur OKRs die ich verwalte
+                        $q->where('manager_user_id', $context->user->id);
+                    }
+                });
+            }
 
             if (!$includeTemplates) {
                 $query->where('is_template', false);

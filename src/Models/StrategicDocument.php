@@ -61,7 +61,16 @@ class StrategicDocument extends Model
             }
 
             if (empty($document->team_id)) {
-                $document->team_id = Auth::user()?->currentTeam?->id;
+                // Für Parent Tools (scope_type = 'parent') wird automatisch das Root-Team verwendet
+                $user = Auth::user();
+                $baseTeam = $user?->currentTeamRelation ?? $user?->currentTeam ?? null;
+                
+                if ($baseTeam) {
+                    $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
+                    $document->team_id = ($okrModule && method_exists($okrModule, 'isRootScoped') && $okrModule->isRootScoped()) 
+                        ? ($baseTeam->getRootTeam()->id ?? $baseTeam->id)
+                        : $baseTeam->id;
+                }
             }
 
             // Wenn is_active = true, setze alle anderen Dokumente des gleichen Typs auf inaktiv

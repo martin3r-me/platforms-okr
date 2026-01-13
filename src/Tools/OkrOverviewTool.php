@@ -119,7 +119,10 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                 ],
                 'read' => [
                     'strategic_documents' => ['okr.strategic_documents.GET', 'okr.strategic_document.GET'],
-                    'okrs' => ['okr.okrs.GET', 'okr.okr.GET'],
+                    'okrs' => [
+                        'okr.okrs.GET' => 'Listet OKRs (alle Team-Mitglieder sehen alle OKRs). Um "meine OKRs" (die ich angelegt habe) zu finden: my_okrs=true oder filters=[{"field":"user_id","value":USER_ID}]. Um "OKRs die ich verwalte" zu finden: managed_okrs=true oder filters=[{"field":"manager_user_id","value":USER_ID}].',
+                        'okr.okr.GET',
+                    ],
                     'cycle_templates' => ['okr.cycle_templates.GET'],
                     'cycles' => ['okr.cycles.GET', 'okr.cycle.GET'],
                     'objectives' => ['okr.objectives.GET', 'okr.objective.GET'],

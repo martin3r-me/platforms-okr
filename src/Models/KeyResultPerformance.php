@@ -55,7 +55,20 @@ class KeyResultPerformance extends Model
 
             if (empty($performance->team_id)) {
                 // Für Parent Tools (scope_type = 'parent') wird automatisch das Root-Team verwendet
-                $performance->team_id = Auth::user()?->currentTeam?->id;
+                // Versuche zuerst team_id vom KeyResult zu übernehmen
+                if ($performance->keyResult && $performance->keyResult->team_id) {
+                    $performance->team_id = $performance->keyResult->team_id;
+                } else {
+                    $user = Auth::user();
+                    $baseTeam = $user?->currentTeamRelation ?? $user?->currentTeam ?? null;
+                    
+                    if ($baseTeam) {
+                        $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
+                        $performance->team_id = ($okrModule && method_exists($okrModule, 'isRootScoped') && $okrModule->isRootScoped()) 
+                            ? ($baseTeam->getRootTeam()->id ?? $baseTeam->id)
+                            : $baseTeam->id;
+                    }
+                }
             }
         });
     }
