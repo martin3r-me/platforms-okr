@@ -313,7 +313,7 @@
     </x-slot>
 
     <x-slot name="activity">
-        <x-ui-page-sidebar title="Aktivitäten & Timeline" width="w-80" :defaultOpen="true" storeKey="forecastActivityOpen" side="right">
+        <x-ui-page-sidebar title="Aktivitäten & Timeline" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
             <div class="p-6 space-y-6">
                 {{-- Recent Activities --}}
                 <div>
