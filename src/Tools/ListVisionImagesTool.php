@@ -67,11 +67,34 @@ class ListVisionImagesTool implements ToolContract, ToolMetadataContract
             $query = VisionImage::query()
                 ->where('focus_area_id', $focusAreaId)
                 ->where('team_id', $teamId)
-                ->orderBy('order');
+                ->with(['focusArea']);
 
-            $result = $this->applyStandardGetOperations($query, $arguments, $context);
+            $this->applyStandardFilters($query, $arguments, [
+                'title', 'description', 'order', 'user_id', 'created_at', 'updated_at',
+            ]);
+            $this->applyStandardSearch($query, $arguments, ['title', 'description']);
+            $this->applyStandardSort($query, $arguments, ['order', 'created_at', 'updated_at'], 'order', 'asc');
+            $this->applyStandardPagination($query, $arguments);
 
-            return ToolResult::success($result);
+            $visionImages = $query->get();
+            $items = $visionImages->map(function (VisionImage $vi) {
+                return [
+                    'id' => $vi->id,
+                    'uuid' => $vi->uuid,
+                    'focus_area_id' => $vi->focus_area_id,
+                    'title' => $vi->title,
+                    'description' => $vi->description,
+                    'order' => $vi->order,
+                    'created_at' => $this->dateToYmd($vi->created_at),
+                    'updated_at' => $this->dateToYmd($vi->updated_at),
+                ];
+            })->values()->toArray();
+
+            return ToolResult::success([
+                'vision_images' => $items,
+                'count' => count($items),
+                'message' => count($items) . ' Zielbild(er) gefunden.',
+            ]);
         } catch (\Throwable $e) {
             return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Auflisten der Zielbilder: ' . $e->getMessage());
         }

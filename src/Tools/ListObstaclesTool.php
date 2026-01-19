@@ -67,11 +67,34 @@ class ListObstaclesTool implements ToolContract, ToolMetadataContract
             $query = Obstacle::query()
                 ->where('focus_area_id', $focusAreaId)
                 ->where('team_id', $teamId)
-                ->orderBy('order');
+                ->with(['focusArea']);
 
-            $result = $this->applyStandardGetOperations($query, $arguments, $context);
+            $this->applyStandardFilters($query, $arguments, [
+                'title', 'description', 'order', 'user_id', 'created_at', 'updated_at',
+            ]);
+            $this->applyStandardSearch($query, $arguments, ['title', 'description']);
+            $this->applyStandardSort($query, $arguments, ['order', 'created_at', 'updated_at'], 'order', 'asc');
+            $this->applyStandardPagination($query, $arguments);
 
-            return ToolResult::success($result);
+            $obstacles = $query->get();
+            $items = $obstacles->map(function (Obstacle $o) {
+                return [
+                    'id' => $o->id,
+                    'uuid' => $o->uuid,
+                    'focus_area_id' => $o->focus_area_id,
+                    'title' => $o->title,
+                    'description' => $o->description,
+                    'order' => $o->order,
+                    'created_at' => $this->dateToYmd($o->created_at),
+                    'updated_at' => $this->dateToYmd($o->updated_at),
+                ];
+            })->values()->toArray();
+
+            return ToolResult::success([
+                'obstacles' => $items,
+                'count' => count($items),
+                'message' => count($items) . ' Hindernis(se) gefunden.',
+            ]);
         } catch (\Throwable $e) {
             return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Auflisten der Hindernisse: ' . $e->getMessage());
         }

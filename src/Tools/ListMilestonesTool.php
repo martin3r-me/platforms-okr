@@ -67,11 +67,36 @@ class ListMilestonesTool implements ToolContract, ToolMetadataContract
             $query = Milestone::query()
                 ->where('focus_area_id', $focusAreaId)
                 ->where('team_id', $teamId)
-                ->orderBy('order');
+                ->with(['focusArea']);
 
-            $result = $this->applyStandardGetOperations($query, $arguments, $context);
+            $this->applyStandardFilters($query, $arguments, [
+                'title', 'description', 'target_year', 'target_quarter', 'order', 'user_id', 'created_at', 'updated_at',
+            ]);
+            $this->applyStandardSearch($query, $arguments, ['title', 'description']);
+            $this->applyStandardSort($query, $arguments, ['order', 'target_year', 'target_quarter', 'created_at', 'updated_at'], 'order', 'asc');
+            $this->applyStandardPagination($query, $arguments);
 
-            return ToolResult::success($result);
+            $milestones = $query->get();
+            $items = $milestones->map(function (Milestone $m) {
+                return [
+                    'id' => $m->id,
+                    'uuid' => $m->uuid,
+                    'focus_area_id' => $m->focus_area_id,
+                    'title' => $m->title,
+                    'description' => $m->description,
+                    'target_year' => $m->target_year,
+                    'target_quarter' => $m->target_quarter,
+                    'order' => $m->order,
+                    'created_at' => $this->dateToYmd($m->created_at),
+                    'updated_at' => $this->dateToYmd($m->updated_at),
+                ];
+            })->values()->toArray();
+
+            return ToolResult::success([
+                'milestones' => $items,
+                'count' => count($items),
+                'message' => count($items) . ' Meilenstein(e) gefunden.',
+            ]);
         } catch (\Throwable $e) {
             return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Auflisten der Meilensteine: ' . $e->getMessage());
         }

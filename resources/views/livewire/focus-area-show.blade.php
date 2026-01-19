@@ -577,6 +577,14 @@
     <x-ui-modal size="lg" model="visionImageCreateModalShow">
         <x-slot name="header">Zielbild hinzufügen</x-slot>
         <div class="space-y-4">
+            @if($focusArea->central_question_vision_images)
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <label class="block text-sm font-medium text-blue-900 mb-2">
+                        Zentrale Frage zu Zielbildern
+                    </label>
+                    <p class="text-sm text-blue-800">{{ $focusArea->central_question_vision_images }}</p>
+                </div>
+            @endif
             <form wire:submit.prevent="saveVisionImage" class="space-y-4">
                 <x-ui-input-text
                     name="visionImageForm.title"
@@ -591,13 +599,6 @@
                     wire:model.live="visionImageForm.description"
                     placeholder="Beschreibung des Zielbilds (optional)"
                     rows="3"
-                />
-                <x-ui-input-textarea
-                    name="visionImageForm.central_question"
-                    label="Zentrale Frage"
-                    wire:model.live="visionImageForm.central_question"
-                    placeholder="Welche zentrale Frage soll mit diesem Zielbild beantwortet werden? (optional)"
-                    rows="2"
                 />
                 <x-ui-input-number
                     name="visionImageForm.order"
@@ -620,6 +621,14 @@
     <x-ui-modal size="lg" model="visionImageEditModalShow">
         <x-slot name="header">Zielbild bearbeiten</x-slot>
         <div class="space-y-4">
+            @if($focusArea->central_question_vision_images)
+                <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <label class="block text-sm font-medium text-blue-900 mb-2">
+                        Zentrale Frage zu Zielbildern
+                    </label>
+                    <p class="text-sm text-blue-800">{{ $focusArea->central_question_vision_images }}</p>
+                </div>
+            @endif
             <form wire:submit.prevent="saveVisionImage" class="space-y-4">
                 <x-ui-input-text
                     name="visionImageForm.title"
@@ -634,13 +643,6 @@
                     wire:model.live="visionImageForm.description"
                     placeholder="Beschreibung des Zielbilds (optional)"
                     rows="3"
-                />
-                <x-ui-input-textarea
-                    name="visionImageForm.central_question"
-                    label="Zentrale Frage"
-                    wire:model.live="visionImageForm.central_question"
-                    placeholder="Welche zentrale Frage soll mit diesem Zielbild beantwortet werden? (optional)"
-                    rows="2"
                 />
                 <x-ui-input-number
                     name="visionImageForm.order"
@@ -674,6 +676,14 @@
     <x-ui-modal size="lg" model="obstacleCreateModalShow">
         <x-slot name="header">Hindernis hinzufügen</x-slot>
         <div class="space-y-4">
+            @if($focusArea->central_question_obstacles)
+                <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <label class="block text-sm font-medium text-red-900 mb-2">
+                        Zentrale Frage zu Hindernissen
+                    </label>
+                    <p class="text-sm text-red-800">{{ $focusArea->central_question_obstacles }}</p>
+                </div>
+            @endif
             <form wire:submit.prevent="saveObstacle" class="space-y-4">
                 <x-ui-input-text
                     name="obstacleForm.title"
@@ -688,13 +698,6 @@
                     wire:model.live="obstacleForm.description"
                     placeholder="Beschreibung des Hindernisses (optional)"
                     rows="3"
-                />
-                <x-ui-input-textarea
-                    name="obstacleForm.central_question"
-                    label="Zentrale Frage"
-                    wire:model.live="obstacleForm.central_question"
-                    placeholder="Welche zentrale Frage soll mit diesem Hindernis beantwortet werden? (optional)"
-                    rows="2"
                 />
                 <x-ui-input-number
                     name="obstacleForm.order"
@@ -717,6 +720,14 @@
     <x-ui-modal size="lg" model="obstacleEditModalShow">
         <x-slot name="header">Hindernis bearbeiten</x-slot>
         <div class="space-y-4">
+            @if($focusArea->central_question_obstacles)
+                <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <label class="block text-sm font-medium text-red-900 mb-2">
+                        Zentrale Frage zu Hindernissen
+                    </label>
+                    <p class="text-sm text-red-800">{{ $focusArea->central_question_obstacles }}</p>
+                </div>
+            @endif
             <form wire:submit.prevent="saveObstacle" class="space-y-4">
                 <x-ui-input-text
                     name="obstacleForm.title"
@@ -731,13 +742,6 @@
                     wire:model.live="obstacleForm.description"
                     placeholder="Beschreibung des Hindernisses (optional)"
                     rows="3"
-                />
-                <x-ui-input-textarea
-                    name="obstacleForm.central_question"
-                    label="Zentrale Frage"
-                    wire:model.live="obstacleForm.central_question"
-                    placeholder="Welche zentrale Frage soll mit diesem Hindernis beantwortet werden? (optional)"
-                    rows="2"
                 />
                 <x-ui-input-number
                     name="obstacleForm.order"
@@ -771,6 +775,14 @@
     <x-ui-modal size="lg" model="milestoneCreateModalShow">
         <x-slot name="header">Meilenstein hinzufügen</x-slot>
         <div class="space-y-4">
+            @if($focusArea->central_question_milestones)
+                <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <label class="block text-sm font-medium text-green-900 mb-2">
+                        Zentrale Frage zu Meilensteinen
+                    </label>
+                    <p class="text-sm text-green-800">{{ $focusArea->central_question_milestones }}</p>
+                </div>
+            @endif
             <form wire:submit.prevent="saveMilestone" class="space-y-4">
                 <x-ui-input-text
                     name="milestoneForm.title"
@@ -785,13 +797,6 @@
                     wire:model.live="milestoneForm.description"
                     placeholder="Beschreibung des Meilensteins (optional)"
                     rows="3"
-                />
-                <x-ui-input-textarea
-                    name="milestoneForm.central_question"
-                    label="Zentrale Frage"
-                    wire:model.live="milestoneForm.central_question"
-                    placeholder="Welche zentrale Frage soll mit diesem Meilenstein beantwortet werden? (optional)"
-                    rows="2"
                 />
                 <div class="grid grid-cols-2 gap-4">
                     <x-ui-input-select
@@ -837,6 +842,14 @@
     <x-ui-modal size="lg" model="milestoneEditModalShow">
         <x-slot name="header">Meilenstein bearbeiten</x-slot>
         <div class="space-y-4">
+            @if($focusArea->central_question_milestones)
+                <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <label class="block text-sm font-medium text-green-900 mb-2">
+                        Zentrale Frage zu Meilensteinen
+                    </label>
+                    <p class="text-sm text-green-800">{{ $focusArea->central_question_milestones }}</p>
+                </div>
+            @endif
             <form wire:submit.prevent="saveMilestone" class="space-y-4">
                 <x-ui-input-text
                     name="milestoneForm.title"
@@ -851,13 +864,6 @@
                     wire:model.live="milestoneForm.description"
                     placeholder="Beschreibung des Meilensteins (optional)"
                     rows="3"
-                />
-                <x-ui-input-textarea
-                    name="milestoneForm.central_question"
-                    label="Zentrale Frage"
-                    wire:model.live="milestoneForm.central_question"
-                    placeholder="Welche zentrale Frage soll mit diesem Meilenstein beantwortet werden? (optional)"
-                    rows="2"
                 />
                 <div class="grid grid-cols-2 gap-4">
                     <x-ui-input-select
