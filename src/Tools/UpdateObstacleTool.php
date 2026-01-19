@@ -63,7 +63,12 @@ class UpdateObstacleTool implements ToolContract, ToolMetadataContract
             $dirty = false;
             foreach (['title', 'description', 'central_question', 'order'] as $field) {
                 if (array_key_exists($field, $arguments)) {
-                    $obstacle->{$field} = $arguments[$field];
+                    $value = $arguments[$field];
+                    // Ignoriere leere Strings - diese bedeuten "nicht ändern"
+                    if ($value === '' || $value === null) {
+                        continue;
+                    }
+                    $obstacle->{$field} = $value;
                     $dirty = true;
                 }
             }

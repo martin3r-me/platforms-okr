@@ -66,7 +66,15 @@ class UpdateFocusAreaTool implements ToolContract, ToolMetadataContract
             $dirty = false;
             foreach (['title', 'description', 'content', 'central_question_vision_images', 'central_question_obstacles', 'central_question_milestones', 'order'] as $field) {
                 if (array_key_exists($field, $arguments)) {
-                    $focusArea->{$field} = $arguments[$field];
+                    $value = $arguments[$field];
+                    // Ignoriere leere Strings - diese bedeuten "nicht ändern"
+                    // Für nullable Felder (description, content, central_questions) erlauben wir null zum Löschen
+                    if ($value === '') {
+                        // Leere Strings werden ignoriert (nicht gesetzt)
+                        continue;
+                    }
+                    // null ist erlaubt für nullable Felder (zum Löschen)
+                    $focusArea->{$field} = $value;
                     $dirty = true;
                 }
             }

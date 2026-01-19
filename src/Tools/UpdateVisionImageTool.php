@@ -63,7 +63,12 @@ class UpdateVisionImageTool implements ToolContract, ToolMetadataContract
             $dirty = false;
             foreach (['title', 'description', 'central_question', 'order'] as $field) {
                 if (array_key_exists($field, $arguments)) {
-                    $visionImage->{$field} = $arguments[$field];
+                    $value = $arguments[$field];
+                    // Ignoriere leere Strings - diese bedeuten "nicht ändern"
+                    if ($value === '' || $value === null) {
+                        continue;
+                    }
+                    $visionImage->{$field} = $value;
                     $dirty = true;
                 }
             }

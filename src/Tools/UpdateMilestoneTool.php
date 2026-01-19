@@ -65,33 +65,46 @@ class UpdateMilestoneTool implements ToolContract, ToolMetadataContract
             $dirty = false;
             foreach (['title', 'description', 'central_question', 'order'] as $field) {
                 if (array_key_exists($field, $arguments)) {
-                    $milestone->{$field} = $arguments[$field];
+                    $value = $arguments[$field];
+                    // Ignoriere leere Strings - diese bedeuten "nicht ändern"
+                    if ($value === '' || $value === null) {
+                        continue;
+                    }
+                    $milestone->{$field} = $value;
                     $dirty = true;
                 }
             }
 
             if (array_key_exists('target_year', $arguments)) {
-                $targetYear = $this->normalizeId($arguments['target_year'] ?? null);
-                $milestone->target_year = $targetYear;
-                $dirty = true;
-                
-                // If target_year is removed, also remove target_quarter
-                if (!$targetYear) {
-                    $milestone->target_quarter = null;
+                $targetYearValue = $arguments['target_year'];
+                // Ignoriere leere Strings und null - nur explizite Werte setzen
+                if ($targetYearValue !== '' && $targetYearValue !== null) {
+                    $targetYear = $this->normalizeId($targetYearValue);
+                    $milestone->target_year = $targetYear;
+                    $dirty = true;
+                    
+                    // If target_year is removed, also remove target_quarter
+                    if (!$targetYear) {
+                        $milestone->target_quarter = null;
+                    }
                 }
             }
 
             if (array_key_exists('target_quarter', $arguments)) {
-                $targetQuarter = $this->normalizeId($arguments['target_quarter'] ?? null);
-                if ($targetQuarter && ($targetQuarter < 1 || $targetQuarter > 4)) {
-                    return ToolResult::error('VALIDATION_ERROR', 'target_quarter muss zwischen 1 und 4 liegen.');
+                $targetQuarterValue = $arguments['target_quarter'];
+                // Ignoriere leere Strings und null - nur explizite Werte setzen
+                if ($targetQuarterValue !== '' && $targetQuarterValue !== null) {
+                    $targetQuarter = $this->normalizeId($targetQuarterValue);
+                    if ($targetQuarter && ($targetQuarter < 1 || $targetQuarter > 4)) {
+                        return ToolResult::error('VALIDATION_ERROR', 'target_quarter muss zwischen 1 und 4 liegen.');
+                    }
+                    // Only set if target_year is set
+                    if ($targetQuarter && !$milestone->target_year) {
+                        return ToolResult::error('VALIDATION_ERROR', 'target_quarter kann nur gesetzt werden, wenn target_year gesetzt ist.');
+                    }
+                    $milestone->target_quarter = $targetQuarter;
+                    $dirty = true;
                 }
-                // Only set if target_year is set
-                if ($targetQuarter && !$milestone->target_year) {
-                    return ToolResult::error('VALIDATION_ERROR', 'target_quarter kann nur gesetzt werden, wenn target_year gesetzt ist.');
-                }
-                $milestone->target_quarter = $targetQuarter;
-                $dirty = true;
             }
 
             if ($dirty) {
