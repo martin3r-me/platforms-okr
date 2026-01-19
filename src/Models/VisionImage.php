@@ -8,30 +8,25 @@ use Platform\Core\Contracts\HasDisplayName;
 use Platform\ActivityLog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
 
 /**
- * FocusArea Model
+ * VisionImage Model
  * 
- * Represents a focus area within a forecast.
- * 
- * @hint Focus Areas are separate entities, not related to OKRs
- * @hint Focus Areas belong to a Forecast
+ * Represents a vision image (Zielbild) within a focus area.
  */
-class FocusArea extends Model implements HasDisplayName
+class VisionImage extends Model implements HasDisplayName
 {
-    protected $table = 'okr_focus_areas';
+    protected $table = 'okr_vision_images';
     use SoftDeletes, LogsActivity;
 
     protected $fillable = [
         'uuid',
-        'forecast_id',
+        'focus_area_id',
         'title',
         'description',
-        'content',
         'order',
         'team_id',
         'user_id',
@@ -39,25 +34,24 @@ class FocusArea extends Model implements HasDisplayName
 
     protected static function booted(): void
     {
-        static::creating(function (self $focusArea) {
+        static::creating(function (self $visionImage) {
             do {
                 $uuid = UuidV7::generate();
             } while (self::where('uuid', $uuid)->exists());
 
-            $focusArea->uuid = $uuid;
+            $visionImage->uuid = $uuid;
 
-            if (empty($focusArea->user_id)) {
-                $focusArea->user_id = Auth::id();
+            if (empty($visionImage->user_id)) {
+                $visionImage->user_id = Auth::id();
             }
 
-            if (empty($focusArea->team_id)) {
-                // For Parent Tools (scope_type = 'parent') automatically use Root-Team
+            if (empty($visionImage->team_id)) {
                 $user = Auth::user();
                 $baseTeam = $user?->currentTeamRelation ?? $user?->currentTeam ?? null;
                 
                 if ($baseTeam) {
                     $okrModule = \Platform\Core\Models\Module::where('key', 'okr')->first();
-                    $focusArea->team_id = ($okrModule && method_exists($okrModule, 'isRootScoped') && $okrModule->isRootScoped()) 
+                    $visionImage->team_id = ($okrModule && method_exists($okrModule, 'isRootScoped') && $okrModule->isRootScoped()) 
                         ? ($baseTeam->getRootTeam()->id ?? $baseTeam->id)
                         : $baseTeam->id;
                 }
@@ -65,9 +59,6 @@ class FocusArea extends Model implements HasDisplayName
         });
     }
 
-    /**
-     * Returns the display name of the focus area.
-     */
     public function getDisplayName(): ?string
     {
         return $this->title;
@@ -75,9 +66,9 @@ class FocusArea extends Model implements HasDisplayName
 
     // 🔗 Relationships
 
-    public function forecast(): BelongsTo
+    public function focusArea(): BelongsTo
     {
-        return $this->belongsTo(Forecast::class);
+        return $this->belongsTo(FocusArea::class);
     }
 
     public function team(): BelongsTo
@@ -88,20 +79,5 @@ class FocusArea extends Model implements HasDisplayName
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function visionImages(): HasMany
-    {
-        return $this->hasMany(VisionImage::class)->orderBy('order');
-    }
-
-    public function obstacles(): HasMany
-    {
-        return $this->hasMany(Obstacle::class)->orderBy('order');
-    }
-
-    public function milestones(): HasMany
-    {
-        return $this->hasMany(Milestone::class)->orderBy('order');
     }
 }

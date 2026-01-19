@@ -130,6 +130,112 @@
         </div>
     </x-ui-page-container>
 
+    {{-- Left Sidebar --}}
+    <x-slot name="sidebar">
+        <x-ui-page-sidebar title="Regnose Übersicht" width="w-80" :defaultOpen="true">
+            <div class="p-6 space-y-6">
+                {{-- Quick Actions --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Aktionen</h3>
+                    <div class="space-y-2">
+                        <x-ui-button variant="secondary" size="sm" wire:click="openCreateModal" class="w-full justify-start">
+                            @svg('heroicon-o-plus', 'w-4 h-4')
+                            <span class="ml-2">Neue Regnose</span>
+                        </x-ui-button>
+                        <x-ui-button variant="secondary" size="sm" :href="route('okr.dashboard')" wire:navigate class="w-full justify-start">
+                            @svg('heroicon-o-chart-bar', 'w-4 h-4')
+                            <span class="ml-2">Dashboard</span>
+                        </x-ui-button>
+                        <x-ui-button variant="secondary" size="sm" :href="route('okr.okrs.index')" wire:navigate class="w-full justify-start">
+                            @svg('heroicon-o-flag', 'w-4 h-4')
+                            <span class="ml-2">OKRs</span>
+                        </x-ui-button>
+                    </div>
+                </div>
+
+                {{-- Statistiken --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Statistiken</h3>
+                    <div class="space-y-3">
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalForecasts }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Gesamt Regnosen</div>
+                        </div>
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-2xl font-bold text-indigo-600">{{ $totalFocusAreas }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Focus Areas</div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Aktuelle Regnosen --}}
+                @if($forecasts->count() > 0)
+                    <div>
+                        <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Aktuelle Regnosen</h3>
+                        <div class="space-y-2">
+                            @foreach($forecasts->take(5) as $forecast)
+                                <a 
+                                    href="{{ route('okr.forecasts.show', $forecast) }}" 
+                                    wire:navigate
+                                    class="block p-2 rounded-lg border border-[var(--ui-border)]/40 hover:bg-[var(--ui-muted-5)] transition-colors"
+                                >
+                                    <div class="text-sm font-medium text-[var(--ui-secondary)]">{{ $forecast->title }}</div>
+                                    <div class="text-xs text-[var(--ui-muted)] mt-1">
+                                        {{ $forecast->target_date->format('d.m.Y') }} • {{ $forecast->focusAreas->count() }} Focus Areas
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        </x-ui-page-sidebar>
+    </x-slot>
+
+    {{-- Right Sidebar --}}
+    <x-slot name="activity">
+        <x-ui-page-sidebar title="Aktivitäten" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
+            <div class="p-6 space-y-6">
+                {{-- Recent Activities --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Letzte Aktivitäten</h3>
+                    <div class="space-y-3 text-sm">
+                        @if($forecasts->count() > 0)
+                            @foreach($forecasts->take(5) as $forecast)
+                                <div class="flex items-start gap-3 p-3 rounded-lg border border-[var(--ui-border)]/40 bg-[var(--ui-muted-5)]">
+                                    <div class="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-xs font-semibold">
+                                        @svg('heroicon-o-sparkles', 'w-4 h-4')
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="font-medium text-[var(--ui-secondary)] text-sm">{{ $forecast->title }}</div>
+                                        <div class="text-xs text-[var(--ui-muted)]">{{ $forecast->created_at->diffForHumans() }}</div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="text-[var(--ui-muted)]">Keine Aktivitäten verfügbar</div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Übersicht --}}
+                <div>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Übersicht</h3>
+                    <div class="space-y-3">
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $totalForecasts }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Gesamt Regnosen</div>
+                        </div>
+                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
+                            <div class="text-lg font-bold text-indigo-600">{{ $totalFocusAreas }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Focus Areas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </x-ui-page-sidebar>
+    </x-slot>
+
     <!-- Create Modal -->
     <x-ui-modal
         size="lg"

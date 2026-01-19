@@ -5,6 +5,7 @@ namespace Platform\Okr\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Platform\Okr\Models\Okr;
+use Platform\Okr\Models\Forecast;
 use Livewire\Attributes\On; 
 
 class Sidebar extends Component
@@ -116,6 +117,13 @@ class Sidebar extends Component
             ->orderBy('title')
             ->get();
 
+        // Team-basierte Forecasts holen
+        $forecasts = Forecast::query()
+            ->where('team_id', $teamId)
+            ->orderBy('target_date', 'desc')
+            ->orderBy('title')
+            ->get();
+
         // Users für Manager-Dropdown (vom Root-Team wenn Parent Tool)
         $rootTeam = ($okrModule && $okrModule->isRootScoped()) 
             ? $baseTeam->getRootTeam() 
@@ -127,6 +135,7 @@ class Sidebar extends Component
 
         return view('okr::livewire.sidebar', [
             'okrs' => $okrs,
+            'forecasts' => $forecasts,
             'users' => $users,
         ]);
     }

@@ -19,6 +19,10 @@
             @svg('heroicon-o-document-text', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">Strategische Dokumente</span>
         </x-ui-sidebar-item>
+        <x-ui-sidebar-item :href="route('okr.forecasts.index')">
+            @svg('heroicon-o-sparkles', 'w-4 h-4 text-[var(--ui-secondary)]')
+            <span class="ml-2 text-sm">Regnosen</span>
+        </x-ui-sidebar-item>
         <x-ui-sidebar-item type="button" wire:click="openCreateModal">
             @svg('heroicon-o-plus', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">OKR anlegen</span>
@@ -36,6 +40,9 @@
             </a>
             <a href="{{ route('okr.strategic-documents.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
                 @svg('heroicon-o-document-text', 'w-5 h-5')
+            </a>
+            <a href="{{ route('okr.forecasts.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
+                @svg('heroicon-o-sparkles', 'w-5 h-5')
             </a>
             <button type="button" wire:click="openCreateModal" class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
                 @svg('heroicon-o-plus', 'w-5 h-5')
@@ -63,6 +70,25 @@
                 </x-ui-sidebar-list>
             @else
                 <div class="px-3 py-1 text-xs text-[var(--ui-muted)]">Keine OKRs</div>
+            @endif
+        </div>
+    </div>
+
+    {{-- Abschnitt: Regnosen --}}
+    <div>
+        <div class="mt-2" x-show="!collapsed">
+            @if($forecasts->count() > 0)
+                <x-ui-sidebar-list label="Regnosen">
+                    @foreach($forecasts as $forecast)
+                        <x-ui-sidebar-item :href="route('okr.forecasts.show', ['forecast' => $forecast])">
+                            @svg('heroicon-o-sparkles', 'w-5 h-5 flex-shrink-0 text-[var(--ui-secondary)]')
+                            <span class="truncate text-sm ml-2">{{ $forecast->title }}</span>
+                            <span class="ml-auto text-xs text-[var(--ui-muted)] font-medium">{{ $forecast->target_date->format('Y') }}</span>
+                        </x-ui-sidebar-item>
+                    @endforeach
+                </x-ui-sidebar-list>
+            @else
+                <div class="px-3 py-1 text-xs text-[var(--ui-muted)]">Keine Regnosen</div>
             @endif
         </div>
     </div>

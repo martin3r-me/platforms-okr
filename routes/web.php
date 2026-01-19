@@ -27,6 +27,9 @@ Route::get('/strategic-documents', StrategicDocumentsManagement::class)->name('o
 Route::get('/forecasts', \Platform\Okr\Livewire\ForecastManagement::class)->name('okr.forecasts.index');
 Route::get('/forecasts/{forecast}', \Platform\Okr\Livewire\ForecastShow::class)->name('okr.forecasts.show');
 
+// Focus Area Management
+Route::get('/focus-areas/{focusArea}', \Platform\Okr\Livewire\FocusAreaShow::class)->name('okr.focus-areas.show');
+
 // Embedded Teams Config (OKR) – Platzhalter
 Route::middleware([\Platform\Core\Middleware\EmbeddedHeaderAuth::class])->get('/embedded/teams/config', function() {
     $user = auth()->user();

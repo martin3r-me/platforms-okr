@@ -215,7 +215,13 @@
                             <div class="flex justify-between items-center">
                                 <div class="flex-grow-1">
                                     <div class="flex items-center gap-3">
-                                        <div class="font-medium text-lg text-[var(--ui-secondary)]">{{ $focusArea->title }}</div>
+                                        <a 
+                                            href="{{ route('okr.focus-areas.show', $focusArea) }}" 
+                                            wire:navigate
+                                            class="font-medium text-lg text-[var(--ui-primary)] hover:underline"
+                                        >
+                                            {{ $focusArea->title }}
+                                        </a>
                                         <x-ui-badge variant="secondary" size="sm">Order: {{ $focusArea->order }}</x-ui-badge>
                                     </div>
                                     @if($focusArea->description)
