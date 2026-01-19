@@ -1,6 +1,6 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar title="Forecasts" icon="heroicon-o-sparkles" />
+        <x-ui-page-navbar title="Regnosen" icon="heroicon-o-sparkles" />
     </x-slot>
 
     <x-ui-page-container>
@@ -8,7 +8,7 @@
         <div class="mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-xl font-semibold text-[var(--ui-secondary)]">Forecast-Verwaltung</h2>
+                    <h2 class="text-xl font-semibold text-[var(--ui-secondary)]">Regnose-Verwaltung</h2>
                     <p class="text-sm text-[var(--ui-muted)] mt-1">Strategische Ausrichtung & Transformationssteuerung</p>
                 </div>
                 <div class="flex items-center gap-3">
@@ -17,7 +17,7 @@
                         wire:click="openCreateModal"
                     >
                         @svg('heroicon-o-plus', 'w-4 h-4')
-                        <span class="ml-1">Forecast hinzufügen</span>
+                        <span class="ml-1">Regnose hinzufügen</span>
                     </x-ui-button>
                 </div>
             </div>
@@ -28,7 +28,7 @@
             <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-[var(--ui-muted)]">Gesamt Forecasts</p>
+                        <p class="text-sm text-[var(--ui-muted)]">Gesamt Regnosen</p>
                         <p class="text-2xl font-bold text-[var(--ui-secondary)] mt-1">{{ $totalForecasts }}</p>
                     </div>
                     <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center">
@@ -56,7 +56,7 @@
             </div>
         @endif
 
-        {{-- Forecasts Liste --}}
+        {{-- Regnosen Liste --}}
         <div class="bg-white rounded-lg border border-[var(--ui-border)]/60">
             @if($forecasts->count() > 0)
                 <div class="divide-y divide-[var(--ui-border)]/40">
@@ -96,7 +96,7 @@
                                     <x-ui-confirm-button 
                                         action="deleteForecast({{ $forecast->id }})" 
                                         text="Löschen" 
-                                        confirmText="Forecast wirklich löschen?" 
+                                        confirmText="Regnose wirklich löschen?" 
                                         variant="secondary-ghost"
                                         size="sm"
                                         :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
@@ -116,14 +116,14 @@
                     <div class="w-16 h-16 bg-[var(--ui-muted-5)] rounded-full flex items-center justify-center mx-auto mb-4">
                         @svg('heroicon-o-sparkles', 'w-8 h-8 text-[var(--ui-muted)]')
                     </div>
-                    <h4 class="text-lg font-medium text-[var(--ui-secondary)] mb-2">Noch keine Forecasts vorhanden</h4>
-                    <p class="text-[var(--ui-muted)] mb-4">Erstellen Sie einen neuen Forecast um zu beginnen</p>
+                    <h4 class="text-lg font-medium text-[var(--ui-secondary)] mb-2">Noch keine Regnosen vorhanden</h4>
+                    <p class="text-[var(--ui-muted)] mb-4">Erstellen Sie eine neue Regnose um zu beginnen</p>
                     <x-ui-button 
                         variant="secondary" 
                         wire:click="openCreateModal"
                     >
                         @svg('heroicon-o-plus', 'w-4 h-4')
-                        <span class="ml-1">Ersten Forecast erstellen</span>
+                        <span class="ml-1">Erste Regnose erstellen</span>
                     </x-ui-button>
                 </div>
             @endif
@@ -136,7 +136,7 @@
         model="modalShow"
     >
         <x-slot name="header">
-            Neuen Forecast erstellen
+            Neue Regnose erstellen
         </x-slot>
 
         <div class="space-y-4">
@@ -145,7 +145,7 @@
                     name="title"
                     label="Titel"
                     wire:model.live="title"
-                    placeholder="z.B. Forecast 2028"
+                    placeholder="z.B. Regnose 2028"
                     required
                 />
 

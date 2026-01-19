@@ -57,13 +57,16 @@ class ForecastShow extends Component
 
         $this->forecast->refresh();
         $this->isDirty = false;
-        session()->flash('message', 'Forecast successfully saved!');
+        session()->flash('message', 'Regnose erfolgreich gespeichert!');
     }
 
     // FocusArea Management
     public function addFocusArea()
     {
         $this->resetFocusAreaForm();
+        // Auto-set order to next available
+        $maxOrder = $this->forecast->focusAreas()->max('order') ?? 0;
+        $this->focusAreaForm['order'] = $maxOrder + 1;
         $this->focusAreaCreateModalShow = true;
     }
 
@@ -114,16 +117,19 @@ class ForecastShow extends Component
                 'description' => $this->focusAreaForm['description'],
                 'order' => $this->focusAreaForm['order'],
             ]);
-            session()->flash('message', 'Focus Area successfully updated!');
+            session()->flash('message', 'Focus Area erfolgreich aktualisiert!');
         } else {
+            // Auto-set order if not provided
+            $order = $this->focusAreaForm['order'] ?? ($this->forecast->focusAreas()->max('order') ?? 0) + 1;
+            
             $this->forecast->focusAreas()->create([
                 'title' => $this->focusAreaForm['title'],
                 'description' => $this->focusAreaForm['description'],
-                'order' => $this->focusAreaForm['order'],
+                'order' => $order,
                 'team_id' => $teamId,
                 'user_id' => $user->id,
             ]);
-            session()->flash('message', 'Focus Area successfully added!');
+            session()->flash('message', 'Focus Area erfolgreich hinzugefügt!');
         }
 
         $this->forecast->refresh();
@@ -139,7 +145,7 @@ class ForecastShow extends Component
         
         $this->forecast->refresh();
         $this->forecast->load('focusAreas');
-        session()->flash('message', 'Focus Area successfully deleted!');
+        session()->flash('message', 'Focus Area erfolgreich gelöscht!');
     }
 
     protected function resetFocusAreaForm()
@@ -150,6 +156,21 @@ class ForecastShow extends Component
             'description' => '',
             'order' => 0,
         ];
+    }
+
+    // Sortable Methods
+    public function updateFocusAreaOrder($items)
+    {
+        foreach ($items as $item) {
+            $focusArea = $this->forecast->focusAreas()->find($item['value']);
+            if ($focusArea) {
+                $focusArea->update(['order' => $item['order']]);
+            }
+        }
+        
+        $this->forecast->refresh();
+        $this->forecast->load('focusAreas');
+        session()->flash('message', 'Focus Area-Reihenfolge aktualisiert!');
     }
 
     public function render()

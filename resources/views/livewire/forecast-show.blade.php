@@ -50,6 +50,33 @@
                             </div>
                         </div>
                     </div>
+                    
+                    {{-- Mini Dashboard --}}
+                    @php
+                        $totalFocusAreas = $forecast->focusAreas->count();
+                        $daysUntilTarget = now()->diffInDays($forecast->target_date, false);
+                        $isPast = $forecast->target_date->isPast();
+                    @endphp
+                    <div class="grid grid-cols-2 gap-4 mt-6">
+                        <div class="text-center p-4 bg-white rounded-lg border border-[var(--ui-border)]/40">
+                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalFocusAreas }}</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Focus Areas</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg border border-[var(--ui-border)]/40">
+                            <div class="text-2xl font-bold {{ $isPast ? 'text-red-600' : ($daysUntilTarget <= 30 ? 'text-yellow-600' : 'text-[var(--ui-primary)]') }}">
+                                {{ $forecast->target_date->format('d.m.Y') }}
+                            </div>
+                            <div class="text-xs text-[var(--ui-muted)]">
+                                @if($isPast)
+                                    Vergangen
+                                @elseif($daysUntilTarget <= 30)
+                                    In {{ $daysUntilTarget }} Tagen
+                                @else
+                                    Zieldatum
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -62,7 +89,7 @@
                         @svg('heroicon-o-document-text', 'w-4 h-4')
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Forecast Content</h3>
+                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Regnose Content</h3>
                         <p class="text-sm text-[var(--ui-muted)]">Strategische Ausrichtung & Transformationssteuerung</p>
                     </div>
                 </div>
@@ -90,7 +117,7 @@
                             previewStyle: 'tab',
                             hideModeSwitch: true,
                             usageStatistics: false,
-                            placeholder: 'Schreibe die Forecast…  😀  / Überschriften, Listen, Checklists, Links, Code',
+                            placeholder: 'Schreibe die Regnose…  😀  / Überschriften, Listen, Checklists, Links, Code',
                             toolbarItems: [
                                 ['heading', 'bold', 'italic', 'strike'],
                                 ['ul', 'ol', 'task', 'quote'],
@@ -168,7 +195,7 @@
                     </div>
                     <div>
                         <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Focus Areas</h3>
-                        <p class="text-sm text-[var(--ui-muted)]">Fokusräume, die zu dieser Forecast gehören</p>
+                        <p class="text-sm text-[var(--ui-muted)]">Fokusräume, die zu dieser Regnose gehören</p>
                     </div>
                 </div>
                 <x-ui-button 
@@ -182,9 +209,9 @@
             </div>
 
             @if($forecast->focusAreas->count() > 0)
-                <div class="space-y-4">
+                <div wire:sortable="updateFocusAreaOrder" wire:sortable.options="{ animation: 150 }">
                     @foreach($forecast->focusAreas->sortBy('order') as $focusArea)
-                        <div class="p-6 border border-[var(--ui-border)]/60 rounded-lg bg-[var(--ui-muted-5)] hover:border-[var(--ui-border)]/80 transition-colors">
+                        <div wire:sortable.item="{{ $focusArea->id }}" wire:key="focusarea-{{ $focusArea->id }}" class="mb-4 p-6 border border-[var(--ui-border)]/60 rounded-lg bg-[var(--ui-muted-5)] hover:border-[var(--ui-border)]/80 transition-colors">
                             <div class="flex justify-between items-center">
                                 <div class="flex-grow-1">
                                     <div class="flex items-center gap-3">
@@ -211,6 +238,9 @@
                                         size="sm"
                                         :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
                                     />
+                                    <div wire:sortable.handle class="cursor-move p-2 text-[var(--ui-muted)] hover:text-[var(--ui-primary)]">
+                                        @svg('heroicon-o-bars-3', 'w-4 h-4')
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -236,9 +266,9 @@
     </x-ui-page-container>
 
     <x-slot name="sidebar">
-        <x-ui-page-sidebar title="Forecast Übersicht" width="w-80" :defaultOpen="true">
+        <x-ui-page-sidebar title="Regnose Übersicht" width="w-80" :defaultOpen="true">
             <div class="p-6 space-y-6">
-                {{-- Forecast Details --}}
+                {{-- Regnose Details --}}
                 <div>
                     <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Details</h3>
                     <div class="space-y-3">
@@ -278,6 +308,81 @@
                         </div>
                     </div>
                 @endif
+            </div>
+        </x-ui-page-sidebar>
+    </x-slot>
+
+    <x-slot name="activity">
+        <x-ui-page-sidebar title="Aktivitäten & Timeline" width="w-80" :defaultOpen="true" storeKey="forecastActivityOpen" side="right">
+            <div class="p-6 space-y-6">
+                {{-- Recent Activities --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Letzte Aktivitäten</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3 p-3 rounded-lg border border-[var(--ui-border)]/40 bg-[var(--ui-muted-5)]">
+                            <div class="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-xs font-semibold">
+                                @svg('heroicon-o-sparkles', 'w-4 h-4')
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium text-[var(--ui-secondary)] text-sm">Regnose erstellt</div>
+                                <div class="text-xs text-[var(--ui-muted)]">{{ $forecast->created_at->diffForHumans() }}</div>
+                            </div>
+                        </div>
+
+                        @if($forecast->focusAreas->count() > 0)
+                            <div class="flex items-start gap-3 p-3 rounded-lg border border-[var(--ui-border)]/40 bg-[var(--ui-muted-5)]">
+                                <div class="w-8 h-8 bg-[var(--ui-primary-10)] text-[var(--ui-primary)] rounded-full flex items-center justify-center text-xs font-semibold">
+                                    @svg('heroicon-o-viewfinder-circle', 'w-4 h-4')
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-[var(--ui-secondary)] text-sm">{{ $forecast->focusAreas->count() }} Focus Areas hinzugefügt</div>
+                                    <div class="text-xs text-[var(--ui-muted)]">Letzte Änderung: {{ $forecast->updated_at->diffForHumans() }}</div>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($forecast->versions->count() > 0)
+                            <div class="flex items-start gap-3 p-3 rounded-lg border border-[var(--ui-border)]/40 bg-[var(--ui-muted-5)]">
+                                <div class="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-xs font-semibold">
+                                    @svg('heroicon-o-document-text', 'w-4 h-4')
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-medium text-[var(--ui-secondary)] text-sm">{{ $forecast->versions->count() }} Versionen erstellt</div>
+                                    <div class="text-xs text-[var(--ui-muted)]">Content-Versionierung</div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- Quick Stats --}}
+                <div>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Schnellübersicht</h3>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between py-2 px-3 bg-[var(--ui-muted-5)] rounded-lg">
+                            <span class="text-sm text-[var(--ui-secondary)]">Zieldatum</span>
+                            <span class="text-sm font-medium text-[var(--ui-muted)]">{{ $forecast->target_date->format('d.m.Y') }}</span>
+                        </div>
+                        @if($forecast->currentVersion)
+                            <div class="flex items-center justify-between py-2 px-3 bg-[var(--ui-muted-5)] rounded-lg">
+                                <span class="text-sm text-[var(--ui-secondary)]">Version</span>
+                                <span class="text-sm font-medium text-[var(--ui-muted)]">v{{ $forecast->currentVersion->version }}</span>
+                            </div>
+                        @endif
+                        <div class="flex items-center justify-between py-2 px-3 bg-[var(--ui-muted-5)] rounded-lg">
+                            <span class="text-sm text-[var(--ui-secondary)]">Focus Areas</span>
+                            <span class="text-sm font-medium text-[var(--ui-muted)]">{{ $forecast->focusAreas->count() }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 px-3 bg-[var(--ui-muted-5)] rounded-lg">
+                            <span class="text-sm text-[var(--ui-secondary)]">Erstellt</span>
+                            <span class="text-sm font-medium text-[var(--ui-muted)]">{{ $forecast->created_at->format('d.m.Y') }}</span>
+                        </div>
+                        <div class="flex items-center justify-between py-2 px-3 bg-[var(--ui-muted-5)] rounded-lg">
+                            <span class="text-sm text-[var(--ui-secondary)]">Erstellt von</span>
+                            <span class="text-sm font-medium text-[var(--ui-muted)]">{{ $forecast->user->name ?? 'Unbekannt' }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </x-ui-page-sidebar>
     </x-slot>
