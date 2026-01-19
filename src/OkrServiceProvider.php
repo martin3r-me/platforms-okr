@@ -194,8 +194,14 @@ class OkrServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Okr\Tools\GetKeyResultContextsTool());
             $registry->register(new \Platform\Okr\Tools\GetContextKeyResultsTool());
             $registry->register(new \Platform\Okr\Tools\ListPerformancesTool());
-            $registry->register(new \Platform\Okr\Tools\ListStrategicDocumentsTool());
-            $registry->register(new \Platform\Okr\Tools\GetStrategicDocumentTool());
+
+            // Forecast & FocusArea Read Tools
+            $registry->register(new \Platform\Okr\Tools\ListForecastsTool());
+            $registry->register(new \Platform\Okr\Tools\GetForecastTool());
+            $registry->register(new \Platform\Okr\Tools\ListFocusAreasTool());
+            $registry->register(new \Platform\Okr\Tools\ListVisionImagesTool());
+            $registry->register(new \Platform\Okr\Tools\ListObstaclesTool());
+            $registry->register(new \Platform\Okr\Tools\ListMilestonesTool());
 
             // Write tools (Cycles/Objectives/KRs)
             $registry->register(new \Platform\Okr\Tools\CreateCycleTool());
@@ -209,9 +215,6 @@ class OkrServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Okr\Tools\CreateKeyResultTool());
             $registry->register(new \Platform\Okr\Tools\UpdateKeyResultTool());
             $registry->register(new \Platform\Okr\Tools\DeleteKeyResultTool());
-
-            $registry->register(new \Platform\Okr\Tools\CreateStrategicDocumentTool());
-            $registry->register(new \Platform\Okr\Tools\UpdateStrategicDocumentTool());
 
             // FocusArea Tools
             $registry->register(new \Platform\Okr\Tools\CreateFocusAreaTool());

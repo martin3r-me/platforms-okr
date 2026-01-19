@@ -33,6 +33,9 @@ class CreateFocusAreaTool implements ToolContract, ToolMetadataContract
                 'title' => ['type' => 'string', 'description' => 'Titel (required).'],
                 'description' => ['type' => 'string'],
                 'content' => ['type' => 'string', 'description' => 'Optional: Markdown-Content.'],
+                'central_question_vision_images' => ['type' => 'string', 'description' => 'Optional: Zentrale Frage zu Zielbildern.'],
+                'central_question_obstacles' => ['type' => 'string', 'description' => 'Optional: Zentrale Frage zu Hindernissen.'],
+                'central_question_milestones' => ['type' => 'string', 'description' => 'Optional: Zentrale Frage zu Meilensteinen.'],
                 'order' => ['type' => 'integer', 'description' => 'Optional: Reihenfolge. Wenn nicht gesetzt, wird ans Ende gehängt.'],
             ],
             'required' => ['forecast_id', 'title'],
@@ -75,6 +78,9 @@ class CreateFocusAreaTool implements ToolContract, ToolMetadataContract
                 'title' => trim($title),
                 'description' => $arguments['description'] ?? null,
                 'content' => $arguments['content'] ?? null,
+                'central_question_vision_images' => $arguments['central_question_vision_images'] ?? null,
+                'central_question_obstacles' => $arguments['central_question_obstacles'] ?? null,
+                'central_question_milestones' => $arguments['central_question_milestones'] ?? null,
                 'order' => $order,
             ]);
 

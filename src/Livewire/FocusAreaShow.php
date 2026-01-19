@@ -13,6 +13,9 @@ class FocusAreaShow extends Component
 {
     public FocusArea $focusArea;
     public string $content = '';
+    public string $centralQuestionVisionImages = '';
+    public string $centralQuestionObstacles = '';
+    public string $centralQuestionMilestones = '';
     public bool $isDirty = false;
 
     // VisionImage Modal Properties
@@ -66,6 +69,9 @@ class FocusAreaShow extends Component
     {
         $this->focusArea = $focusArea;
         $this->content = $this->focusArea->content ?? '';
+        $this->centralQuestionVisionImages = $this->focusArea->central_question_vision_images ?? '';
+        $this->centralQuestionObstacles = $this->focusArea->central_question_obstacles ?? '';
+        $this->centralQuestionMilestones = $this->focusArea->central_question_milestones ?? '';
         $this->focusArea->load([
             'forecast', 
             'team', 
@@ -78,7 +84,7 @@ class FocusAreaShow extends Component
 
     public function updated($property)
     {
-        if ($property === 'content') {
+        if (in_array($property, ['content', 'centralQuestionVisionImages', 'centralQuestionObstacles', 'centralQuestionMilestones'])) {
             $this->isDirty = true;
         }
         if (str($property)->startsWith('visionImageForm.') || 
@@ -90,9 +96,19 @@ class FocusAreaShow extends Component
 
     public function save()
     {
-        $this->validate(['content' => 'nullable|string']);
+        $this->validate([
+            'content' => 'nullable|string',
+            'centralQuestionVisionImages' => 'nullable|string',
+            'centralQuestionObstacles' => 'nullable|string',
+            'centralQuestionMilestones' => 'nullable|string',
+        ]);
 
-        $this->focusArea->update(['content' => $this->content]);
+        $this->focusArea->update([
+            'content' => $this->content,
+            'central_question_vision_images' => $this->centralQuestionVisionImages,
+            'central_question_obstacles' => $this->centralQuestionObstacles,
+            'central_question_milestones' => $this->centralQuestionMilestones,
+        ]);
         $this->focusArea->refresh();
         $this->isDirty = false;
         session()->flash('message', 'Focus Area erfolgreich gespeichert!');

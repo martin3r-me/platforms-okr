@@ -198,6 +198,20 @@
                 </x-ui-button>
             </div>
 
+            {{-- Zentrale Frage zu Zielbildern --}}
+            <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <label class="block text-sm font-medium text-blue-900 mb-2">
+                    Zentrale Frage zu Zielbildern
+                </label>
+                <x-ui-input-textarea
+                    name="centralQuestionVisionImages"
+                    wire:model.live="centralQuestionVisionImages"
+                    placeholder="Welche zentrale Frage soll bei den Zielbildern beantwortet werden?"
+                    rows="2"
+                    class="bg-white"
+                />
+            </div>
+
             @if($focusArea->visionImages->count() > 0)
                 <div wire:sortable="updateVisionImageOrder" wire:sortable.options="{ animation: 150 }">
                     @foreach($focusArea->visionImages->sortBy('order') as $visionImage)
@@ -276,6 +290,20 @@
                 </x-ui-button>
             </div>
 
+            {{-- Zentrale Frage zu Hindernissen --}}
+            <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                <label class="block text-sm font-medium text-red-900 mb-2">
+                    Zentrale Frage zu Hindernissen
+                </label>
+                <x-ui-input-textarea
+                    name="centralQuestionObstacles"
+                    wire:model.live="centralQuestionObstacles"
+                    placeholder="Welche zentrale Frage soll bei den Hindernissen beantwortet werden?"
+                    rows="2"
+                    class="bg-white"
+                />
+            </div>
+
             @if($focusArea->obstacles->count() > 0)
                 <div wire:sortable="updateObstacleOrder" wire:sortable.options="{ animation: 150 }">
                     @foreach($focusArea->obstacles->sortBy('order') as $obstacle)
@@ -352,6 +380,20 @@
                     @svg('heroicon-o-plus', 'w-4 h-4')
                     <span class="ml-1">Meilenstein hinzufügen</span>
                 </x-ui-button>
+            </div>
+
+            {{-- Zentrale Frage zu Meilensteinen --}}
+            <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                <label class="block text-sm font-medium text-green-900 mb-2">
+                    Zentrale Frage zu Meilensteinen
+                </label>
+                <x-ui-input-textarea
+                    name="centralQuestionMilestones"
+                    wire:model.live="centralQuestionMilestones"
+                    placeholder="Welche zentrale Frage soll bei den Meilensteinen beantwortet werden?"
+                    rows="2"
+                    class="bg-white"
+                />
             </div>
 
             @if($focusArea->milestones->count() > 0)

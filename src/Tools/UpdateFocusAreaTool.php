@@ -32,6 +32,9 @@ class UpdateFocusAreaTool implements ToolContract, ToolMetadataContract
                 'title' => ['type' => 'string'],
                 'description' => ['type' => 'string'],
                 'content' => ['type' => 'string'],
+                'central_question_vision_images' => ['type' => 'string', 'description' => 'Zentrale Frage zu Zielbildern.'],
+                'central_question_obstacles' => ['type' => 'string', 'description' => 'Zentrale Frage zu Hindernissen.'],
+                'central_question_milestones' => ['type' => 'string', 'description' => 'Zentrale Frage zu Meilensteinen.'],
                 'order' => ['type' => 'integer'],
             ],
             'required' => ['id'],
@@ -61,7 +64,7 @@ class UpdateFocusAreaTool implements ToolContract, ToolMetadataContract
             }
 
             $dirty = false;
-            foreach (['title', 'description', 'content', 'order'] as $field) {
+            foreach (['title', 'description', 'content', 'central_question_vision_images', 'central_question_obstacles', 'central_question_milestones', 'order'] as $field) {
                 if (array_key_exists($field, $arguments)) {
                     $focusArea->{$field} = $arguments[$field];
                     $dirty = true;
