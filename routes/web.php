@@ -5,6 +5,7 @@ use Platform\Okr\Livewire\Dashboard;
 use Platform\Okr\Livewire\OkrManagement;
 use Platform\Okr\Livewire\OkrShow;
 use Platform\Okr\Livewire\StrategicDocumentsManagement;
+use Platform\Okr\Http\Controllers\ForecastPdfController;
 use Illuminate\Http\Middleware\FrameGuard;
 
 // Dashboard
@@ -25,6 +26,7 @@ Route::get('/strategic-documents', StrategicDocumentsManagement::class)->name('o
 
 // Forecast Management
 Route::get('/forecasts', \Platform\Okr\Livewire\ForecastManagement::class)->name('okr.forecasts.index');
+Route::get('/forecasts/{forecast}/pdf', ForecastPdfController::class)->name('okr.forecasts.pdf');
 Route::get('/forecasts/{forecast}', \Platform\Okr\Livewire\ForecastShow::class)->name('okr.forecasts.show');
 
 // Focus Area Management

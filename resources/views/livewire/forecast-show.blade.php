@@ -2,6 +2,15 @@
     <x-slot name="navbar">
         <x-ui-page-navbar :title="$forecast->title" icon="heroicon-o-sparkles">
             <x-slot name="titleActions">
+                <a
+                    href="{{ route('okr.forecasts.pdf', $forecast) }}"
+                    class="px-3 py-1.5 text-sm rounded-lg border border-[var(--ui-border)] hover:bg-[var(--ui-muted-5)] transition-colors flex items-center gap-2"
+                    target="_blank"
+                    rel="noopener"
+                >
+                    @svg('heroicon-o-document-arrow-down', 'w-4 h-4')
+                    PDF
+                </a>
                 @if($this->isDirty)
                     <x-ui-button 
                         variant="secondary" 
