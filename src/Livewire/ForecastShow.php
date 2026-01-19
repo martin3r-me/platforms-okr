@@ -3,6 +3,7 @@
 namespace Platform\Okr\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\Computed;
 use Platform\Okr\Models\Forecast;
 use Platform\Okr\Models\FocusArea;
 
@@ -33,7 +34,15 @@ class ForecastShow extends Component
     {
         $this->forecast = $forecast;
         $this->content = $this->forecast->content ?? '';
-        $this->forecast->load(['team', 'user', 'focusAreas', 'versions', 'currentVersion']);
+        $this->forecast->load([
+            'team', 
+            'user', 
+            'focusAreas.visionImages', 
+            'focusAreas.obstacles', 
+            'focusAreas.milestones', 
+            'versions', 
+            'currentVersion'
+        ]);
     }
 
     public function updated($property)
@@ -171,6 +180,49 @@ class ForecastShow extends Component
         $this->forecast->refresh();
         $this->forecast->load('focusAreas');
         session()->flash('message', 'Focus Area-Reihenfolge aktualisiert!');
+    }
+
+    #[Computed]
+    public function transformationMapYears()
+    {
+        if (!$this->forecast->target_date) {
+            return [];
+        }
+
+        $startYear = $this->forecast->created_at->year;
+        $endYear = $this->forecast->target_date->year;
+
+        $years = [];
+        for ($year = $startYear; $year <= $endYear; $year++) {
+            $years[] = $year;
+        }
+
+        return $years;
+    }
+
+    #[Computed]
+    public function transformationMapData()
+    {
+        $years = $this->transformationMapYears;
+        $focusAreas = $this->forecast->focusAreas->sortBy('order');
+        
+        $map = [];
+        
+        foreach ($years as $year) {
+            $map[$year] = [];
+            foreach ($focusAreas as $focusArea) {
+                $milestones = $focusArea->milestones->filter(function ($milestone) use ($year) {
+                    return $milestone->target_year == $year;
+                })->sortBy('target_quarter');
+                
+                $map[$year][$focusArea->id] = [
+                    'focusArea' => $focusArea,
+                    'milestones' => $milestones,
+                ];
+            }
+        }
+        
+        return $map;
     }
 
     public function render()

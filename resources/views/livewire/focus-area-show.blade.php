@@ -360,11 +360,19 @@
                         <div wire:sortable.item="{{ $milestone->id }}" wire:key="milestone-{{ $milestone->id }}" class="mb-4 p-6 border border-[var(--ui-border)]/60 rounded-lg bg-[var(--ui-muted-5)] hover:border-[var(--ui-border)]/80 transition-colors">
                             <div class="flex justify-between items-center">
                                 <div class="flex-grow-1">
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-3 flex-wrap">
                                         <div class="font-medium text-lg text-[var(--ui-secondary)]">{{ $milestone->title }}</div>
                                         <x-ui-badge variant="secondary" size="sm">Order: {{ $milestone->order }}</x-ui-badge>
                                         @if($milestone->target_date)
                                             <x-ui-badge variant="secondary" size="sm">{{ $milestone->target_date->format('d.m.Y') }}</x-ui-badge>
+                                        @endif
+                                        @if($milestone->target_year)
+                                            <x-ui-badge variant="primary" size="sm">
+                                                {{ $milestone->target_year }}
+                                                @if($milestone->target_quarter)
+                                                    Q{{ $milestone->target_quarter }}
+                                                @endif
+                                            </x-ui-badge>
                                         @endif
                                     </div>
                                     @if($milestone->description)
@@ -716,6 +724,25 @@
                     label="Zieldatum"
                     wire:model.live="milestoneForm.target_date"
                 />
+                <div class="grid grid-cols-2 gap-4">
+                    <x-ui-input-number
+                        name="milestoneForm.target_year"
+                        label="Zieljahr"
+                        wire:model.live="milestoneForm.target_year"
+                        min="2000"
+                        max="2100"
+                        placeholder="z.B. 2025"
+                    />
+                    <x-ui-input-number
+                        name="milestoneForm.target_quarter"
+                        label="Zielquartal"
+                        wire:model.live="milestoneForm.target_quarter"
+                        min="1"
+                        max="4"
+                        placeholder="1-4"
+                        :disabled="empty($milestoneForm['target_year'])"
+                    />
+                </div>
                 <x-ui-input-number
                     name="milestoneForm.order"
                     label="Reihenfolge"
@@ -757,6 +784,29 @@
                     label="Zieldatum"
                     wire:model.live="milestoneForm.target_date"
                 />
+                <div class="grid grid-cols-2 gap-4">
+                    <x-ui-input-select
+                        name="milestoneForm.target_year"
+                        label="Zieljahr"
+                        :options="$this->availableYears"
+                        optionValue="key"
+                        optionLabel="value"
+                        :nullable="true"
+                        nullLabel="– Jahr auswählen –"
+                        wire:model.live="milestoneForm.target_year"
+                    />
+                    <x-ui-input-select
+                        name="milestoneForm.target_quarter"
+                        label="Zielquartal"
+                        :options="$this->availableQuarters"
+                        optionValue="key"
+                        optionLabel="value"
+                        :nullable="true"
+                        nullLabel="– Quartal auswählen –"
+                        wire:model.live="milestoneForm.target_quarter"
+                        :disabled="empty($milestoneForm['target_year'])"
+                    />
+                </div>
                 <x-ui-input-number
                     name="milestoneForm.order"
                     label="Reihenfolge"

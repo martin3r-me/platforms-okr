@@ -82,6 +82,92 @@
         </div>
 
         {{-- Markdown Editor (oben) --}}
+        {{-- Transformation Map --}}
+        <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-purple-500 text-white rounded-lg flex items-center justify-center">
+                        @svg('heroicon-o-map', 'w-4 h-4')
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Transformation Map</h3>
+                        <p class="text-sm text-[var(--ui-muted)]">Übersicht der Meilensteine nach Jahren und Fokusräumen</p>
+                    </div>
+                </div>
+            </div>
+
+            @php
+                $mapData = $this->transformationMapData;
+                $years = $this->transformationMapYears;
+                $focusAreas = $forecast->focusAreas->sortBy('order');
+            @endphp
+
+            @if(count($years) > 0 && $focusAreas->count() > 0)
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="border border-[var(--ui-border)]/60 bg-[var(--ui-muted-5)] p-3 text-left text-sm font-semibold text-[var(--ui-secondary)] sticky left-0 z-10">
+                                    Fokusraum
+                                </th>
+                                @foreach($years as $year)
+                                    <th class="border border-[var(--ui-border)]/60 bg-[var(--ui-muted-5)] p-3 text-center text-sm font-semibold text-[var(--ui-secondary)] min-w-[200px]">
+                                        {{ $year }}
+                                    </th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($focusAreas as $focusArea)
+                                <tr>
+                                    <td class="border border-[var(--ui-border)]/60 p-3 bg-white sticky left-0 z-10">
+                                        <a 
+                                            href="{{ route('okr.focus-areas.show', $focusArea) }}" 
+                                            wire:navigate
+                                            class="font-medium text-[var(--ui-primary)] hover:underline"
+                                        >
+                                            {{ $focusArea->title }}
+                                        </a>
+                                    </td>
+                                    @foreach($years as $year)
+                                        <td class="border border-[var(--ui-border)]/60 p-3 bg-white align-top">
+                                            @php
+                                                $yearData = $mapData[$year][$focusArea->id] ?? null;
+                                                $milestones = $yearData['milestones'] ?? collect();
+                                            @endphp
+                                            @if($milestones->count() > 0)
+                                                <div class="space-y-2">
+                                                    @foreach($milestones as $milestone)
+                                                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-2 border border-[var(--ui-border)]/40">
+                                                            <div class="font-medium text-sm text-[var(--ui-secondary)]">
+                                                                {{ $milestone->title }}
+                                                            </div>
+                                                            @if($milestone->target_quarter)
+                                                                <div class="text-xs text-[var(--ui-muted)] mt-1">
+                                                                    Q{{ $milestone->target_quarter }}
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @else
+                                                <div class="text-xs text-[var(--ui-muted)] text-center">—</div>
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @else
+                <div class="text-center py-8 text-[var(--ui-muted)]">
+                    <p>Keine Daten verfügbar. Bitte erstelle Fokusräume und Meilensteine.</p>
+                </div>
+            @endif
+        </div>
+
+        {{-- Regnose Content --}}
         <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
@@ -194,7 +280,7 @@
                         @svg('heroicon-o-viewfinder-circle', 'w-4 h-4')
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Focus Areas</h3>
+                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Fokusräume</h3>
                         <p class="text-sm text-[var(--ui-muted)]">Fokusräume, die zu dieser Regnose gehören</p>
                     </div>
                 </div>
@@ -204,31 +290,65 @@
                     wire:click="addFocusArea"
                 >
                     @svg('heroicon-o-plus', 'w-4 h-4')
-                    <span class="ml-1">Focus Area hinzufügen</span>
+                    <span class="ml-1">Fokusraum hinzufügen</span>
                 </x-ui-button>
             </div>
 
             @if($forecast->focusAreas->count() > 0)
                 <div wire:sortable="updateFocusAreaOrder" wire:sortable.options="{ animation: 150 }">
                     @foreach($forecast->focusAreas->sortBy('order') as $focusArea)
-                        <div wire:sortable.item="{{ $focusArea->id }}" wire:key="focusarea-{{ $focusArea->id }}" class="mb-4 p-6 border border-[var(--ui-border)]/60 rounded-lg bg-[var(--ui-muted-5)] hover:border-[var(--ui-border)]/80 transition-colors">
-                            <div class="flex justify-between items-center">
+                        @php
+                            $visionImagesCount = $focusArea->visionImages->count();
+                            $obstaclesCount = $focusArea->obstacles->count();
+                            $milestonesCount = $focusArea->milestones->count();
+                        @endphp
+                        <div wire:sortable.item="{{ $focusArea->id }}" wire:key="focusarea-{{ $focusArea->id }}" class="mb-6 p-6 border border-[var(--ui-border)]/60 rounded-lg bg-gradient-to-br from-white to-[var(--ui-muted-5)] hover:border-[var(--ui-primary)]/40 hover:shadow-lg transition-all">
+                            <div class="flex justify-between items-start mb-4">
                                 <div class="flex-grow-1">
-                                    <div class="flex items-center gap-3">
-                                        <a 
-                                            href="{{ route('okr.focus-areas.show', $focusArea) }}" 
-                                            wire:navigate
-                                            class="font-medium text-lg text-[var(--ui-primary)] hover:underline"
-                                        >
-                                            {{ $focusArea->title }}
-                                        </a>
-                                        <x-ui-badge variant="secondary" size="sm">Order: {{ $focusArea->order }}</x-ui-badge>
+                                    <div class="flex items-center gap-3 mb-3">
+                                        <div class="w-10 h-10 bg-[var(--ui-primary)] text-white rounded-lg flex items-center justify-center flex-shrink-0">
+                                            @svg('heroicon-o-viewfinder-circle', 'w-5 h-5')
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <a 
+                                                href="{{ route('okr.focus-areas.show', $focusArea) }}" 
+                                                wire:navigate
+                                                class="font-semibold text-xl text-[var(--ui-primary)] hover:underline block"
+                                            >
+                                                {{ $focusArea->title }}
+                                            </a>
+                                            @if($focusArea->description)
+                                                <div class="text-sm text-[var(--ui-muted)] mt-1">{{ Str::limit($focusArea->description, 150) }}</div>
+                                            @endif
+                                        </div>
                                     </div>
-                                    @if($focusArea->description)
-                                        <div class="text-sm text-[var(--ui-muted)] mt-2">{{ Str::limit($focusArea->description, 200) }}</div>
-                                    @endif
+                                    
+                                    {{-- Statistiken --}}
+                                    <div class="grid grid-cols-3 gap-3 mt-4">
+                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
+                                            <div class="flex items-center justify-center gap-2 mb-1">
+                                                @svg('heroicon-o-photo', 'w-4 h-4 text-blue-600')
+                                                <div class="text-lg font-bold text-blue-600">{{ $visionImagesCount }}</div>
+                                            </div>
+                                            <div class="text-xs text-blue-700 font-medium">Zielbilder</div>
+                                        </div>
+                                        <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                                            <div class="flex items-center justify-center gap-2 mb-1">
+                                                @svg('heroicon-o-exclamation-triangle', 'w-4 h-4 text-red-600')
+                                                <div class="text-lg font-bold text-red-600">{{ $obstaclesCount }}</div>
+                                            </div>
+                                            <div class="text-xs text-red-700 font-medium">Hindernisse</div>
+                                        </div>
+                                        <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                                            <div class="flex items-center justify-center gap-2 mb-1">
+                                                @svg('heroicon-o-flag', 'w-4 h-4 text-green-600')
+                                                <div class="text-lg font-bold text-green-600">{{ $milestonesCount }}</div>
+                                            </div>
+                                            <div class="text-xs text-green-700 font-medium">Meilensteine</div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="flex items-center gap-2 ml-4">
+                                <div class="flex items-center gap-2 ml-4 flex-shrink-0">
                                     <x-ui-button 
                                         size="sm" 
                                         variant="secondary-ghost" 

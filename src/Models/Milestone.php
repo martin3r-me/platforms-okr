@@ -28,6 +28,8 @@ class Milestone extends Model implements HasDisplayName
         'title',
         'description',
         'target_date',
+        'target_year',
+        'target_quarter',
         'order',
         'team_id',
         'user_id',
@@ -35,6 +37,8 @@ class Milestone extends Model implements HasDisplayName
 
     protected $casts = [
         'target_date' => 'date',
+        'target_year' => 'integer',
+        'target_quarter' => 'integer',
     ];
 
     protected static function booted(): void

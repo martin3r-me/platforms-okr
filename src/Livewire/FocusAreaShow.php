@@ -3,6 +3,7 @@
 namespace Platform\Okr\Livewire;
 
 use Livewire\Component;
+use Livewire\Attributes\Computed;
 use Platform\Okr\Models\FocusArea;
 use Platform\Okr\Models\VisionImage;
 use Platform\Okr\Models\Obstacle;
@@ -42,6 +43,8 @@ class FocusAreaShow extends Component
         'title' => '',
         'description' => '',
         'target_date' => '',
+        'target_year' => '',
+        'target_quarter' => '',
         'order' => 0,
     ];
 
@@ -56,6 +59,8 @@ class FocusAreaShow extends Component
         'milestoneForm.title' => 'required|string|max:255',
         'milestoneForm.description' => 'nullable|string',
         'milestoneForm.target_date' => 'nullable|date',
+        'milestoneForm.target_year' => 'nullable|integer|min:2000|max:2100',
+        'milestoneForm.target_quarter' => 'nullable|integer|min:1|max:4|required_with:milestoneForm.target_year',
         'milestoneForm.order' => 'required|integer|min:0',
     ];
 
@@ -304,6 +309,8 @@ class FocusAreaShow extends Component
             'title' => $milestone->title,
             'description' => $milestone->description ?? '',
             'target_date' => $milestone->target_date?->format('Y-m-d') ?? '',
+            'target_year' => $milestone->target_year ?? '',
+            'target_quarter' => $milestone->target_quarter ?? '',
             'order' => $milestone->order,
         ];
         $this->milestoneEditModalShow = true;
@@ -321,8 +328,15 @@ class FocusAreaShow extends Component
             'milestoneForm.title' => 'required|string|max:255',
             'milestoneForm.description' => 'nullable|string',
             'milestoneForm.target_date' => 'nullable|date',
+            'milestoneForm.target_year' => 'nullable|integer|min:2000|max:2100',
+            'milestoneForm.target_quarter' => 'nullable|integer|min:1|max:4|required_with:milestoneForm.target_year',
             'milestoneForm.order' => 'required|integer|min:0',
         ]);
+
+        // Ensure target_quarter is null if target_year is not set
+        if (empty($this->milestoneForm['target_year'])) {
+            $this->milestoneForm['target_quarter'] = null;
+        }
 
         $user = auth()->user();
         $baseTeam = $user->currentTeamRelation;
@@ -337,6 +351,8 @@ class FocusAreaShow extends Component
                 'title' => $this->milestoneForm['title'],
                 'description' => $this->milestoneForm['description'],
                 'target_date' => $this->milestoneForm['target_date'] ?: null,
+                'target_year' => $this->milestoneForm['target_year'] ?: null,
+                'target_quarter' => $this->milestoneForm['target_quarter'] ?: null,
                 'order' => $this->milestoneForm['order'],
             ]);
             session()->flash('message', 'Meilenstein erfolgreich aktualisiert!');
@@ -345,6 +361,8 @@ class FocusAreaShow extends Component
                 'title' => $this->milestoneForm['title'],
                 'description' => $this->milestoneForm['description'],
                 'target_date' => $this->milestoneForm['target_date'] ?: null,
+                'target_year' => $this->milestoneForm['target_year'] ?: null,
+                'target_quarter' => $this->milestoneForm['target_quarter'] ?: null,
                 'order' => $this->milestoneForm['order'],
                 'team_id' => $teamId,
                 'user_id' => $user->id,
@@ -375,7 +393,42 @@ class FocusAreaShow extends Component
             'title' => '',
             'description' => '',
             'target_date' => '',
+            'target_year' => '',
+            'target_quarter' => '',
             'order' => 0,
+        ];
+    }
+
+    #[Computed]
+    public function availableYears()
+    {
+        if (!$this->focusArea->forecast) {
+            return [];
+        }
+
+        $forecast = $this->focusArea->forecast;
+        $startYear = $forecast->created_at->year;
+        $endYear = $forecast->target_date->year;
+
+        $years = [];
+        for ($year = $startYear; $year <= $endYear; $year++) {
+            $years[] = [
+                'key' => $year,
+                'value' => (string)$year,
+            ];
+        }
+
+        return $years;
+    }
+
+    #[Computed]
+    public function availableQuarters()
+    {
+        return [
+            ['key' => 1, 'value' => 'Q1'],
+            ['key' => 2, 'value' => 'Q2'],
+            ['key' => 3, 'value' => 'Q3'],
+            ['key' => 4, 'value' => 'Q4'],
         ];
     }
 
