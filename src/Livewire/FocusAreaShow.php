@@ -25,6 +25,7 @@ class FocusAreaShow extends Component
     public $visionImageForm = [
         'title' => '',
         'description' => '',
+        'central_question' => '',
         'order' => 0,
     ];
 
@@ -35,6 +36,7 @@ class FocusAreaShow extends Component
     public $obstacleForm = [
         'title' => '',
         'description' => '',
+        'central_question' => '',
         'order' => 0,
     ];
 
@@ -45,6 +47,7 @@ class FocusAreaShow extends Component
     public $milestoneForm = [
         'title' => '',
         'description' => '',
+        'central_question' => '',
         'target_year' => '',
         'target_quarter' => '',
         'order' => 0,
@@ -54,12 +57,15 @@ class FocusAreaShow extends Component
         'content' => 'nullable|string',
         'visionImageForm.title' => 'required|string|max:255',
         'visionImageForm.description' => 'nullable|string',
+        'visionImageForm.central_question' => 'nullable|string',
         'visionImageForm.order' => 'required|integer|min:0',
         'obstacleForm.title' => 'required|string|max:255',
         'obstacleForm.description' => 'nullable|string',
+        'obstacleForm.central_question' => 'nullable|string',
         'obstacleForm.order' => 'required|integer|min:0',
         'milestoneForm.title' => 'required|string|max:255',
         'milestoneForm.description' => 'nullable|string',
+        'milestoneForm.central_question' => 'nullable|string',
         'milestoneForm.target_year' => 'nullable|integer',
         'milestoneForm.target_quarter' => 'nullable|integer|min:1|max:4',
         'milestoneForm.order' => 'required|integer|min:0',
@@ -136,6 +142,7 @@ class FocusAreaShow extends Component
         $this->visionImageForm = [
             'title' => $visionImage->title,
             'description' => $visionImage->description ?? '',
+            'central_question' => $visionImage->central_question ?? '',
             'order' => $visionImage->order,
         ];
         $this->visionImageEditModalShow = true;
@@ -152,6 +159,7 @@ class FocusAreaShow extends Component
         $this->validate([
             'visionImageForm.title' => 'required|string|max:255',
             'visionImageForm.description' => 'nullable|string',
+            'visionImageForm.central_question' => 'nullable|string',
             'visionImageForm.order' => 'required|integer|min:0',
         ]);
 
@@ -167,6 +175,7 @@ class FocusAreaShow extends Component
             $visionImage->update([
                 'title' => $this->visionImageForm['title'],
                 'description' => $this->visionImageForm['description'],
+                'central_question' => $this->visionImageForm['central_question'],
                 'order' => $this->visionImageForm['order'],
             ]);
             session()->flash('message', 'Zielbild erfolgreich aktualisiert!');
@@ -174,6 +183,7 @@ class FocusAreaShow extends Component
             $this->focusArea->visionImages()->create([
                 'title' => $this->visionImageForm['title'],
                 'description' => $this->visionImageForm['description'],
+                'central_question' => $this->visionImageForm['central_question'],
                 'order' => $this->visionImageForm['order'],
                 'team_id' => $teamId,
                 'user_id' => $user->id,
@@ -203,6 +213,7 @@ class FocusAreaShow extends Component
         $this->visionImageForm = [
             'title' => '',
             'description' => '',
+            'central_question' => '',
             'order' => 0,
         ];
     }
@@ -229,6 +240,7 @@ class FocusAreaShow extends Component
         $this->obstacleForm = [
             'title' => $obstacle->title,
             'description' => $obstacle->description ?? '',
+            'central_question' => $obstacle->central_question ?? '',
             'order' => $obstacle->order,
         ];
         $this->obstacleEditModalShow = true;
@@ -245,6 +257,7 @@ class FocusAreaShow extends Component
         $this->validate([
             'obstacleForm.title' => 'required|string|max:255',
             'obstacleForm.description' => 'nullable|string',
+            'obstacleForm.central_question' => 'nullable|string',
             'obstacleForm.order' => 'required|integer|min:0',
         ]);
 
@@ -260,6 +273,7 @@ class FocusAreaShow extends Component
             $obstacle->update([
                 'title' => $this->obstacleForm['title'],
                 'description' => $this->obstacleForm['description'],
+                'central_question' => $this->obstacleForm['central_question'],
                 'order' => $this->obstacleForm['order'],
             ]);
             session()->flash('message', 'Hindernis erfolgreich aktualisiert!');
@@ -267,6 +281,7 @@ class FocusAreaShow extends Component
             $this->focusArea->obstacles()->create([
                 'title' => $this->obstacleForm['title'],
                 'description' => $this->obstacleForm['description'],
+                'central_question' => $this->obstacleForm['central_question'],
                 'order' => $this->obstacleForm['order'],
                 'team_id' => $teamId,
                 'user_id' => $user->id,
@@ -296,6 +311,7 @@ class FocusAreaShow extends Component
         $this->obstacleForm = [
             'title' => '',
             'description' => '',
+            'central_question' => '',
             'order' => 0,
         ];
     }
@@ -322,6 +338,7 @@ class FocusAreaShow extends Component
         $this->milestoneForm = [
             'title' => $milestone->title,
             'description' => $milestone->description ?? '',
+            'central_question' => $milestone->central_question ?? '',
             'target_year' => $milestone->target_year ?? '',
             'target_quarter' => $milestone->target_quarter ?? '',
             'order' => $milestone->order,
@@ -402,6 +419,7 @@ class FocusAreaShow extends Component
         $this->milestoneForm = [
             'title' => '',
             'description' => '',
+            'central_question' => '',
             'target_year' => '',
             'target_quarter' => '',
             'order' => 0,

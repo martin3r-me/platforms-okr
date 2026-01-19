@@ -31,6 +31,7 @@ class UpdateVisionImageTool implements ToolContract, ToolMetadataContract
                 'id' => ['type' => 'integer', 'description' => 'VisionImage-ID (required).'],
                 'title' => ['type' => 'string'],
                 'description' => ['type' => 'string'],
+                'central_question' => ['type' => 'string', 'description' => 'Zentrale Frage zu diesem Zielbild.'],
                 'order' => ['type' => 'integer'],
             ],
             'required' => ['id'],
@@ -60,7 +61,7 @@ class UpdateVisionImageTool implements ToolContract, ToolMetadataContract
             }
 
             $dirty = false;
-            foreach (['title', 'description', 'order'] as $field) {
+            foreach (['title', 'description', 'central_question', 'order'] as $field) {
                 if (array_key_exists($field, $arguments)) {
                     $visionImage->{$field} = $arguments[$field];
                     $dirty = true;

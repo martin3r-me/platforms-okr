@@ -27,6 +27,7 @@ class VisionImage extends Model implements HasDisplayName
         'focus_area_id',
         'title',
         'description',
+        'central_question',
         'order',
         'team_id',
         'user_id',

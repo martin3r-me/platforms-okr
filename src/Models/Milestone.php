@@ -27,6 +27,7 @@ class Milestone extends Model implements HasDisplayName
         'focus_area_id',
         'title',
         'description',
+        'central_question',
         'target_date',
         'target_year',
         'target_quarter',

@@ -31,6 +31,7 @@ class UpdateMilestoneTool implements ToolContract, ToolMetadataContract
                 'id' => ['type' => 'integer', 'description' => 'Milestone-ID (required).'],
                 'title' => ['type' => 'string'],
                 'description' => ['type' => 'string'],
+                'central_question' => ['type' => 'string', 'description' => 'Zentrale Frage zu diesem Meilenstein.'],
                 'target_year' => ['type' => 'integer'],
                 'target_quarter' => ['type' => 'integer', 'description' => 'Optional: Zielquartal (1-4). Kann nur gesetzt werden, wenn target_year gesetzt ist.'],
                 'order' => ['type' => 'integer'],
@@ -62,7 +63,7 @@ class UpdateMilestoneTool implements ToolContract, ToolMetadataContract
             }
 
             $dirty = false;
-            foreach (['title', 'description', 'order'] as $field) {
+            foreach (['title', 'description', 'central_question', 'order'] as $field) {
                 if (array_key_exists($field, $arguments)) {
                     $milestone->{$field} = $arguments[$field];
                     $dirty = true;

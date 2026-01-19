@@ -32,6 +32,7 @@ class CreateObstacleTool implements ToolContract, ToolMetadataContract
                 'focus_area_id' => ['type' => 'integer', 'description' => 'FocusArea-ID (required).'],
                 'title' => ['type' => 'string', 'description' => 'Titel (required).'],
                 'description' => ['type' => 'string'],
+                'central_question' => ['type' => 'string', 'description' => 'Zentrale Frage zu diesem Hindernis.'],
                 'order' => ['type' => 'integer', 'description' => 'Optional: Reihenfolge. Wenn nicht gesetzt, wird ans Ende gehängt.'],
             ],
             'required' => ['focus_area_id', 'title'],
@@ -73,6 +74,7 @@ class CreateObstacleTool implements ToolContract, ToolMetadataContract
                 'user_id' => $context->user->id,
                 'title' => trim($title),
                 'description' => $arguments['description'] ?? null,
+                'central_question' => $arguments['central_question'] ?? null,
                 'order' => $order,
             ]);
 

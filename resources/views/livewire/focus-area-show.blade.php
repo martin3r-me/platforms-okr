@@ -592,6 +592,13 @@
                     placeholder="Beschreibung des Zielbilds (optional)"
                     rows="3"
                 />
+                <x-ui-input-textarea
+                    name="visionImageForm.central_question"
+                    label="Zentrale Frage"
+                    wire:model.live="visionImageForm.central_question"
+                    placeholder="Welche zentrale Frage soll mit diesem Zielbild beantwortet werden? (optional)"
+                    rows="2"
+                />
                 <x-ui-input-number
                     name="visionImageForm.order"
                     label="Reihenfolge"
@@ -627,6 +634,13 @@
                     wire:model.live="visionImageForm.description"
                     placeholder="Beschreibung des Zielbilds (optional)"
                     rows="3"
+                />
+                <x-ui-input-textarea
+                    name="visionImageForm.central_question"
+                    label="Zentrale Frage"
+                    wire:model.live="visionImageForm.central_question"
+                    placeholder="Welche zentrale Frage soll mit diesem Zielbild beantwortet werden? (optional)"
+                    rows="2"
                 />
                 <x-ui-input-number
                     name="visionImageForm.order"
@@ -675,6 +689,13 @@
                     placeholder="Beschreibung des Hindernisses (optional)"
                     rows="3"
                 />
+                <x-ui-input-textarea
+                    name="obstacleForm.central_question"
+                    label="Zentrale Frage"
+                    wire:model.live="obstacleForm.central_question"
+                    placeholder="Welche zentrale Frage soll mit diesem Hindernis beantwortet werden? (optional)"
+                    rows="2"
+                />
                 <x-ui-input-number
                     name="obstacleForm.order"
                     label="Reihenfolge"
@@ -710,6 +731,13 @@
                     wire:model.live="obstacleForm.description"
                     placeholder="Beschreibung des Hindernisses (optional)"
                     rows="3"
+                />
+                <x-ui-input-textarea
+                    name="obstacleForm.central_question"
+                    label="Zentrale Frage"
+                    wire:model.live="obstacleForm.central_question"
+                    placeholder="Welche zentrale Frage soll mit diesem Hindernis beantwortet werden? (optional)"
+                    rows="2"
                 />
                 <x-ui-input-number
                     name="obstacleForm.order"
@@ -757,6 +785,13 @@
                     wire:model.live="milestoneForm.description"
                     placeholder="Beschreibung des Meilensteins (optional)"
                     rows="3"
+                />
+                <x-ui-input-textarea
+                    name="milestoneForm.central_question"
+                    label="Zentrale Frage"
+                    wire:model.live="milestoneForm.central_question"
+                    placeholder="Welche zentrale Frage soll mit diesem Meilenstein beantwortet werden? (optional)"
+                    rows="2"
                 />
                 <div class="grid grid-cols-2 gap-4">
                     <x-ui-input-select
@@ -816,6 +851,13 @@
                     wire:model.live="milestoneForm.description"
                     placeholder="Beschreibung des Meilensteins (optional)"
                     rows="3"
+                />
+                <x-ui-input-textarea
+                    name="milestoneForm.central_question"
+                    label="Zentrale Frage"
+                    wire:model.live="milestoneForm.central_question"
+                    placeholder="Welche zentrale Frage soll mit diesem Meilenstein beantwortet werden? (optional)"
+                    rows="2"
                 />
                 <div class="grid grid-cols-2 gap-4">
                     <x-ui-input-select
