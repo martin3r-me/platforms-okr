@@ -212,6 +212,38 @@ class OkrServiceProvider extends ServiceProvider
 
             $registry->register(new \Platform\Okr\Tools\CreateStrategicDocumentTool());
             $registry->register(new \Platform\Okr\Tools\UpdateStrategicDocumentTool());
+
+            // FocusArea Tools
+            $registry->register(new \Platform\Okr\Tools\CreateFocusAreaTool());
+            $registry->register(new \Platform\Okr\Tools\UpdateFocusAreaTool());
+            $registry->register(new \Platform\Okr\Tools\DeleteFocusAreaTool());
+            $registry->register(new \Platform\Okr\Tools\BulkCreateFocusAreasTool());
+            $registry->register(new \Platform\Okr\Tools\BulkUpdateFocusAreasTool());
+            $registry->register(new \Platform\Okr\Tools\BulkDeleteFocusAreasTool());
+
+            // VisionImage Tools
+            $registry->register(new \Platform\Okr\Tools\CreateVisionImageTool());
+            $registry->register(new \Platform\Okr\Tools\UpdateVisionImageTool());
+            $registry->register(new \Platform\Okr\Tools\DeleteVisionImageTool());
+            $registry->register(new \Platform\Okr\Tools\BulkCreateVisionImagesTool());
+            $registry->register(new \Platform\Okr\Tools\BulkUpdateVisionImagesTool());
+            $registry->register(new \Platform\Okr\Tools\BulkDeleteVisionImagesTool());
+
+            // Obstacle Tools
+            $registry->register(new \Platform\Okr\Tools\CreateObstacleTool());
+            $registry->register(new \Platform\Okr\Tools\UpdateObstacleTool());
+            $registry->register(new \Platform\Okr\Tools\DeleteObstacleTool());
+            $registry->register(new \Platform\Okr\Tools\BulkCreateObstaclesTool());
+            $registry->register(new \Platform\Okr\Tools\BulkUpdateObstaclesTool());
+            $registry->register(new \Platform\Okr\Tools\BulkDeleteObstaclesTool());
+
+            // Milestone Tools
+            $registry->register(new \Platform\Okr\Tools\CreateMilestoneTool());
+            $registry->register(new \Platform\Okr\Tools\UpdateMilestoneTool());
+            $registry->register(new \Platform\Okr\Tools\DeleteMilestoneTool());
+            $registry->register(new \Platform\Okr\Tools\BulkCreateMilestonesTool());
+            $registry->register(new \Platform\Okr\Tools\BulkUpdateMilestonesTool());
+            $registry->register(new \Platform\Okr\Tools\BulkDeleteMilestonesTool());
         } catch (\Throwable $e) {
             \Log::warning('OKR: Tool-Registrierung fehlgeschlagen', ['error' => $e->getMessage()]);
         }

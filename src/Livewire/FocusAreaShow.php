@@ -42,7 +42,6 @@ class FocusAreaShow extends Component
     public $milestoneForm = [
         'title' => '',
         'description' => '',
-        'target_date' => '',
         'target_year' => '',
         'target_quarter' => '',
         'order' => 0,
@@ -58,9 +57,8 @@ class FocusAreaShow extends Component
         'obstacleForm.order' => 'required|integer|min:0',
         'milestoneForm.title' => 'required|string|max:255',
         'milestoneForm.description' => 'nullable|string',
-        'milestoneForm.target_date' => 'nullable|date',
-        'milestoneForm.target_year' => 'nullable|integer|min:2000|max:2100',
-        'milestoneForm.target_quarter' => 'nullable|integer|min:1|max:4|required_with:milestoneForm.target_year',
+        'milestoneForm.target_year' => 'nullable|integer',
+        'milestoneForm.target_quarter' => 'nullable|integer|min:1|max:4',
         'milestoneForm.order' => 'required|integer|min:0',
     ];
 
@@ -308,7 +306,6 @@ class FocusAreaShow extends Component
         $this->milestoneForm = [
             'title' => $milestone->title,
             'description' => $milestone->description ?? '',
-            'target_date' => $milestone->target_date?->format('Y-m-d') ?? '',
             'target_year' => $milestone->target_year ?? '',
             'target_quarter' => $milestone->target_quarter ?? '',
             'order' => $milestone->order,
@@ -327,9 +324,8 @@ class FocusAreaShow extends Component
         $this->validate([
             'milestoneForm.title' => 'required|string|max:255',
             'milestoneForm.description' => 'nullable|string',
-            'milestoneForm.target_date' => 'nullable|date',
-            'milestoneForm.target_year' => 'nullable|integer|min:2000|max:2100',
-            'milestoneForm.target_quarter' => 'nullable|integer|min:1|max:4|required_with:milestoneForm.target_year',
+            'milestoneForm.target_year' => 'nullable|integer',
+            'milestoneForm.target_quarter' => 'nullable|integer|min:1|max:4',
             'milestoneForm.order' => 'required|integer|min:0',
         ]);
 
@@ -350,7 +346,6 @@ class FocusAreaShow extends Component
             $milestone->update([
                 'title' => $this->milestoneForm['title'],
                 'description' => $this->milestoneForm['description'],
-                'target_date' => $this->milestoneForm['target_date'] ?: null,
                 'target_year' => $this->milestoneForm['target_year'] ?: null,
                 'target_quarter' => $this->milestoneForm['target_quarter'] ?: null,
                 'order' => $this->milestoneForm['order'],
@@ -360,7 +355,6 @@ class FocusAreaShow extends Component
             $this->focusArea->milestones()->create([
                 'title' => $this->milestoneForm['title'],
                 'description' => $this->milestoneForm['description'],
-                'target_date' => $this->milestoneForm['target_date'] ?: null,
                 'target_year' => $this->milestoneForm['target_year'] ?: null,
                 'target_quarter' => $this->milestoneForm['target_quarter'] ?: null,
                 'order' => $this->milestoneForm['order'],
@@ -392,7 +386,6 @@ class FocusAreaShow extends Component
         $this->milestoneForm = [
             'title' => '',
             'description' => '',
-            'target_date' => '',
             'target_year' => '',
             'target_quarter' => '',
             'order' => 0,

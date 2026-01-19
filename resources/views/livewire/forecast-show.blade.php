@@ -302,50 +302,28 @@
                             $obstaclesCount = $focusArea->obstacles->count();
                             $milestonesCount = $focusArea->milestones->count();
                         @endphp
-                        <div wire:sortable.item="{{ $focusArea->id }}" wire:key="focusarea-{{ $focusArea->id }}" class="mb-6 p-6 border border-[var(--ui-border)]/60 rounded-lg bg-gradient-to-br from-white to-[var(--ui-muted-5)] hover:border-[var(--ui-primary)]/40 hover:shadow-lg transition-all">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="flex-grow-1">
-                                    <div class="flex items-center gap-3 mb-3">
-                                        <div class="w-10 h-10 bg-[var(--ui-primary)] text-white rounded-lg flex items-center justify-center flex-shrink-0">
-                                            @svg('heroicon-o-viewfinder-circle', 'w-5 h-5')
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <a 
-                                                href="{{ route('okr.focus-areas.show', $focusArea) }}" 
-                                                wire:navigate
-                                                class="font-semibold text-xl text-[var(--ui-primary)] hover:underline block"
-                                            >
-                                                {{ $focusArea->title }}
-                                            </a>
-                                            @if($focusArea->description)
-                                                <div class="text-sm text-[var(--ui-muted)] mt-1">{{ Str::limit($focusArea->description, 150) }}</div>
-                                            @endif
-                                        </div>
+                        <div wire:sortable.item="{{ $focusArea->id }}" wire:key="focusarea-{{ $focusArea->id }}" class="mb-4 p-4 border border-[var(--ui-border)]/60 rounded-lg bg-white hover:border-[var(--ui-border)] transition-colors">
+                            <div class="flex justify-between items-center">
+                                <div class="flex-grow-1 flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-[var(--ui-muted-5)] text-[var(--ui-secondary)] rounded flex items-center justify-center flex-shrink-0">
+                                        @svg('heroicon-o-viewfinder-circle', 'w-4 h-4')
                                     </div>
-                                    
-                                    {{-- Statistiken --}}
-                                    <div class="grid grid-cols-3 gap-3 mt-4">
-                                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-center">
-                                            <div class="flex items-center justify-center gap-2 mb-1">
-                                                @svg('heroicon-o-photo', 'w-4 h-4 text-blue-600')
-                                                <div class="text-lg font-bold text-blue-600">{{ $visionImagesCount }}</div>
-                                            </div>
-                                            <div class="text-xs text-blue-700 font-medium">Zielbilder</div>
-                                        </div>
-                                        <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
-                                            <div class="flex items-center justify-center gap-2 mb-1">
-                                                @svg('heroicon-o-exclamation-triangle', 'w-4 h-4 text-red-600')
-                                                <div class="text-lg font-bold text-red-600">{{ $obstaclesCount }}</div>
-                                            </div>
-                                            <div class="text-xs text-red-700 font-medium">Hindernisse</div>
-                                        </div>
-                                        <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
-                                            <div class="flex items-center justify-center gap-2 mb-1">
-                                                @svg('heroicon-o-flag', 'w-4 h-4 text-green-600')
-                                                <div class="text-lg font-bold text-green-600">{{ $milestonesCount }}</div>
-                                            </div>
-                                            <div class="text-xs text-green-700 font-medium">Meilensteine</div>
-                                        </div>
+                                    <div class="flex-1 min-w-0">
+                                        <a 
+                                            href="{{ route('okr.focus-areas.show', $focusArea) }}" 
+                                            wire:navigate
+                                            class="font-medium text-[var(--ui-primary)] hover:underline block"
+                                        >
+                                            {{ $focusArea->title }}
+                                        </a>
+                                        @if($focusArea->description)
+                                            <div class="text-xs text-[var(--ui-muted)] mt-0.5">{{ Str::limit($focusArea->description, 100) }}</div>
+                                        @endif
+                                    </div>
+                                    <div class="flex items-center gap-4 text-xs text-[var(--ui-muted)] ml-4">
+                                        <span>{{ $visionImagesCount }} Zielbilder</span>
+                                        <span>{{ $obstaclesCount }} Hindernisse</span>
+                                        <span>{{ $milestonesCount }} Meilensteine</span>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 ml-4 flex-shrink-0">
