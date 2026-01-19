@@ -44,6 +44,7 @@ class OkrServiceProvider extends ServiceProvider
         // Policies
         Gate::policy(Okr::class, OkrPolicy::class);
         Gate::policy(Cycle::class, CyclePolicy::class);
+        Gate::policy(\Platform\Okr\Models\Forecast::class, \Platform\Okr\Policies\ForecastPolicy::class);
 
         // Schritt 1: Config laden
         $this->mergeConfigFrom(__DIR__.'/../config/okr.php', 'okr');
