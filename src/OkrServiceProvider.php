@@ -109,6 +109,8 @@ class OkrServiceProvider extends ServiceProvider
         Livewire::component('okr.modal-key-result', \Platform\Okr\Livewire\ModalKeyResult::class);
         Livewire::component('okr.strategic-documents-management', \Platform\Okr\Livewire\StrategicDocumentsManagement::class);
         Livewire::component('platform.okr.livewire.strategic-documents-management', \Platform\Okr\Livewire\StrategicDocumentsManagement::class);
+        Livewire::component('okr.forecast-management', \Platform\Okr\Livewire\ForecastManagement::class);
+        Livewire::component('okr.forecast-show', \Platform\Okr\Livewire\ForecastShow::class);
 
         // Embedded Components
         if (class_exists(\Platform\Okr\Livewire\Embedded\Cycle::class)) {
