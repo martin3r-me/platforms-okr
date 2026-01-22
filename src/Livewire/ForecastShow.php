@@ -142,7 +142,11 @@ class ForecastShow extends Component
         }
 
         $this->forecast->refresh();
-        $this->forecast->load('focusAreas');
+        $this->forecast->load([
+            'focusAreas.visionImages',
+            'focusAreas.obstacles',
+            'focusAreas.milestones'
+        ]);
         $this->closeFocusAreaCreateModal();
         $this->closeFocusAreaEditModal();
     }
@@ -153,7 +157,11 @@ class ForecastShow extends Component
         $focusArea->delete();
         
         $this->forecast->refresh();
-        $this->forecast->load('focusAreas');
+        $this->forecast->load([
+            'focusAreas.visionImages',
+            'focusAreas.obstacles',
+            'focusAreas.milestones'
+        ]);
         session()->flash('message', 'Focus Area erfolgreich gelöscht!');
     }
 
@@ -178,7 +186,11 @@ class ForecastShow extends Component
         }
         
         $this->forecast->refresh();
-        $this->forecast->load('focusAreas');
+        $this->forecast->load([
+            'focusAreas.visionImages',
+            'focusAreas.obstacles',
+            'focusAreas.milestones'
+        ]);
         session()->flash('message', 'Focus Area-Reihenfolge aktualisiert!');
     }
 

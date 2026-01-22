@@ -116,11 +116,11 @@
                     <table class="w-full border-collapse">
                         <thead>
                             <tr>
-                                <th class="border border-[var(--ui-border)]/60 bg-[var(--ui-muted-5)] p-3 text-left text-sm font-semibold text-[var(--ui-secondary)] sticky left-0 z-10">
+                                <th class="border border-[var(--ui-border)]/60 bg-[var(--ui-muted-5)] p-2 text-left text-xs font-semibold text-[var(--ui-secondary)] sticky left-0 z-10">
                                     Fokusraum
                                 </th>
                                 @foreach($years as $year)
-                                    <th class="border border-[var(--ui-border)]/60 bg-[var(--ui-muted-5)] p-3 text-center text-sm font-semibold text-[var(--ui-secondary)] min-w-[200px]">
+                                    <th class="border border-[var(--ui-border)]/60 bg-[var(--ui-muted-5)] p-2 text-center text-xs font-semibold text-[var(--ui-secondary)] min-w-[150px]">
                                         {{ $year }}
                                     </th>
                                 @endforeach
@@ -129,38 +129,44 @@
                         <tbody>
                             @foreach($focusAreas as $focusArea)
                                 <tr>
-                                    <td class="border border-[var(--ui-border)]/60 p-3 bg-white sticky left-0 z-10">
+                                    <td class="border border-[var(--ui-border)]/60 p-2 bg-white sticky left-0 z-10">
                                         <a 
                                             href="{{ route('okr.focus-areas.show', $focusArea) }}" 
                                             wire:navigate
-                                            class="font-medium text-[var(--ui-primary)] hover:underline"
+                                            class="font-medium text-xs text-[var(--ui-primary)] hover:underline"
                                         >
                                             {{ $focusArea->title }}
                                         </a>
                                     </td>
                                     @foreach($years as $year)
-                                        <td class="border border-[var(--ui-border)]/60 p-3 bg-white align-top">
+                                        <td class="border border-[var(--ui-border)]/60 p-1.5 bg-white align-top">
                                             @php
                                                 $yearData = $mapData[$year][$focusArea->id] ?? null;
                                                 $milestones = $yearData['milestones'] ?? collect();
                                             @endphp
                                             @if($milestones->count() > 0)
-                                                <div class="space-y-2">
+                                                <div class="flex flex-wrap gap-1">
                                                     @foreach($milestones as $milestone)
-                                                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-2 border border-[var(--ui-border)]/40">
-                                                            <div class="font-medium text-sm text-[var(--ui-secondary)]">
+                                                        <div class="inline-flex items-baseline bg-[var(--ui-muted-5)] rounded px-1.5 py-0.5 border border-[var(--ui-border)]/40">
+                                                            <span class="text-xs font-medium text-[var(--ui-secondary)] leading-tight">
                                                                 {{ $milestone->title }}
-                                                            </div>
-                                                            @if($milestone->target_quarter)
-                                                                <div class="text-xs text-[var(--ui-muted)] mt-1">
-                                                                    Q{{ $milestone->target_quarter }}
-                                                                </div>
-                                                            @endif
+                                                                @if($milestone->target_year || $milestone->target_quarter)
+                                                                    <sup class="text-[0.65rem] text-[var(--ui-muted)] ml-0.5">
+                                                                        @if($milestone->target_year && $milestone->target_quarter)
+                                                                            {{ $milestone->target_year }}Q{{ $milestone->target_quarter }}
+                                                                        @elseif($milestone->target_year)
+                                                                            {{ $milestone->target_year }}
+                                                                        @elseif($milestone->target_quarter)
+                                                                            Q{{ $milestone->target_quarter }}
+                                                                        @endif
+                                                                    </sup>
+                                                                @endif
+                                                            </span>
                                                         </div>
                                                     @endforeach
                                                 </div>
                                             @else
-                                                <div class="text-xs text-[var(--ui-muted)] text-center">—</div>
+                                                <div class="text-[0.65rem] text-[var(--ui-muted)] text-center">—</div>
                                             @endif
                                         </td>
                                     @endforeach
@@ -312,9 +318,9 @@
                             $milestonesCount = $focusArea->milestones->count();
                         @endphp
                         <div wire:sortable.item="{{ $focusArea->id }}" wire:key="focusarea-{{ $focusArea->id }}" class="mb-4 p-4 border border-[var(--ui-border)]/60 rounded-lg bg-white hover:border-[var(--ui-border)] transition-colors">
-                            <div class="flex justify-between items-center">
-                                <div class="flex-grow-1 flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-[var(--ui-muted-5)] text-[var(--ui-secondary)] rounded flex items-center justify-center flex-shrink-0">
+                            <div class="flex justify-between items-start">
+                                <div class="flex-grow-1 flex items-start gap-3 flex-1 min-w-0">
+                                    <div class="w-8 h-8 bg-[var(--ui-muted-5)] text-[var(--ui-secondary)] rounded flex items-center justify-center flex-shrink-0 mt-0.5">
                                         @svg('heroicon-o-viewfinder-circle', 'w-4 h-4')
                                     </div>
                                     <div class="flex-1 min-w-0">
@@ -326,13 +332,90 @@
                                             {{ $focusArea->title }}
                                         </a>
                                         @if($focusArea->description)
-                                            <div class="text-xs text-[var(--ui-muted)] mt-0.5">{{ Str::limit($focusArea->description, 100) }}</div>
+                                            <div class="text-xs text-[var(--ui-muted)] mt-0.5 mb-3">{{ Str::limit($focusArea->description, 100) }}</div>
                                         @endif
-                                    </div>
-                                    <div class="flex items-center gap-4 text-xs text-[var(--ui-muted)] ml-4">
-                                        <span>{{ $visionImagesCount }} Zielbilder</span>
-                                        <span>{{ $obstaclesCount }} Hindernisse</span>
-                                        <span>{{ $milestonesCount }} Meilensteine</span>
+                                        
+                                        {{-- Zielbilder, Hindernisse und Meilensteine --}}
+                                        @if($visionImagesCount > 0 || $obstaclesCount > 0 || $milestonesCount > 0)
+                                            <div class="mt-3 space-y-2">
+                                                {{-- Zielbilder --}}
+                                                @if($visionImagesCount > 0)
+                                                    <div class="flex flex-wrap gap-1.5 items-start">
+                                                        <div class="text-xs font-medium text-[var(--ui-muted)] mr-1 flex-shrink-0 pt-0.5">
+                                                            <span class="flex items-center gap-1">
+                                                                @svg('heroicon-o-photo', 'w-3 h-3')
+                                                                Zielbilder:
+                                                            </span>
+                                                        </div>
+                                                        @foreach($focusArea->visionImages->take(5) as $visionImage)
+                                                            <div class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs border border-blue-200/60">
+                                                                <span class="truncate max-w-[150px]">{{ $visionImage->title }}</span>
+                                                            </div>
+                                                        @endforeach
+                                                        @if($visionImagesCount > 5)
+                                                            <div class="inline-flex items-center px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-xs border border-blue-200/60">
+                                                                +{{ $visionImagesCount - 5 }} weitere
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                                
+                                                {{-- Hindernisse --}}
+                                                @if($obstaclesCount > 0)
+                                                    <div class="flex flex-wrap gap-1.5 items-start">
+                                                        <div class="text-xs font-medium text-[var(--ui-muted)] mr-1 flex-shrink-0 pt-0.5">
+                                                            <span class="flex items-center gap-1">
+                                                                @svg('heroicon-o-exclamation-triangle', 'w-3 h-3')
+                                                                Hindernisse:
+                                                            </span>
+                                                        </div>
+                                                        @foreach($focusArea->obstacles->take(5) as $obstacle)
+                                                            <div class="inline-flex items-center gap-1 px-2 py-0.5 bg-orange-50 text-orange-700 rounded text-xs border border-orange-200/60">
+                                                                <span class="truncate max-w-[150px]">{{ $obstacle->title }}</span>
+                                                            </div>
+                                                        @endforeach
+                                                        @if($obstaclesCount > 5)
+                                                            <div class="inline-flex items-center px-2 py-0.5 bg-orange-50 text-orange-600 rounded text-xs border border-orange-200/60">
+                                                                +{{ $obstaclesCount - 5 }} weitere
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                                
+                                                {{-- Meilensteine --}}
+                                                @if($milestonesCount > 0)
+                                                    <div class="flex flex-wrap gap-1.5 items-start">
+                                                        <div class="text-xs font-medium text-[var(--ui-muted)] mr-1 flex-shrink-0 pt-0.5">
+                                                            <span class="flex items-center gap-1">
+                                                                @svg('heroicon-o-flag', 'w-3 h-3')
+                                                                Meilensteine:
+                                                            </span>
+                                                        </div>
+                                                        @foreach($focusArea->milestones->take(5) as $milestone)
+                                                            <div class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-700 rounded text-xs border border-green-200/60">
+                                                                <span class="truncate max-w-[150px]">{{ $milestone->title }}</span>
+                                                                @if($milestone->target_year || $milestone->target_quarter)
+                                                                    <span class="text-green-600/70">
+                                                                        @if($milestone->target_year && $milestone->target_quarter)
+                                                                            {{ $milestone->target_year }} Q{{ $milestone->target_quarter }}
+                                                                        @elseif($milestone->target_year)
+                                                                            {{ $milestone->target_year }}
+                                                                        @elseif($milestone->target_quarter)
+                                                                            Q{{ $milestone->target_quarter }}
+                                                                        @endif
+                                                                    </span>
+                                                                @endif
+                                                            </div>
+                                                        @endforeach
+                                                        @if($milestonesCount > 5)
+                                                            <div class="inline-flex items-center px-2 py-0.5 bg-green-50 text-green-600 rounded text-xs border border-green-200/60">
+                                                                +{{ $milestonesCount - 5 }} weitere
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 ml-4 flex-shrink-0">
