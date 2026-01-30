@@ -23,7 +23,7 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
     {
         return [
             'type' => 'object',
-            'properties' => [],
+            'properties' => new \stdClass(),
             'required' => [],
         ];
     }
