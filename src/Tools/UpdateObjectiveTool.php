@@ -7,6 +7,7 @@ use Platform\Core\Contracts\ToolContext;
 use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
 use Platform\Core\Models\User;
+use Platform\Okr\Models\Milestone;
 use Platform\Okr\Models\Objective;
 use Platform\Okr\Models\StrategicDocument;
 use Platform\Okr\Tools\Concerns\ResolvesOkrScope;
@@ -39,6 +40,7 @@ class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
                 'manager_user_id' => ['type' => 'integer'],
                 'vision_id' => ['type' => 'integer', 'description' => 'Optional: StrategicDocument-ID vom Typ vision (0/"" => null).'],
                 'regnose_id' => ['type' => 'integer', 'description' => 'Optional: StrategicDocument-ID vom Typ regnose (0/"" => null).'],
+                'milestone_ids' => ['type' => 'array', 'items' => ['type' => 'integer'], 'description' => 'Optional: Array von Milestone-IDs zum Verknüpfen (ersetzt bestehende Verknüpfungen).'],
             ],
             'required' => ['id'],
         ];
@@ -124,6 +126,21 @@ class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
                 $obj->regnose_id = $regnoseId;
                 $dirty = true;
             }
+            // milestone_ids: Pivot-Tabelle synchronisieren
+            if (array_key_exists('milestone_ids', $arguments)) {
+                $milestoneIds = array_map('intval', array_filter((array) ($arguments['milestone_ids'] ?? []), fn($v) => $v !== null && $v !== '' && $v !== 0));
+                if (!empty($milestoneIds)) {
+                    $validCount = Milestone::query()
+                        ->where('team_id', $teamId)
+                        ->whereIn('id', $milestoneIds)
+                        ->count();
+                    if ($validCount !== count($milestoneIds)) {
+                        return ToolResult::error('VALIDATION_ERROR', 'Einige milestone_ids sind ungültig (müssen existieren und zum Team gehören).');
+                    }
+                }
+                $obj->milestones()->sync($milestoneIds);
+            }
+
             if ($dirty) {
                 $obj->save();
             }
@@ -134,6 +151,7 @@ class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
                 'cycle_id' => $obj->cycle_id,
                 'title' => $obj->title,
                 'order' => $obj->order,
+                'milestone_ids' => $obj->milestones()->pluck('okr_milestones.id')->toArray(),
                 'message' => 'Objective erfolgreich aktualisiert.',
             ]);
         } catch (\Throwable $e) {

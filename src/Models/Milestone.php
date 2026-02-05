@@ -8,6 +8,7 @@ use Platform\Core\Contracts\HasDisplayName;
 use Platform\ActivityLog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\Uid\UuidV7;
@@ -89,5 +90,10 @@ class Milestone extends Model implements HasDisplayName
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function objectives(): BelongsToMany
+    {
+        return $this->belongsToMany(Objective::class, 'okr_objective_milestone');
     }
 }

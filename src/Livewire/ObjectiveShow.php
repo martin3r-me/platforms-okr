@@ -5,6 +5,7 @@ namespace Platform\Okr\Livewire;
 use Livewire\Component;
 use Platform\Okr\Models\Objective;
 use Platform\Okr\Models\KeyResult;
+use Platform\Okr\Models\Milestone;
 use Platform\Okr\Models\StrategicDocument;
 use Platform\Core\Models\User;
 use Livewire\Attributes\Computed;
@@ -13,6 +14,7 @@ class ObjectiveShow extends Component
 {
     public Objective $objective;
     public $isDirty = false;
+    public $selectedMilestoneIds = [];
 
     // Key Result Modal Properties
     public $keyResultCreateModalShow = false;
@@ -45,7 +47,8 @@ class ObjectiveShow extends Component
     public function mount(Objective $objective)
     {
         $this->objective = $objective;
-        $this->objective->load(['cycle', 'okr', 'keyResults.performances', 'vision', 'regnose']);
+        $this->objective->load(['cycle', 'okr', 'keyResults.performances', 'vision', 'regnose', 'milestones.focusArea']);
+        $this->selectedMilestoneIds = $this->objective->milestones->pluck('id')->toArray();
     }
 
     #[Computed]
@@ -64,6 +67,21 @@ class ObjectiveShow extends Component
             ->forTeam($this->objective->okr->team_id)
             ->get()
             ->mapWithKeys(fn($doc) => [$doc->id => $doc->title]);
+    }
+
+    #[Computed]
+    public function availableMilestones()
+    {
+        if (!$this->objective->okr) {
+            return collect();
+        }
+        return Milestone::where('team_id', $this->objective->okr->team_id)
+            ->with('focusArea')
+            ->orderBy('title')
+            ->get()
+            ->mapWithKeys(fn($m) => [
+                $m->id => ($m->focusArea ? $m->focusArea->title . ' > ' : '') . $m->title,
+            ]);
     }
 
     #[Computed]
@@ -102,6 +120,24 @@ class ObjectiveShow extends Component
         $this->objective->save();
         $this->isDirty = false;
         session()->flash('message', 'Objective erfolgreich aktualisiert!');
+    }
+
+    // Milestone Management
+
+    public function saveMilestones()
+    {
+        $ids = array_map('intval', array_filter($this->selectedMilestoneIds));
+        $this->objective->milestones()->sync($ids);
+        $this->objective->load('milestones.focusArea');
+        session()->flash('message', 'Meilensteine erfolgreich aktualisiert!');
+    }
+
+    public function removeMilestone($id)
+    {
+        $this->objective->milestones()->detach($id);
+        $this->selectedMilestoneIds = array_values(array_diff($this->selectedMilestoneIds, [$id]));
+        $this->objective->load('milestones.focusArea');
+        session()->flash('message', 'Meilenstein entfernt.');
     }
 
     // Key Result Management

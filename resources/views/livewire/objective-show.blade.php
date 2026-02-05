@@ -94,6 +94,57 @@
                 @endif
             </div>
 
+            {{-- Meilensteine --}}
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4 text-secondary">Meilensteine</h3>
+
+                {{-- Verknüpfte Meilensteine --}}
+                @if($objective->milestones->count() > 0)
+                    <div class="space-y-2 mb-4">
+                        @foreach($objective->milestones as $milestone)
+                            <div class="d-flex items-center gap-2 p-2 bg-muted-5 rounded">
+                                <div class="flex-grow-1">
+                                    <div class="text-sm font-medium">{{ $milestone->title }}</div>
+                                    @if($milestone->focusArea)
+                                        <div class="text-xs text-muted">{{ $milestone->focusArea->title }}</div>
+                                    @endif
+                                </div>
+                                <x-ui-button
+                                    size="xs"
+                                    variant="danger-outline"
+                                    wire:click="removeMilestone({{ $milestone->id }})"
+                                >
+                                    @svg('heroicon-o-x-mark', 'w-3 h-3')
+                                </x-ui-button>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-sm text-muted mb-4">Noch keine Meilensteine verknüpft.</p>
+                @endif
+
+                {{-- Multi-Select + Speichern --}}
+                <div class="d-flex gap-2 items-end">
+                    <div class="flex-grow-1">
+                        <x-ui-input-select
+                            name="selectedMilestoneIds"
+                            label="Meilenstein hinzufügen"
+                            :options="$this->availableMilestones->toArray()"
+                            wire:model="selectedMilestoneIds"
+                            :nullable="true"
+                            :multiple="true"
+                            placeholder="Meilenstein auswählen..."
+                        />
+                    </div>
+                    <x-ui-button size="sm" variant="primary" wire:click="saveMilestones">
+                        <div class="d-flex items-center gap-2">
+                            @svg('heroicon-o-check', 'w-4 h-4')
+                            Speichern
+                        </div>
+                    </x-ui-button>
+                </div>
+            </div>
+
             {{-- Key Results --}}
             <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-4 text-secondary">Key Results</h3>
