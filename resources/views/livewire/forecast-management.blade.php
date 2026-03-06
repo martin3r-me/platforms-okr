@@ -1,6 +1,18 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar title="Regnosen" icon="heroicon-o-sparkles" />
+        <x-ui-page-navbar title="" />
+    </x-slot>
+
+    <x-slot name="actionbar">
+        <x-ui-page-actionbar :breadcrumbs="[
+            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'Regnosen'],
+        ]">
+            <x-ui-button variant="primary" size="sm" wire:click="openCreateModal">
+                @svg('heroicon-o-plus', 'w-4 h-4')
+                <span>Regnose hinzufügen</span>
+            </x-ui-button>
+        </x-ui-page-actionbar>
     </x-slot>
 
     <x-ui-page-container>
@@ -134,25 +146,6 @@
     <x-slot name="sidebar">
         <x-ui-page-sidebar title="Regnose Übersicht" width="w-80" :defaultOpen="true">
             <div class="p-6 space-y-6">
-                {{-- Quick Actions --}}
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Aktionen</h3>
-                    <div class="space-y-2">
-                        <x-ui-button variant="secondary" size="sm" wire:click="openCreateModal" class="w-full justify-start">
-                            @svg('heroicon-o-plus', 'w-4 h-4')
-                            <span class="ml-2">Neue Regnose</span>
-                        </x-ui-button>
-                        <x-ui-button variant="secondary" size="sm" :href="route('okr.dashboard')" wire:navigate class="w-full justify-start">
-                            @svg('heroicon-o-chart-bar', 'w-4 h-4')
-                            <span class="ml-2">Dashboard</span>
-                        </x-ui-button>
-                        <x-ui-button variant="secondary" size="sm" :href="route('okr.okrs.index')" wire:navigate class="w-full justify-start">
-                            @svg('heroicon-o-flag', 'w-4 h-4')
-                            <span class="ml-2">OKRs</span>
-                        </x-ui-button>
-                    </div>
-                </div>
-
                 {{-- Statistiken --}}
                 <div>
                     <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Statistiken</h3>

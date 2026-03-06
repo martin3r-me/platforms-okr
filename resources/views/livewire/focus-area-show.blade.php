@@ -1,21 +1,22 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar :title="$focusArea->title" icon="heroicon-o-viewfinder-circle">
-            <x-slot name="titleActions">
-                @if($this->isDirty)
-                    <x-ui-button 
-                        variant="secondary" 
-                        size="sm"
-                        wire:click="save"
-                    >
-                        <div class="flex items-center gap-2">
-                            @svg('heroicon-o-check', 'w-4 h-4')
-                            Speichern
-                        </div>
-                    </x-ui-button>
-                @endif
-            </x-slot>
-        </x-ui-page-navbar>
+        <x-ui-page-navbar title="" />
+    </x-slot>
+
+    <x-slot name="actionbar">
+        <x-ui-page-actionbar :breadcrumbs="[
+            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'Regnosen', 'href' => route('okr.forecasts.index')],
+            ['label' => $focusArea->forecast->title, 'href' => route('okr.forecasts.show', $focusArea->forecast)],
+            ['label' => $focusArea->title],
+        ]">
+            @if($this->isDirty)
+                <x-ui-button variant="primary" size="sm" wire:click="save">
+                    @svg('heroicon-o-check', 'w-4 h-4')
+                    <span>Speichern</span>
+                </x-ui-button>
+            @endif
+        </x-ui-page-actionbar>
     </x-slot>
 
     <x-ui-page-container spacing="space-y-8">

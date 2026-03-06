@@ -1,22 +1,26 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar :title="$cycle->template?->label ?? 'Unbekannter Cycle'" icon="heroicon-o-calendar">
-            <x-slot name="titleActions">
-                {{-- Embedded: keine Navigation zurück anzeigen --}}
-                @if($this->isDirty)
-                    <x-ui-button 
-                        variant="secondary" 
-                        size="sm"
-                        wire:click="save"
-                    >
-                        <div class="flex items-center gap-2">
-                            @svg('heroicon-o-check', 'w-4 h-4')
-                            Speichern
-                        </div>
-                    </x-ui-button>
-                @endif
-            </x-slot>
-        </x-ui-page-navbar>
+        <x-ui-page-navbar title="" />
+    </x-slot>
+
+    <x-slot name="actionbar">
+        <x-ui-page-actionbar :breadcrumbs="[
+            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'OKRs', 'href' => route('okr.okrs.index')],
+            ['label' => $cycle->okr->title, 'href' => route('okr.okrs.show', ['okr' => $cycle->okr->id])],
+            ['label' => $cycle->template?->label ?? 'Zyklus'],
+        ]">
+            @if($this->isDirty)
+                <x-ui-button variant="primary" size="sm" wire:click="save">
+                    @svg('heroicon-o-check', 'w-4 h-4')
+                    <span>Speichern</span>
+                </x-ui-button>
+            @endif
+            <x-ui-button variant="ghost" size="sm" wire:click="addObjective">
+                @svg('heroicon-o-plus', 'w-4 h-4')
+                <span>Objective hinzufügen</span>
+            </x-ui-button>
+        </x-ui-page-actionbar>
     </x-slot>
 
     <x-ui-page-container spacing="space-y-8">
@@ -515,20 +519,6 @@
                     />
                 </div>
 
-                {{-- Aktionen: Löschen im Embedded ausblenden, Add Objective bleibt --}}
-                <div>
-                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Aktionen</h3>
-                    <div class="space-y-2">
-                        <x-ui-button 
-                            variant="secondary" 
-                            wire:click="addObjective"
-                            class="w-full"
-                        >
-                            @svg('heroicon-o-plus', 'w-4 h-4')
-                            <span class="ml-1">Objective hinzufügen</span>
-                        </x-ui-button>
-                    </div>
-                </div>
             </div>
         </x-ui-page-sidebar>
     </x-slot>

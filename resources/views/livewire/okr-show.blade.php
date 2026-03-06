@@ -1,6 +1,25 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar :title="$okr->title" />
+        <x-ui-page-navbar title="" />
+    </x-slot>
+
+    <x-slot name="actionbar">
+        <x-ui-page-actionbar :breadcrumbs="[
+            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'OKRs', 'href' => route('okr.okrs.index')],
+            ['label' => $okr->title],
+        ]">
+            <x-slot name="left">
+                <x-ui-button variant="ghost" size="sm" wire:click="$set('okrSettingsModalShow', true)">
+                    @svg('heroicon-o-cog-6-tooth', 'w-4 h-4')
+                    <span>Einstellungen</span>
+                </x-ui-button>
+            </x-slot>
+            <x-ui-button variant="primary" size="sm" wire:click="openCycleCreateModal">
+                @svg('heroicon-o-plus', 'w-4 h-4')
+                <span>Zyklus hinzufügen</span>
+            </x-ui-button>
+        </x-ui-page-actionbar>
     </x-slot>
 
     <x-ui-page-container spacing="space-y-8">
@@ -420,37 +439,6 @@
     <x-slot name="sidebar">
         <x-ui-page-sidebar title="OKR Übersicht" width="w-80" side="left" :defaultOpen="true">
             <div class="p-6 space-y-6">
-                {{-- Navigation --}}
-                <div>
-                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Navigation</h3>
-                    <div class="space-y-2">
-                        <x-ui-button
-                            variant="secondary-outline"
-                            size="sm"
-                            :href="route('okr.dashboard')"
-                            wire:navigate
-                            class="w-full"
-                        >
-                            <span class="flex items-center gap-2">
-                                @svg('heroicon-o-home', 'w-4 h-4')
-                                Zum Dashboard
-                            </span>
-                        </x-ui-button>
-                        <x-ui-button
-                            variant="secondary-outline"
-                            size="sm"
-                            :href="route('okr.okrs.index')"
-                            wire:navigate
-                            class="w-full"
-                        >
-                            <span class="flex items-center gap-2">
-                                @svg('heroicon-o-flag', 'w-4 h-4')
-                                Zu allen OKRs
-                            </span>
-                        </x-ui-button>
-                    </div>
-                </div>
-
                 {{-- OKR Performance --}}
                 <div>
                     <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">OKR Performance</h3>

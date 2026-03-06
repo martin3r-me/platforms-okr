@@ -1,6 +1,12 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar title="OKR Dashboard" />
+        <x-ui-page-navbar title="" />
+    </x-slot>
+
+    <x-slot name="actionbar">
+        <x-ui-page-actionbar :breadcrumbs="[
+            ['label' => 'OKR', 'icon' => 'flag'],
+        ]" />
     </x-slot>
 
     <x-ui-page-container>
@@ -190,20 +196,6 @@
                     </div>
                 </div>
 
-                {{-- Schnellzugriff --}}
-                <div>
-                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Schnellzugriff</h3>
-                    <div class="space-y-2">
-                        <x-ui-button variant="secondary" size="sm" :href="route('okr.okrs.index')" wire:navigate class="w-full justify-start">
-                            @svg('heroicon-o-flag', 'w-4 h-4')
-                            <span class="ml-2">Alle OKRs</span>
-                        </x-ui-button>
-                        <x-ui-button variant="secondary" size="sm" wire:click="openCreateModal" class="w-full justify-start">
-                            @svg('heroicon-o-plus', 'w-4 h-4')
-                            <span class="ml-2">Neues OKR</span>
-                        </x-ui-button>
-                    </div>
-                </div>
             </div>
         </x-ui-page-sidebar>
     </x-slot>

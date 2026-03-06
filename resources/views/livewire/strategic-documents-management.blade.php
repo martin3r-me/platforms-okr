@@ -1,6 +1,13 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar title="Strategische Dokumente" />
+        <x-ui-page-navbar title="" />
+    </x-slot>
+
+    <x-slot name="actionbar">
+        <x-ui-page-actionbar :breadcrumbs="[
+            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'Strategische Dokumente'],
+        ]" />
     </x-slot>
 
     <x-ui-page-container spacing="space-y-8">

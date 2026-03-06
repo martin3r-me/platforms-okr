@@ -1,30 +1,27 @@
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar :title="$forecast->title" icon="heroicon-o-sparkles">
-            <x-slot name="titleActions">
-                <a
-                    href="{{ route('okr.forecasts.pdf', $forecast) }}"
-                    class="px-3 py-1.5 text-sm rounded-lg border border-[var(--ui-border)] hover:bg-[var(--ui-muted-5)] transition-colors flex items-center gap-2"
-                    target="_blank"
-                    rel="noopener"
-                >
+        <x-ui-page-navbar title="" />
+    </x-slot>
+
+    <x-slot name="actionbar">
+        <x-ui-page-actionbar :breadcrumbs="[
+            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'Regnosen', 'href' => route('okr.forecasts.index')],
+            ['label' => $forecast->title],
+        ]">
+            <a href="{{ route('okr.forecasts.pdf', $forecast) }}" target="_blank" rel="noopener">
+                <x-ui-button variant="ghost" size="sm">
                     @svg('heroicon-o-document-arrow-down', 'w-4 h-4')
-                    PDF
-                </a>
-                @if($this->isDirty)
-                    <x-ui-button 
-                        variant="secondary" 
-                        size="sm"
-                        wire:click="save"
-                    >
-                        <div class="flex items-center gap-2">
-                            @svg('heroicon-o-check', 'w-4 h-4')
-                            Speichern
-                        </div>
-                    </x-ui-button>
-                @endif
-            </x-slot>
-        </x-ui-page-navbar>
+                    <span>PDF</span>
+                </x-ui-button>
+            </a>
+            @if($this->isDirty)
+                <x-ui-button variant="primary" size="sm" wire:click="save">
+                    @svg('heroicon-o-check', 'w-4 h-4')
+                    <span>Speichern</span>
+                </x-ui-button>
+            @endif
+        </x-ui-page-actionbar>
     </x-slot>
 
     <x-ui-page-container spacing="space-y-8">
