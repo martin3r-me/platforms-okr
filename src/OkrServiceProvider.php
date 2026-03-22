@@ -2,6 +2,7 @@
 
 namespace Platform\Okr;
 
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Schedule;
@@ -41,6 +42,10 @@ class OkrServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Relation::morphMap([
+            'okr' => \Platform\Okr\Models\Okr::class,
+        ]);
+
         // Policies
         Gate::policy(Okr::class, OkrPolicy::class);
         Gate::policy(Cycle::class, CyclePolicy::class);
