@@ -73,12 +73,12 @@ class FocusAreaShow extends Component
         $this->centralQuestionObstacles = $this->focusArea->central_question_obstacles ?? '';
         $this->centralQuestionMilestones = $this->focusArea->central_question_milestones ?? '';
         $this->focusArea->load([
-            'forecast', 
-            'team', 
-            'user', 
-            'visionImages', 
-            'obstacles', 
-            'milestones'
+            'forecast',
+            'team',
+            'user',
+            'visionImages',
+            'obstacles',
+            'milestones.objectives.cycle',
         ]);
     }
 
@@ -381,7 +381,7 @@ class FocusAreaShow extends Component
         }
 
         $this->focusArea->refresh();
-        $this->focusArea->load('milestones');
+        $this->focusArea->load('milestones.objectives.cycle');
         $this->closeMilestoneCreateModal();
         $this->closeMilestoneEditModal();
     }
@@ -392,7 +392,7 @@ class FocusAreaShow extends Component
         $milestone->delete();
         
         $this->focusArea->refresh();
-        $this->focusArea->load('milestones');
+        $this->focusArea->load('milestones.objectives.cycle');
         session()->flash('message', 'Meilenstein erfolgreich gelöscht!');
     }
 
@@ -480,7 +480,7 @@ class FocusAreaShow extends Component
         }
         
         $this->focusArea->refresh();
-        $this->focusArea->load('milestones');
+        $this->focusArea->load('milestones.objectives.cycle');
         session()->flash('message', 'Meilenstein-Reihenfolge aktualisiert!');
     }
 

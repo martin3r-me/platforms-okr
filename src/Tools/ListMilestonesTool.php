@@ -67,7 +67,7 @@ class ListMilestonesTool implements ToolContract, ToolMetadataContract
             $query = Milestone::query()
                 ->where('focus_area_id', $focusAreaId)
                 ->where('team_id', $teamId)
-                ->with(['focusArea']);
+                ->with(['focusArea', 'objectives']);
 
             $this->applyStandardFilters($query, $arguments, [
                 'title', 'description', 'target_year', 'target_quarter', 'order', 'user_id', 'created_at', 'updated_at',
@@ -87,6 +87,7 @@ class ListMilestonesTool implements ToolContract, ToolMetadataContract
                     'target_year' => $m->target_year,
                     'target_quarter' => $m->target_quarter,
                     'order' => $m->order,
+                    'objective_ids' => $m->objectives->pluck('id')->values()->toArray(),
                     'created_at' => $this->dateToYmd($m->created_at),
                     'updated_at' => $this->dateToYmd($m->updated_at),
                 ];

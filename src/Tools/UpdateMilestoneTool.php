@@ -7,6 +7,7 @@ use Platform\Core\Contracts\ToolContext;
 use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
 use Platform\Okr\Models\Milestone;
+use Platform\Okr\Models\Objective;
 use Platform\Okr\Tools\Concerns\ResolvesOkrScope;
 
 class UpdateMilestoneTool implements ToolContract, ToolMetadataContract
@@ -35,6 +36,7 @@ class UpdateMilestoneTool implements ToolContract, ToolMetadataContract
                 'target_year' => ['type' => 'integer'],
                 'target_quarter' => ['type' => 'integer', 'description' => 'Optional: Zielquartal (1-4). Kann nur gesetzt werden, wenn target_year gesetzt ist.'],
                 'order' => ['type' => 'integer'],
+                'objective_ids' => ['type' => 'array', 'items' => ['type' => 'integer'], 'description' => 'Optional: Array von Objective-IDs zum Verknüpfen (ersetzt bestehende Verknüpfungen).'],
             ],
             'required' => ['id'],
         ];
@@ -107,6 +109,21 @@ class UpdateMilestoneTool implements ToolContract, ToolMetadataContract
                 }
             }
 
+            // objective_ids: Pivot-Tabelle synchronisieren
+            if (array_key_exists('objective_ids', $arguments)) {
+                $objectiveIds = array_map('intval', array_filter((array) ($arguments['objective_ids'] ?? []), fn($v) => $v !== null && $v !== '' && $v !== 0));
+                if (!empty($objectiveIds)) {
+                    $validCount = Objective::query()
+                        ->where('team_id', $teamId)
+                        ->whereIn('id', $objectiveIds)
+                        ->count();
+                    if ($validCount !== count($objectiveIds)) {
+                        return ToolResult::error('VALIDATION_ERROR', 'Einige objective_ids sind ungültig (müssen existieren und zum Team gehören).');
+                    }
+                }
+                $milestone->objectives()->sync($objectiveIds);
+            }
+
             if ($dirty) {
                 $milestone->save();
             }
@@ -119,6 +136,7 @@ class UpdateMilestoneTool implements ToolContract, ToolMetadataContract
                 'target_year' => $milestone->target_year,
                 'target_quarter' => $milestone->target_quarter,
                 'order' => $milestone->order,
+                'objective_ids' => $milestone->objectives()->pluck('okr_objectives.id')->toArray(),
                 'message' => 'Meilenstein erfolgreich aktualisiert.',
             ]);
         } catch (\Throwable $e) {

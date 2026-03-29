@@ -6,7 +6,7 @@
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
             ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
-            ['label' => 'Regnosen', 'href' => route('okr.forecasts.index')],
+            ['label' => 'Forecasts', 'href' => route('okr.forecasts.index')],
             ['label' => $focusArea->forecast->title, 'href' => route('okr.forecasts.show', $focusArea->forecast)],
             ['label' => $focusArea->title],
         ]">
@@ -418,6 +418,26 @@
                                     @if($milestone->description)
                                         <div class="text-sm text-[var(--ui-muted)] mt-2">{{ Str::limit($milestone->description, 200) }}</div>
                                     @endif
+                                    @if($milestone->objectives->count() > 0)
+                                        <div class="mt-3 pt-3 border-t border-[var(--ui-border)]/40">
+                                            <div class="text-xs font-medium text-[var(--ui-muted)] mb-1.5">Einzahlende Objectives:</div>
+                                            <div class="flex flex-wrap gap-2">
+                                                @foreach($milestone->objectives as $objective)
+                                                    <a
+                                                        href="{{ route('okr.objectives.show', $objective) }}"
+                                                        wire:navigate
+                                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 border border-blue-200 text-xs text-blue-800 hover:bg-blue-100 transition-colors"
+                                                    >
+                                                        @svg('heroicon-o-flag', 'w-3 h-3')
+                                                        <span>{{ Str::limit($objective->title, 40) }}</span>
+                                                        @if($objective->cycle)
+                                                            <span class="text-blue-500">{{ $objective->cycle->template?->label ?? '' }}</span>
+                                                        @endif
+                                                    </a>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="flex items-center gap-2 ml-4">
                                     <x-ui-button 
@@ -470,7 +490,7 @@
                     <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Details</h3>
                     <div class="space-y-3">
                         <div class="flex items-center justify-between py-3 px-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
-                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Regnose</span>
+                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Forecast</span>
                             <a href="{{ route('okr.forecasts.show', $focusArea->forecast) }}" wire:navigate class="text-sm text-[var(--ui-primary)] hover:underline">
                                 {{ $focusArea->forecast->title }}
                             </a>
