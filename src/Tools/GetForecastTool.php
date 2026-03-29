@@ -20,7 +20,7 @@ class GetForecastTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/forecasts/{id} - Ruft eine einzelne Regnose (Forecast) ab.';
+        return 'GET /okr/forecasts/{id} - Ruft einen einzelnen Forecast ab.';
     }
 
     public function getSchema(): array
@@ -92,7 +92,7 @@ class GetForecastTool implements ToolContract, ToolMetadataContract
                 'updated_at' => $this->dateToYmd($forecast->updated_at),
             ]);
         } catch (\Throwable $e) {
-            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Abrufen der Regnose: ' . $e->getMessage());
+            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Abrufen des Forecasts: ' . $e->getMessage());
         }
     }
 

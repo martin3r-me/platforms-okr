@@ -143,16 +143,6 @@ class CycleShow extends Component
             ->first();
     }
 
-    #[Computed]
-    public function regnose()
-    {
-        if (!$this->cycle->okr) {
-            return null;
-        }
-        return StrategicDocument::active('regnose')
-            ->forTeam($this->cycle->okr->team_id)
-            ->first();
-    }
 
     public function updated($property)
     {

@@ -6,7 +6,7 @@
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
             ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
-            ['label' => 'Regnosen', 'href' => route('okr.forecasts.index')],
+            ['label' => 'Forecasts', 'href' => route('okr.forecasts.index')],
             ['label' => $forecast->title],
         ]">
             <a href="{{ route('okr.forecasts.pdf', $forecast) }}" target="_blank" rel="noopener">
@@ -179,7 +179,7 @@
             @endif
         </div>
 
-        {{-- Regnose Content --}}
+        {{-- Forecast Content --}}
         <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
             <div class="flex items-center justify-between mb-6">
                 <div class="flex items-center gap-3">
@@ -187,7 +187,7 @@
                         @svg('heroicon-o-document-text', 'w-4 h-4')
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Regnose Content</h3>
+                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Forecast Content</h3>
                         <p class="text-sm text-[var(--ui-muted)]">Strategische Ausrichtung & Transformationssteuerung</p>
                     </div>
                 </div>
@@ -215,7 +215,7 @@
                             previewStyle: 'tab',
                             hideModeSwitch: true,
                             usageStatistics: false,
-                            placeholder: 'Schreibe die Regnose…  😀  / Überschriften, Listen, Checklists, Links, Code',
+                            placeholder: 'Schreibe den Forecast…  / Überschriften, Listen, Checklists, Links, Code',
                             toolbarItems: [
                                 ['heading', 'bold', 'italic', 'strike'],
                                 ['ul', 'ol', 'task', 'quote'],
@@ -293,7 +293,7 @@
                     </div>
                     <div>
                         <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Fokusräume</h3>
-                        <p class="text-sm text-[var(--ui-muted)]">Fokusräume, die zu dieser Regnose gehören</p>
+                        <p class="text-sm text-[var(--ui-muted)]">Fokusräume, die zu diesem Forecast gehören</p>
                     </div>
                 </div>
                 <x-ui-button 
@@ -461,9 +461,9 @@
     </x-ui-page-container>
 
     <x-slot name="sidebar">
-        <x-ui-page-sidebar title="Regnose Übersicht" width="w-80" :defaultOpen="true">
+        <x-ui-page-sidebar title="Forecast Übersicht" width="w-80" :defaultOpen="true">
             <div class="p-6 space-y-6">
-                {{-- Regnose Details --}}
+                {{-- Forecast Details --}}
                 <div>
                     <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Details</h3>
                     <div class="space-y-3">
@@ -519,7 +519,7 @@
                                 @svg('heroicon-o-sparkles', 'w-4 h-4')
                             </div>
                             <div class="flex-1 min-w-0">
-                                <div class="font-medium text-[var(--ui-secondary)] text-sm">Regnose erstellt</div>
+                                <div class="font-medium text-[var(--ui-secondary)] text-sm">Forecast erstellt</div>
                                 <div class="text-xs text-[var(--ui-muted)]">{{ $forecast->created_at->diffForHumans() }}</div>
                             </div>
                         </div>

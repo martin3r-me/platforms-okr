@@ -39,7 +39,6 @@ class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
                 'order' => ['type' => 'integer'],
                 'manager_user_id' => ['type' => 'integer'],
                 'vision_id' => ['type' => 'integer', 'description' => 'Optional: StrategicDocument-ID vom Typ vision (0/"" => null).'],
-                'regnose_id' => ['type' => 'integer', 'description' => 'Optional: StrategicDocument-ID vom Typ regnose (0/"" => null).'],
                 'milestone_ids' => ['type' => 'array', 'items' => ['type' => 'integer'], 'description' => 'Optional: Array von Milestone-IDs zum Verknüpfen (ersetzt bestehende Verknüpfungen).'],
             ],
             'required' => ['id'],
@@ -94,7 +93,7 @@ class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
                 $dirty = true;
             }
 
-            // vision_id/regnose_id: optional setzen/entfernen (UI-Parität)
+            // vision_id: optional setzen/entfernen (UI-Parität)
             if (array_key_exists('vision_id', $arguments)) {
                 $visionId = $this->normalizeId($arguments['vision_id'] ?? null);
                 if ($visionId !== null) {
@@ -111,21 +110,6 @@ class UpdateObjectiveTool implements ToolContract, ToolMetadataContract
                 $dirty = true;
             }
 
-            if (array_key_exists('regnose_id', $arguments)) {
-                $regnoseId = $this->normalizeId($arguments['regnose_id'] ?? null);
-                if ($regnoseId !== null) {
-                    $ok = StrategicDocument::query()
-                        ->where('team_id', $teamId)
-                        ->where('type', 'regnose')
-                        ->where('id', $regnoseId)
-                        ->exists();
-                    if (!$ok) {
-                        return ToolResult::error('VALIDATION_ERROR', "regnose_id={$regnoseId} ist ungültig (muss existieren, Typ=regnose, Team-ID={$teamId}).");
-                    }
-                }
-                $obj->regnose_id = $regnoseId;
-                $dirty = true;
-            }
             // milestone_ids: Pivot-Tabelle synchronisieren
             if (array_key_exists('milestone_ids', $arguments)) {
                 $milestoneIds = array_map('intval', array_filter((array) ($arguments['milestone_ids'] ?? []), fn($v) => $v !== null && $v !== '' && $v !== 0));

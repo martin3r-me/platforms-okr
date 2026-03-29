@@ -34,7 +34,6 @@ class ObjectiveShow extends Component
         'objective.description' => 'nullable|string',
         'objective.order' => 'required|integer|min:0',
         'objective.vision_id' => 'nullable|exists:okr_strategic_documents,id',
-        'objective.regnose_id' => 'nullable|exists:okr_strategic_documents,id',
 
         'keyResultForm.title' => 'required|string|max:255',
         'keyResultForm.description' => 'nullable|string',
@@ -47,7 +46,7 @@ class ObjectiveShow extends Component
     public function mount(Objective $objective)
     {
         $this->objective = $objective;
-        $this->objective->load(['cycle', 'okr', 'keyResults.performances', 'vision', 'regnose', 'milestones.focusArea']);
+        $this->objective->load(['cycle', 'okr', 'keyResults.performances', 'vision', 'milestones.focusArea']);
         $this->selectedMilestoneIds = $this->objective->milestones->pluck('id')->toArray();
     }
 
@@ -84,17 +83,6 @@ class ObjectiveShow extends Component
             ]);
     }
 
-    #[Computed]
-    public function availableRegnoses()
-    {
-        if (!$this->objective->okr) {
-            return collect();
-        }
-        return StrategicDocument::active('regnose')
-            ->forTeam($this->objective->okr->team_id)
-            ->get()
-            ->mapWithKeys(fn($doc) => [$doc->id => $doc->title]);
-    }
 
     public function updated($property)
     {
@@ -114,7 +102,6 @@ class ObjectiveShow extends Component
             'objective.description' => 'nullable|string',
             'objective.order' => 'required|integer|min:0',
             'objective.vision_id' => 'nullable|exists:okr_strategic_documents,id',
-            'objective.regnose_id' => 'nullable|exists:okr_strategic_documents,id',
         ]);
 
         $this->objective->save();

@@ -23,7 +23,7 @@ class ListFocusAreasTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/focus_areas?forecast_id={id}&filters=[...]&search=... - Listet Fokusräume auf. WICHTIG: forecast_id ist erforderlich (Fokusräume gehören zu einer Regnose).';
+        return 'GET /okr/focus_areas?forecast_id={id}&filters=[...]&search=... - Listet Fokusräume auf. WICHTIG: forecast_id ist erforderlich (Fokusräume gehören zu einem Forecast).';
     }
 
     public function getSchema(): array

@@ -189,13 +189,6 @@ class OkrShow extends Component
             ->first();
     }
 
-    #[Computed]
-    public function regnose()
-    {
-        return StrategicDocument::active('regnose')
-            ->forTeam($this->okr->team_id)
-            ->first();
-    }
 
     public function updated($property)
     {

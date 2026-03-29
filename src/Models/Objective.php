@@ -41,7 +41,6 @@ class Objective extends Model
         'performance_score',
         'order',
         'vision_id',
-        'regnose_id',
     ];
 
     protected static function booted(): void
@@ -127,11 +126,4 @@ class Objective extends Model
         return $this->belongsTo(StrategicDocument::class, 'vision_id');
     }
 
-    /**
-     * Regnose, die dieses Objective referenziert (optional)
-     */
-    public function regnose(): BelongsTo
-    {
-        return $this->belongsTo(StrategicDocument::class, 'regnose_id');
-    }
 }

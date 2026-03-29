@@ -15,12 +15,11 @@ use Symfony\Component\Uid\UuidV7;
 
 /**
  * Strategic Document Model
- * 
- * Repräsentiert strategische Dokumente: Mission, Vision oder Regnose.
- * 
+ *
+ * Repräsentiert strategische Dokumente: Mission oder Vision.
+ *
  * @hint Mission: Warum die Organisation existiert (zeitlich stabil)
  * @hint Vision: Gewollter Zukunftszustand (5-10 Jahre)
- * @hint Regnose: Erwartete Entwicklungen (Annahmenbasiert)
  * @hint Alle Dokumente sind versionierbar, genau eine Version ist aktiv
  */
 class StrategicDocument extends Model
@@ -187,12 +186,5 @@ class StrategicDocument extends Model
         return $this->hasMany(Objective::class, 'vision_id');
     }
 
-    /**
-     * Objectives, die diese Regnose referenzieren
-     */
-    public function regnoseObjectives(): HasMany
-    {
-        return $this->hasMany(Objective::class, 'regnose_id');
-    }
 }
 

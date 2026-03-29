@@ -21,7 +21,7 @@ class CreateFocusAreaTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'POST /okr/focus_areas - Erstellt einen Fokusraum. WICHTIG: forecast_id ist erforderlich (Fokusräume gehören zu einer Regnose).';
+        return 'POST /okr/focus_areas - Erstellt einen Fokusraum. WICHTIG: forecast_id ist erforderlich (Fokusräume gehören zu einem Forecast).';
     }
 
     public function getSchema(): array

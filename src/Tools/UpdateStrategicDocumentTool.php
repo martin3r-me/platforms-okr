@@ -121,7 +121,7 @@ class UpdateStrategicDocumentTool implements ToolContract, ToolMetadataContract
     {
         return [
             'category' => 'mutate',
-            'tags' => ['okr', 'strategic_documents', 'mission', 'vision', 'regnose', 'update'],
+            'tags' => ['okr', 'strategic_documents', 'mission', 'vision', 'update'],
             'read_only' => false,
             'requires_auth' => true,
             'requires_team' => false,

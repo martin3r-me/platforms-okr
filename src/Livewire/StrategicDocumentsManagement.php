@@ -30,7 +30,7 @@ class StrategicDocumentsManagement extends Component
     public $versions = [];
 
     protected $rules = [
-        'form.type' => 'required|in:mission,vision,regnose',
+        'form.type' => 'required|in:mission,vision',
         'form.title' => 'required|string|max:255',
         'form.content' => 'nullable|string',
         'form.valid_from' => 'required|date',
@@ -67,14 +67,6 @@ class StrategicDocumentsManagement extends Component
     }
 
     #[Computed]
-    public function regnose()
-    {
-        return StrategicDocument::active('regnose')
-            ->forTeam($this->teamId)
-            ->first();
-    }
-
-    #[Computed]
     public function allMissions()
     {
         return StrategicDocument::ofType('mission')
@@ -87,15 +79,6 @@ class StrategicDocumentsManagement extends Component
     public function allVisions()
     {
         return StrategicDocument::ofType('vision')
-            ->forTeam($this->teamId)
-            ->orderBy('version', 'desc')
-            ->get();
-    }
-
-    #[Computed]
-    public function allRegnoses()
-    {
-        return StrategicDocument::ofType('regnose')
             ->forTeam($this->teamId)
             ->orderBy('version', 'desc')
             ->get();
@@ -257,7 +240,6 @@ class StrategicDocumentsManagement extends Component
         return match($type) {
             'mission' => 'Mission',
             'vision' => 'Vision',
-            'regnose' => 'Regnose',
             default => $type,
         };
     }
@@ -267,7 +249,6 @@ class StrategicDocumentsManagement extends Component
         return match($type) {
             'mission' => 'heroicon-o-document-text',
             'vision' => 'heroicon-o-sun',
-            'regnose' => 'heroicon-o-sparkles',
             default => 'heroicon-o-document',
         };
     }
@@ -277,7 +258,6 @@ class StrategicDocumentsManagement extends Component
         return match($type) {
             'mission' => 'Die Mission beschreibt, warum die Organisation heute existiert und welchen übergeordneten Zweck sie erfüllt. Zeitlich stabil, selten geändert, keine KPIs/OKRs, Referenz für Entscheidungen.',
             'vision' => 'Die Vision beschreibt einen bewusst angestrebten zukünftigen Zustand der Organisation. Normativ (gewollt, nicht prognostiziert), langfristig (5–10 Jahre), keine Key Results, dient als "North Star".',
-            'regnose' => 'Die Regnose beschreibt erwartete Entwicklungen im Markt, in der Technologie oder Organisation – unabhängig vom eigenen Handeln. Deskriptiv, nicht wertend, annahmenbasiert, änderbar/überprüfbar, Begründung für strategische Entscheidungen.',
             default => '',
         };
     }

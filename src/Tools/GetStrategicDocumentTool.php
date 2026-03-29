@@ -20,7 +20,7 @@ class GetStrategicDocumentTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/strategic-documents/{id} - Ruft ein strategisches Dokument (Mission/Vision/Regnose) ab.';
+        return 'GET /okr/strategic-documents/{id} - Ruft ein strategisches Dokument (Mission/Vision) ab.';
     }
 
     public function getSchema(): array
@@ -85,7 +85,7 @@ class GetStrategicDocumentTool implements ToolContract, ToolMetadataContract
     {
         return [
             'category' => 'query',
-            'tags' => ['okr', 'strategic_documents', 'mission', 'vision', 'regnose', 'get'],
+            'tags' => ['okr', 'strategic_documents', 'mission', 'vision', 'get'],
             'read_only' => true,
             'requires_auth' => true,
             'requires_team' => false,

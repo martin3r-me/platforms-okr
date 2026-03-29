@@ -22,7 +22,7 @@ class ListForecastsTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/forecasts?filters=[...]&search=... - Listet Regnosen (Forecasts) auf. Unterstützt Filter/Search/Sort/Pagination.';
+        return 'GET /okr/forecasts?filters=[...]&search=... - Listet Forecasts auf. Unterstützt Filter/Search/Sort/Pagination.';
     }
 
     public function getSchema(): array
@@ -73,10 +73,10 @@ class ListForecastsTool implements ToolContract, ToolMetadataContract
             return ToolResult::success([
                 'forecasts' => $items,
                 'count' => count($items),
-                'message' => count($items) . ' Regnose(n) gefunden.',
+                'message' => count($items) . ' Forecast(s) gefunden.',
             ]);
         } catch (\Throwable $e) {
-            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Auflisten der Regnosen: ' . $e->getMessage());
+            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Auflisten der Forecasts: ' . $e->getMessage());
         }
     }
 

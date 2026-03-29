@@ -22,7 +22,7 @@ class ListStrategicDocumentsTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/strategic-documents?type=mission|vision|regnose&is_active=true|false - Listet strategische Dokumente (Mission/Vision/Regnose) im OKR-Root-Team.';
+        return 'GET /okr/strategic-documents?type=mission|vision&is_active=true|false - Listet strategische Dokumente (Mission/Vision) im OKR-Root-Team.';
     }
 
     public function getSchema(): array
@@ -33,7 +33,7 @@ class ListStrategicDocumentsTool implements ToolContract, ToolMetadataContract
                 'properties' => [
                     'type' => [
                         'type' => 'string',
-                        'enum' => ['mission', 'vision', 'regnose'],
+                        'enum' => ['mission', 'vision'],
                         'description' => 'Optional: Typ-Filter.',
                     ],
                     'is_active' => [
@@ -63,8 +63,8 @@ class ListStrategicDocumentsTool implements ToolContract, ToolMetadataContract
             }
 
             $type = $arguments['type'] ?? null;
-            if ($type !== null && (!is_string($type) || !in_array($type, ['mission', 'vision', 'regnose'], true))) {
-                return ToolResult::error('VALIDATION_ERROR', 'type muss mission|vision|regnose sein.');
+            if ($type !== null && (!is_string($type) || !in_array($type, ['mission', 'vision'], true))) {
+                return ToolResult::error('VALIDATION_ERROR', 'type muss mission|vision sein.');
             }
 
             $includeContent = (bool)($arguments['include_content'] ?? true);
@@ -117,7 +117,7 @@ class ListStrategicDocumentsTool implements ToolContract, ToolMetadataContract
     {
         return [
             'category' => 'query',
-            'tags' => ['okr', 'strategic_documents', 'mission', 'vision', 'regnose', 'list'],
+            'tags' => ['okr', 'strategic_documents', 'mission', 'vision', 'list'],
             'read_only' => true,
             'requires_auth' => true,
             'requires_team' => false,

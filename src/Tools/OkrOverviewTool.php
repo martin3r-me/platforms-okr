@@ -39,12 +39,12 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
             ],
             'entities' => [
                 'forecasts' => [
-                    'description' => 'Regnosen (Forecasts) - Strategische Ausrichtung & Transformationssteuerung. Enthalten versionierbaren Content und Fokusräume.',
+                    'description' => 'Forecasts - Strategische Ausrichtung & Transformationssteuerung. Enthalten versionierbaren Content und Fokusräume.',
                     'relations' => ['forecast -> focus_areas', 'forecast -> versions'],
                     'important_fields' => ['title', 'target_date', 'content (versionierbar)'],
                 ],
                 'focus_areas' => [
-                    'description' => 'Fokusräume - gehören zu einer Regnose. Enthalten Zielbilder, Hindernisse und Meilensteine.',
+                    'description' => 'Fokusräume - gehören zu einem Forecast. Enthalten Zielbilder, Hindernisse und Meilensteine.',
                     'relations' => ['focus_area -> vision_images', 'focus_area -> obstacles', 'focus_area -> milestones'],
                     'important_fields' => ['title', 'description', 'content', 'order'],
                 ],
@@ -57,7 +57,8 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                     'important_fields' => ['title', 'description', 'order'],
                 ],
                 'milestones' => [
-                    'description' => 'Meilensteine - gehören zu einem Fokusraum. Haben optional target_year und target_quarter.',
+                    'description' => 'Meilensteine - gehören zu einem Fokusraum. Haben optional target_year und target_quarter. Können mit Objectives verknüpft werden (m:n), um strategische Ziele in die operative Arbeit zu überführen.',
+                    'relations' => ['milestone <-> objectives (m:n über okr_objective_milestone)'],
                     'important_fields' => ['title', 'description', 'target_year', 'target_quarter', 'order'],
                     'note' => 'target_quarter kann nur gesetzt werden, wenn target_year gesetzt ist.',
                 ],
@@ -75,8 +76,8 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                     'status' => ['draft', 'active', 'ending_soon', 'completed', 'past'],
                 ],
                 'objectives' => [
-                    'description' => 'Hauptziele in einem Cycle (cycle_id required). Enthält Key Results.',
-                    'relations' => ['objective -> key_results'],
+                    'description' => 'Hauptziele in einem Cycle (cycle_id required). Enthält Key Results. Können mit Meilensteinen aus Forecasts verknüpft werden (m:n), um auf strategische Ziele einzuzahlen.',
+                    'relations' => ['objective -> key_results', 'objective <-> milestones (m:n über okr_objective_milestone)'],
                 ],
                 'key_results' => [
                     'description' => 'Messbare Ergebnisse zu einem Objective. Gehören indirekt immer zu einem Cycle (über objective).',
@@ -121,7 +122,7 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                 ],
                 'create_objective' => [
                     'step_1' => 'okr.cycles.GET oder okr.cycle.GET → cycle_id auswählen',
-                    'step_2' => 'okr.objectives.POST (cycle_id + title + ... + optional vision_id/regnose_id)',
+                    'step_2' => 'okr.objectives.POST (cycle_id + title + ... + optional vision_id)',
                 ],
                 'create_key_result' => [
                     'step_1' => 'okr.objectives.GET (cycle_id) → objective_id auswählen',

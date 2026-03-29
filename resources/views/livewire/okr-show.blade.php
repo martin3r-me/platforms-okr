@@ -107,7 +107,7 @@
         </div>
 
         {{-- Strategic Documents Section (Read-Only) --}}
-        @if($this->mission || $this->vision || $this->regnose)
+        @if($this->mission || $this->vision)
             <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-3">
@@ -116,7 +116,7 @@
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Strategische Orientierung</h3>
-                            <p class="text-sm text-[var(--ui-muted)]">Mission, Vision & Regnose (Read-Only)</p>
+                            <p class="text-sm text-[var(--ui-muted)]">Mission & Vision (Read-Only)</p>
                         </div>
                     </div>
                     <x-ui-button variant="secondary" size="sm" :href="route('okr.strategic-documents.index')" wire:navigate>
@@ -170,28 +170,6 @@
                         </div>
                     @endif
 
-                    {{-- Regnose --}}
-                    @if($this->regnose)
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-6">
-                            <div class="flex items-center gap-2 mb-3">
-                                <div class="w-6 h-6 bg-indigo-500 text-white rounded flex items-center justify-center">
-                                    @svg('heroicon-o-sparkles', 'w-4 h-4')
-                                </div>
-                                <h4 class="font-semibold text-[var(--ui-secondary)]">🔮 Regnose (Strategic Outlook)</h4>
-                                <span class="text-xs text-[var(--ui-muted)] ml-auto">
-                                    Version {{ $this->regnose->version }} • Aktiv seit {{ $this->regnose->valid_from->format('d.m.Y') }}
-                                </span>
-                            </div>
-                            <p class="text-xs text-[var(--ui-muted)] mb-3 italic">
-                                Die Regnose beschreibt erwartete Entwicklungen im Markt, in der Technologie oder Organisation – 
-                                unabhängig vom eigenen Handeln. Deskriptiv, nicht wertend, annahmenbasiert, änderbar/überprüfbar, 
-                                Begründung für strategische Entscheidungen.
-                            </p>
-                            <div class="prose prose-sm max-w-none text-[var(--ui-secondary)]">
-                                {!! \Illuminate\Support\Str::markdown($this->regnose->content ?? '') !!}
-                            </div>
-                        </div>
-                    @endif
                 </div>
             </div>
         @endif

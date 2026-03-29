@@ -56,9 +56,9 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
             $includeKrs = (bool)($arguments['include_key_results'] ?? true);
             $q = Objective::query()->where('team_id', $teamId);
             if ($includeKrs) {
-                $q->with(['keyResults.performance', 'performance', 'vision', 'regnose']);
+                $q->with(['keyResults.performance', 'performance', 'vision', 'milestones.focusArea']);
             } else {
-                $q->with(['vision', 'regnose']);
+                $q->with(['vision', 'milestones.focusArea']);
             }
             $obj = $q->find($id);
             if (!$obj) {
@@ -107,19 +107,18 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
                         'is_active' => (bool)$obj->vision->is_active,
                         'valid_from' => $this->dateToYmd($obj->vision->valid_from),
                     ] : null,
-                    'regnose' => $obj->regnose ? [
-                        'id' => $obj->regnose->id,
-                        'type' => $obj->regnose->type,
-                        'title' => $obj->regnose->title,
-                        'version' => $obj->regnose->version,
-                        'is_active' => (bool)$obj->regnose->is_active,
-                        'valid_from' => $this->dateToYmd($obj->regnose->valid_from),
-                    ] : null,
                     'performance' => $obj->performance ? [
                         'performance_date' => $this->dateToYmd($obj->performance->performance_date),
                         'performance_score' => $obj->performance->performance_score,
                         'completion_percentage' => $obj->performance->completion_percentage,
                     ] : null,
+                    'milestones' => $obj->milestones->map(fn($m) => [
+                        'id' => $m->id,
+                        'title' => $m->title,
+                        'focus_area' => $m->focusArea ? $m->focusArea->title : null,
+                        'target_year' => $m->target_year,
+                        'target_quarter' => $m->target_quarter,
+                    ])->values()->toArray(),
                 ],
                 'key_results' => $krs,
             ]);

@@ -82,7 +82,7 @@ class ForecastPdfController extends Controller
             'transformationMapData' => $transformationMapData,
         ])->render();
 
-        $filename = str($forecast->title ?: 'regnose')
+        $filename = str($forecast->title ?: 'forecast')
             ->slug('-')
             ->append('.pdf')
             ->toString();

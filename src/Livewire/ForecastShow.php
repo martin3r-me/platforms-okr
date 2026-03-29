@@ -66,7 +66,7 @@ class ForecastShow extends Component
 
         $this->forecast->refresh();
         $this->isDirty = false;
-        session()->flash('message', 'Regnose erfolgreich gespeichert!');
+        session()->flash('message', 'Forecast erfolgreich gespeichert!');
     }
 
     // FocusArea Management

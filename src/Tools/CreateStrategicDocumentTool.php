@@ -20,7 +20,7 @@ class CreateStrategicDocumentTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'POST /okr/strategic-documents - Erstellt ein strategisches Dokument (Mission/Vision/Regnose). Versionierung erfolgt automatisch pro Typ.';
+        return 'POST /okr/strategic-documents - Erstellt ein strategisches Dokument (Mission/Vision). Versionierung erfolgt automatisch pro Typ.';
     }
 
     public function getSchema(): array
@@ -30,7 +30,7 @@ class CreateStrategicDocumentTool implements ToolContract, ToolMetadataContract
             'properties' => [
                 'type' => [
                     'type' => 'string',
-                    'enum' => ['mission', 'vision', 'regnose'],
+                    'enum' => ['mission', 'vision'],
                     'description' => 'Typ (required).',
                 ],
                 'title' => ['type' => 'string', 'description' => 'Titel (required).'],
@@ -52,8 +52,8 @@ class CreateStrategicDocumentTool implements ToolContract, ToolMetadataContract
 
             $type = $arguments['type'] ?? null;
             $title = $arguments['title'] ?? null;
-            if (!is_string($type) || !in_array($type, ['mission', 'vision', 'regnose'], true)) {
-                return ToolResult::error('VALIDATION_ERROR', 'type muss mission|vision|regnose sein.');
+            if (!is_string($type) || !in_array($type, ['mission', 'vision'], true)) {
+                return ToolResult::error('VALIDATION_ERROR', 'type muss mission|vision sein.');
             }
             if (!is_string($title) || trim($title) === '') {
                 return ToolResult::error('VALIDATION_ERROR', 'title ist erforderlich.');
@@ -97,7 +97,7 @@ class CreateStrategicDocumentTool implements ToolContract, ToolMetadataContract
     {
         return [
             'category' => 'mutate',
-            'tags' => ['okr', 'strategic_documents', 'mission', 'vision', 'regnose', 'create'],
+            'tags' => ['okr', 'strategic_documents', 'mission', 'vision', 'create'],
             'read_only' => false,
             'requires_auth' => true,
             'requires_team' => false,

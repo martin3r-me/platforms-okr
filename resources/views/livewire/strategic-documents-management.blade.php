@@ -22,7 +22,7 @@
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
             <h3 class="text-lg font-semibold text-blue-900 mb-2">Über strategische Dokumente</h3>
             <p class="text-sm text-blue-800 mb-4">
-                Strategische Dokumente (Mission, Vision, Regnose) dienen der Orientierung und sind nicht Teil der operativen OKR-Messung. 
+                Strategische Dokumente (Mission, Vision) dienen der Orientierung und sind nicht Teil der operativen OKR-Messung.
                 Sie können versioniert werden und werden in OKR-Zyklen als Referenz angezeigt.
             </p>
         </div>
@@ -129,56 +129,6 @@
             @endif
         </div>
 
-        {{-- Regnose Section --}}
-        <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-8">
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-indigo-500 text-white rounded-lg flex items-center justify-center">
-                        @svg('heroicon-o-sparkles', 'w-6 h-6')
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">🔮 Regnose (Strategic Outlook)</h3>
-                        <p class="text-sm text-[var(--ui-muted)]">{{ $this->getTypeDescription('regnose') }}</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <x-ui-button variant="secondary-ghost" size="sm" wire:click="openViewVersionsModal('regnose')">
-                        @svg('heroicon-o-clock', 'w-4 h-4')
-                        <span class="ml-1">Versionen</span>
-                    </x-ui-button>
-                    <x-ui-button variant="primary" size="sm" wire:click="openCreateModal('regnose')">
-                        @svg('heroicon-o-plus', 'w-4 h-4')
-                        <span class="ml-1">{{ $this->regnose ? 'Neue Version' : 'Erstellen' }}</span>
-                    </x-ui-button>
-                </div>
-            </div>
-
-            @if($this->regnose)
-                <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-6">
-                    <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <h4 class="font-semibold text-[var(--ui-secondary)] mb-1">{{ $this->regnose->title }}</h4>
-                            <p class="text-sm text-[var(--ui-muted)]">
-                                Version {{ $this->regnose->version }} • Aktiv seit {{ $this->regnose->valid_from->format('d.m.Y') }}
-                            </p>
-                        </div>
-                        <x-ui-button variant="secondary-ghost" size="sm" wire:click="openEditModal({{ $this->regnose->id }})">
-                            @svg('heroicon-o-pencil', 'w-4 h-4')
-                        </x-ui-button>
-                    </div>
-                    <div class="prose prose-sm max-w-none text-[var(--ui-secondary)]">
-                        {!! \Illuminate\Support\Str::markdown($this->regnose->content ?? '') !!}
-                    </div>
-                </div>
-            @else
-                <div class="text-center py-12 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
-                    <p class="text-[var(--ui-muted)] mb-4">Noch keine Regnose definiert</p>
-                    <x-ui-button variant="primary" wire:click="openCreateModal('regnose')">
-                        Regnose erstellen
-                    </x-ui-button>
-                </div>
-            @endif
-        </div>
     </x-ui-page-container>
 
     {{-- Create Modal --}}
@@ -188,7 +138,7 @@
             <x-ui-input-select
                 name="form.type"
                 label="Typ"
-                :options="['mission' => 'Mission', 'vision' => 'Vision', 'regnose' => 'Regnose']"
+                :options="['mission' => 'Mission', 'vision' => 'Vision']"
                 wire:model="form.type"
             />
             <x-ui-input-text
