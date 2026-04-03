@@ -46,6 +46,14 @@ class OkrServiceProvider extends ServiceProvider
             'okr' => \Platform\Okr\Models\Okr::class,
         ]);
 
+        // EntityLinkProvider registrieren (loose Kopplung mit Organization-Modul)
+        try {
+            resolve(\Platform\Organization\Services\EntityLinkRegistry::class)
+                ->register(new \Platform\Okr\Organization\OkrEntityLinkProvider());
+        } catch (\Throwable $e) {
+            // Organization-Modul nicht geladen
+        }
+
         // Policies
         Gate::policy(Okr::class, OkrPolicy::class);
         Gate::policy(Cycle::class, CyclePolicy::class);
@@ -63,6 +71,7 @@ class OkrServiceProvider extends ServiceProvider
             PlatformCore::registerModule([
                 'key'        => 'okr',
                 'title'      => 'OKR',
+                'group'      => 'planning',
                 'routing'    => config('okr.routing'),
                 'guard'      => config('okr.guard'),
                 'navigation' => config('okr.navigation'),
