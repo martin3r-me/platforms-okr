@@ -15,7 +15,7 @@ class OkrEntityLinkProvider implements EntityLinkProvider
     public function linkTypeConfig(): array
     {
         return [
-            'okr' => ['label' => 'OKR', 'icon' => 'chart-bar', 'route' => null],
+            'okr' => ['label' => 'OKR', 'singular' => 'OKR', 'icon' => 'chart-bar', 'route' => null],
         ];
     }
 
@@ -45,6 +45,11 @@ class OkrEntityLinkProvider implements EntityLinkProvider
     }
 
     public function timeTrackableCascades(): array
+    {
+        return [];
+    }
+
+    public function activityChildren(string $morphAlias, array $linkableIds): array
     {
         return [];
     }
