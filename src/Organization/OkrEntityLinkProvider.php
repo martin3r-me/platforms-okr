@@ -48,4 +48,9 @@ class OkrEntityLinkProvider implements EntityLinkProvider
     {
         return [];
     }
+
+    public function metrics(string $morphAlias, array $linksByEntity): array
+    {
+        return [];
+    }
 }
