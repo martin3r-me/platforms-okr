@@ -61,7 +61,7 @@ class CycleShow extends Component
         $this->dispatch('comms', [
             'model' => get_class($this->cycle),                                // z. B. 'Platform\Okr\Models\Cycle'
             'modelId' => $this->cycle->id,
-            'subject' => $this->cycle->okr->name ?? 'OKR Cycle',
+            'subject' => trim(($this->cycle->okr->title ?? 'OKR') . ' — ' . ($this->cycle->label ?? $this->cycle->template?->label ?? 'Cycle')),
             'description' => $this->cycle->okr->description ?? '',
             'url' => route('okr.cycles.show', $this->cycle),                  // absolute URL zum Cycle
             'source' => 'okr.cycle.view',                                     // eindeutiger Quell-Identifier
