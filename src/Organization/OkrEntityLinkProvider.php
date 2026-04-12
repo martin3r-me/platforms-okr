@@ -3,6 +3,8 @@
 namespace Platform\Okr\Organization;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
+use Platform\Okr\Models\Okr;
 use Platform\Organization\Contracts\EntityLinkProvider;
 
 class OkrEntityLinkProvider implements EntityLinkProvider
@@ -56,6 +58,68 @@ class OkrEntityLinkProvider implements EntityLinkProvider
 
     public function metrics(string $morphAlias, array $linksByEntity): array
     {
-        return [];
+        if ($morphAlias !== 'okr') {
+            return [];
+        }
+
+        // Collect all OKR IDs across entities
+        $allIds = [];
+        foreach ($linksByEntity as $ids) {
+            $allIds = array_merge($allIds, $ids);
+        }
+        $allIds = array_values(array_unique($allIds));
+
+        if (empty($allIds)) {
+            return [];
+        }
+
+        // Load OKRs with objective + key result counts
+        $okrs = Okr::whereIn('id', $allIds)
+            ->withCount([
+                'objectives',
+                'objectives as objectives_done_count' => fn ($q) => $q->where('performance_score', '>=', 0.7),
+                'keyResults',
+                'keyResults as key_results_done_count' => fn ($q) => $q->where('okr_key_results.performance_score', '>=', 0.7),
+            ])
+            ->get()
+            ->keyBy('id');
+
+        $result = [];
+        foreach ($linksByEntity as $entityId => $ids) {
+            $objectivesTotal = 0;
+            $objectivesDone = 0;
+            $krTotal = 0;
+            $krDone = 0;
+            $scoreSum = 0;
+            $scoreCount = 0;
+
+            foreach ($ids as $id) {
+                $okr = $okrs[$id] ?? null;
+                if (!$okr) {
+                    continue;
+                }
+                $objectivesTotal += $okr->objectives_count;
+                $objectivesDone += $okr->objectives_done_count;
+                $krTotal += $okr->key_results_count;
+                $krDone += $okr->key_results_done_count;
+
+                if ($okr->performance_score !== null) {
+                    $scoreSum += (float) $okr->performance_score;
+                    $scoreCount++;
+                }
+            }
+
+            $result[$entityId] = [
+                'okr_objectives_total' => $objectivesTotal,
+                'okr_objectives_done' => $objectivesDone,
+                'okr_key_results_total' => $krTotal,
+                'okr_key_results_done' => $krDone,
+                // Store sum + count separately so hierarchy cascade can average correctly
+                'okr_performance_sum' => $scoreCount > 0 ? round($scoreSum, 3) : 0,
+                'okr_performance_count' => $scoreCount,
+            ];
+        }
+
+        return $result;
     }
 }
