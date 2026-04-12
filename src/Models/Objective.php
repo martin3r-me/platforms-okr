@@ -4,6 +4,7 @@ namespace Platform\Okr\Models;
 
 use Platform\Core\Models\Team;
 use Platform\Core\Models\User;
+use Platform\Core\Contracts\AgendaRenderable;
 use Platform\ActivityLog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -23,7 +24,7 @@ use Symfony\Component\Uid\UuidV7;
  * @hint Jeder Objective hat mehrere Key Results als messbare Ergebnisse
  * @hint Objectives können "Mountain" (ambitionierte Ziele) sein
  */
-class Objective extends Model
+class Objective extends Model implements AgendaRenderable
 {
     protected $table = 'okr_objectives';
     use SoftDeletes, LogsActivity;
@@ -124,6 +125,32 @@ class Objective extends Model
     public function vision(): BelongsTo
     {
         return $this->belongsTo(StrategicDocument::class, 'vision_id');
+    }
+
+    // ── AgendaRenderable ──────────────────────────────────────
+
+    public function toAgendaItem(): array
+    {
+        $score = $this->performance_score;
+
+        return [
+            'title' => $this->title,
+            'description' => $this->description ? \Illuminate\Support\Str::limit($this->description, 120) : null,
+            'icon' => '🎯',
+            'color' => null,
+            'status' => $score !== null ? round($score * 100) . '%' : null,
+            'status_color' => match (true) {
+                $score === null => null,
+                $score >= 0.7 => 'green',
+                $score >= 0.4 => 'yellow',
+                default => 'red',
+            },
+            'url' => route('okr.objectives.show', $this),
+            'meta' => [
+                'performance_score' => $score,
+                'is_mountain' => $this->is_mountain,
+            ],
+        ];
     }
 
 }

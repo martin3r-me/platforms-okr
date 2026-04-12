@@ -4,10 +4,12 @@ namespace Platform\Okr\Models;
 
 use Platform\Core\Models\Team;
 use Platform\Core\Models\User;
+use Platform\Core\Contracts\AgendaRenderable;
 use Platform\ActivityLog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +25,7 @@ use Platform\Okr\Models\KeyResultContext;
  * @hint Jeder Key Result hat Performance-Daten (Zielwert, aktueller Wert)
  * @hint Key Results können verschiedene Typen haben: absolute, percentage, boolean
  */
-class KeyResult extends Model
+class KeyResult extends Model implements AgendaRenderable
 {
     protected $table = 'okr_key_results';
     use SoftDeletes, LogsActivity;
@@ -109,5 +111,33 @@ class KeyResult extends Model
     {
         return $this->hasMany(KeyResultContext::class, 'key_result_id')
             ->where('is_primary', true);
+    }
+
+    public function milestones(): BelongsToMany
+    {
+        return $this->belongsToMany(Milestone::class, 'okr_key_result_milestone');
+    }
+
+    // ── AgendaRenderable ──────────────────────────────────────
+
+    public function toAgendaItem(): array
+    {
+        $score = $this->performance_score;
+
+        return [
+            'title' => $this->title,
+            'description' => $this->description ? \Illuminate\Support\Str::limit($this->description, 120) : null,
+            'icon' => '📊',
+            'color' => null,
+            'status' => $score !== null ? round($score * 100) . '%' : null,
+            'status_color' => match (true) {
+                $score === null => null,
+                $score >= 0.7 => 'green',
+                $score >= 0.4 => 'yellow',
+                default => 'red',
+            },
+            'url' => null,
+            'meta' => ['performance_score' => $score],
+        ];
     }
 }
