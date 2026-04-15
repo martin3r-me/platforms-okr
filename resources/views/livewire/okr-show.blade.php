@@ -5,8 +5,8 @@
 
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
-            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
-            ['label' => 'OKRs', 'href' => route('okr.okrs.index')],
+            ['label' => 'Zielsteuerung', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'Zielsteuerungen', 'href' => route('okr.okrs.index')],
             ['label' => $okr->title],
         ]">
             <x-slot name="left">
@@ -93,7 +93,7 @@
                         @svg('heroicon-o-flag', 'w-4 h-4')
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">OKR Details</h3>
+                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Zielsteuerung Details</h3>
                         <p class="text-sm text-[var(--ui-muted)]">Grundinformationen und Einstellungen</p>
                     </div>
                 </div>
@@ -140,7 +140,7 @@
                             </div>
                             <p class="text-xs text-[var(--ui-muted)] mb-3 italic">
                                 Die Mission beschreibt, warum die Organisation heute existiert und welchen übergeordneten Zweck sie erfüllt. 
-                                Zeitlich stabil, selten geändert, keine KPIs/OKRs, Referenz für Entscheidungen.
+                                Zeitlich stabil, selten geändert, keine KPIs/Zielsteuerungen, Referenz für Entscheidungen.
                             </p>
                             <div class="prose prose-sm max-w-none text-[var(--ui-secondary)]">
                                 {!! \Illuminate\Support\Str::markdown($this->mission->content ?? '') !!}
@@ -162,7 +162,7 @@
                             </div>
                             <p class="text-xs text-[var(--ui-muted)] mb-3 italic">
                                 Die Vision beschreibt einen bewusst angestrebten zukünftigen Zustand der Organisation. 
-                                Normativ (gewollt, nicht prognostiziert), langfristig (5–10 Jahre), keine Key Results, dient als "North Star".
+                                Normativ (gewollt, nicht prognostiziert), langfristig (5–10 Jahre), keine Erfolgskriterien, dient als "North Star".
                             </p>
                             <div class="prose prose-sm max-w-none text-[var(--ui-secondary)]">
                                 {!! \Illuminate\Support\Str::markdown($this->vision->content ?? '') !!}
@@ -176,7 +176,7 @@
 
         {{-- OKR Settings Modal --}}
         <x-ui-modal model="okrSettingsModalShow" size="lg">
-            <x-slot name="header">OKR Einstellungen</x-slot>
+            <x-slot name="header">Zielsteuerung Einstellungen</x-slot>
             <div class="space-y-6">
                 @can('update', $okr)
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -184,7 +184,7 @@
                             name="okr.title"
                             label="Titel"
                             wire:model.live.debounce.500ms="okr.title"
-                            placeholder="OKR Titel eingeben..."
+                            placeholder="Titel eingeben..."
                             :errorKey="'okr.title'"
                         />
                         <x-ui-input-select 
@@ -198,7 +198,7 @@
                                 name="okr.description"
                                 label="Beschreibung"
                                 wire:model.live.debounce.500ms="okr.description"
-                                placeholder="Detaillierte Beschreibung des OKRs..."
+                                placeholder="Detaillierte Beschreibung der Zielsteuerung..."
                                 rows="3"
                                 :errorKey="'okr.description'"
                             />
@@ -296,7 +296,7 @@
                     </div>
                     <div>
                         <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Zyklen</h3>
-                        <p class="text-sm text-[var(--ui-muted)]">Verwalte die OKR-Zyklen</p>
+                        <p class="text-sm text-[var(--ui-muted)]">Verwalte die Zielsteuerung-Zyklen</p>
                     </div>
                 </div>
                 <x-ui-button variant="primary" size="sm" wire:click="openCycleCreateModal">
@@ -329,7 +329,7 @@
                                             {{ $cycle->ends_at ? $cycle->ends_at->format('d.m.Y') : 'Kein Enddatum' }}
                                         </p>
                                         <p class="text-xs text-[var(--ui-muted)]">
-                                            {{ $totalObjectives }} Objectives • {{ $totalKeyResults }} Key Results
+                                            {{ $totalObjectives }} Objectives • {{ $totalKeyResults }} Erfolgskriterien
                                         </p>
                                     </div>
                                 </div>
@@ -368,7 +368,7 @@
                         @svg('heroicon-o-calendar', 'w-8 h-8 text-[var(--ui-muted)]')
                     </div>
                     <h3 class="text-lg font-medium text-[var(--ui-secondary)] mb-2">Keine Zyklen vorhanden</h3>
-                    <p class="text-[var(--ui-muted)] mb-6">Erstelle den ersten Zyklus für dieses OKR</p>
+                    <p class="text-[var(--ui-muted)] mb-6">Erstelle den ersten Zyklus für diese Zielsteuerung</p>
                     <x-ui-button variant="primary" wire:click="openCycleCreateModal">
                         @svg('heroicon-o-plus', 'w-4 h-4')
                         <span class="ml-1">Ersten Zyklus erstellen</span>
@@ -415,11 +415,11 @@
 
     {{-- Left Sidebar --}}
     <x-slot name="sidebar">
-        <x-ui-page-sidebar title="OKR Übersicht" width="w-80" side="left" :defaultOpen="true">
+        <x-ui-page-sidebar title="Zielsteuerung Übersicht" width="w-80" side="left" :defaultOpen="true">
             <div class="p-6 space-y-6">
                 {{-- OKR Performance --}}
                 <div>
-                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">OKR Performance</h3>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Zielsteuerung Performance</h3>
                     <div class="space-y-3">
                         @php
                             $okrPerformance = $okr->performance;
@@ -462,7 +462,7 @@
                         <div class="grid grid-cols-2 gap-3">
                             <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
                                 <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $totalKeyResults }}</div>
-                                <div class="text-xs text-[var(--ui-muted)]">Key Results</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Erfolgskriterien</div>
                             </div>
                             <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
                                 <div class="text-lg font-bold text-green-600">{{ $completedKeyResults }}</div>
@@ -474,7 +474,7 @@
 
                 {{-- OKR Details --}}
                 <div>
-                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">OKR Details</h3>
+                    <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Zielsteuerung Details</h3>
                     <div class="space-y-3">
                         <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
                             <div class="space-y-2">

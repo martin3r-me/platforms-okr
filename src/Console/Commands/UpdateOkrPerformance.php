@@ -16,11 +16,11 @@ use Platform\Core\Models\Team;
 class UpdateOkrPerformance extends Command
 {
     protected $signature = 'okr:update-performance';
-    protected $description = 'Update OKR performance statistics for all levels';
+    protected $description = 'Update Zielsteuerung performance statistics for all levels';
 
     public function handle(): int
     {
-        $this->info('Starting OKR performance update...');
+        $this->info('Starting Zielsteuerung performance update...');
 
         $this->updateKeyResultCompletionStatus();
         $this->updateObjectivePerformances();
@@ -28,13 +28,13 @@ class UpdateOkrPerformance extends Command
         $this->updateOkrPerformances();
         $this->updateTeamPerformances();
 
-        $this->info('OKR performance update completed successfully!');
+        $this->info('Zielsteuerung performance update completed successfully!');
         return 0;
     }
 
     private function updateKeyResultCompletionStatus(): void
     {
-        $this->info('Updating Key Result completion status...');
+        $this->info('Updating Erfolgskriterien completion status...');
 
         $keyResults = KeyResult::with(['performance'])
             ->whereHas('performance')
@@ -42,7 +42,7 @@ class UpdateOkrPerformance extends Command
 
         $today = today();
         $this->info("Today's date: {$today->format('Y-m-d')}");
-        $this->info("Found {$keyResults->count()} key results to process");
+        $this->info("Found {$keyResults->count()} Erfolgskriterien to process");
 
         foreach ($keyResults as $keyResult) {
             $performance = $keyResult->performance;
@@ -65,7 +65,7 @@ class UpdateOkrPerformance extends Command
 
             // Automatisch als "erreicht" markieren bei 100% Fortschritt
             if ($progress >= 100 && !$isCompleted) {
-                $this->info("  → Key Result {$keyResult->id} ({$keyResult->title}) has 100% progress, marking as completed");
+                $this->info("  → Erfolgskriterium {$keyResult->id} ({$keyResult->title}) has 100% progress, marking as completed");
                 
                 // Update the performance record
                 $performance->update([
@@ -84,7 +84,7 @@ class UpdateOkrPerformance extends Command
             }
             // Automatisch als "nicht erreicht" markieren bei <100% Fortschritt
             elseif ($progress < 100 && $isCompleted) {
-                $this->info("  → Key Result {$keyResult->id} ({$keyResult->title}) has {$progress}% progress, marking as not completed");
+                $this->info("  → Erfolgskriterium {$keyResult->id} ({$keyResult->title}) has {$progress}% progress, marking as not completed");
                 
                 // Update the performance record
                 $performance->update([
@@ -103,7 +103,7 @@ class UpdateOkrPerformance extends Command
             }
         }
 
-        $this->info("Updated Key Result completion status");
+        $this->info("Updated Erfolgskriterien completion status");
     }
 
     private function updateObjectivePerformances(): void
@@ -138,11 +138,11 @@ class UpdateOkrPerformance extends Command
             
             // Ignoriere Objectives ohne Key Results
             if ($totalKeyResults === 0) {
-                $this->info("  → Objective {$objective->id} has no Key Results, skipping...");
+                $this->info("  → Objective {$objective->id} has no Erfolgskriterien, skipping...");
                 continue;
             }
             
-            $this->info("  → Key Results: {$totalKeyResults} total, {$completedKeyResults} completed");
+            $this->info("  → Erfolgskriterien: {$totalKeyResults} total, {$completedKeyResults} completed");
             
             // Berechne durchschnittlichen Fortschritt basierend auf Key Result Performances
             $totalProgress = 0;
@@ -300,7 +300,7 @@ class UpdateOkrPerformance extends Command
 
     private function updateOkrPerformances(): void
     {
-        $this->info('Updating OKR performances...');
+        $this->info('Updating Zielsteuerung performances...');
         
         $okrs = Okr::with(['cycles.performance'])
             ->get();
@@ -366,7 +366,7 @@ class UpdateOkrPerformance extends Command
             $this->info("  → Performance " . ($result->wasRecentlyCreated ? 'CREATED' : 'UPDATED') . " for OKR {$okr->id}");
         }
         
-        $this->info("Updated {$okrs->count()} OKR performances");
+        $this->info("Updated {$okrs->count()} Zielsteuerung performances");
     }
 
     private function updateTeamPerformances(): void
@@ -401,7 +401,7 @@ class UpdateOkrPerformance extends Command
                        $okr->cycles->sum(fn($cycle) => $cycle->objectives->sum(fn($obj) => $obj->keyResults->count())) > 0;
             });
             
-            $this->info("  → Relevant OKRs: {$relevantOkrs->count()} (with Cycles, Objectives and Key Results)");
+            $this->info("  → Relevant Zielsteuerungen: {$relevantOkrs->count()} (with Cycles, Objectives and Erfolgskriterien)");
 
             // Calculate metrics from OKR Performance records (nur relevante OKRs)
             $okrPerformances = OkrPerformance::whereIn('okr_id', $relevantOkrs->pluck('id'))
@@ -411,8 +411,8 @@ class UpdateOkrPerformance extends Command
             $averageScore = $okrPerformances->avg('performance_score') ?? 0;
             $successfulOkrs = $okrPerformances->where('performance_score', '>=', 80)->count();
             
-            $this->info("  → OKR Metrics: Average Score: {$averageScore}, Successful OKRs: {$successfulOkrs}");
-            $this->info("  → OKR Performance Details:");
+            $this->info("  → Zielsteuerung Metrics: Average Score: {$averageScore}, Successful: {$successfulOkrs}");
+            $this->info("  → Zielsteuerung Performance Details:");
             foreach ($okrPerformances as $okrPerf) {
                 $this->info("    - OKR {$okrPerf->okr_id}: Score = {$okrPerf->performance_score}");
             }
@@ -422,7 +422,7 @@ class UpdateOkrPerformance extends Command
             $openKeyResults = $keyResults->where('status', '!=', 'completed')->count();
             
             $this->info("  → Objectives: {$objectives->count()} total, {$achievedObjectives} achieved");
-            $this->info("  → Key Results: {$keyResults->count()} total, {$achievedKeyResults} achieved, {$openKeyResults} open");
+            $this->info("  → Erfolgskriterien: {$keyResults->count()} total, {$achievedKeyResults} achieved, {$openKeyResults} open");
 
             // Calculate trends (vs. previous snapshot)
             $previousPerformance = TeamPerformance::forTeam($team->id)

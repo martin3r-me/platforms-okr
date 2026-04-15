@@ -21,7 +21,7 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/objectives/{id} - Ruft ein Objective ab (inkl. Key Results).';
+        return 'GET /okr/objectives/{id} - Ruft ein Objective ab (inkl. Erfolgskriterien).';
     }
 
     public function getSchema(): array
@@ -30,7 +30,7 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
             'type' => 'object',
             'properties' => [
                 'id' => ['type' => 'integer', 'description' => 'Objective-ID (required).'],
-                'include_key_results' => ['type' => 'boolean', 'description' => 'Optional: Key Results laden. Default: true.'],
+                'include_key_results' => ['type' => 'boolean', 'description' => 'Optional: Erfolgskriterien laden. Default: true.'],
             ],
             'required' => ['id'],
         ];

@@ -5,12 +5,12 @@
 
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
-            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
-            ['label' => 'OKRs'],
+            ['label' => 'Zielsteuerung', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'Zielsteuerungen'],
         ]">
             <x-ui-button variant="primary" size="sm" wire:click="openCreateModal">
                 @svg('heroicon-o-plus', 'w-4 h-4')
-                <span>Neues OKR</span>
+                <span>Neue Zielsteuerung</span>
             </x-ui-button>
         </x-ui-page-actionbar>
     </x-slot>
@@ -20,13 +20,13 @@
         <div class="mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-xl font-semibold text-[var(--ui-secondary)]">OKR-Verwaltung</h2>
-                    <p class="text-sm text-[var(--ui-muted)] mt-1">Verwalte deine Objectives and Key Results</p>
+                    <h2 class="text-xl font-semibold text-[var(--ui-secondary)]">Zielsteuerung</h2>
+                    <p class="text-sm text-[var(--ui-muted)] mt-1">Verwalte deine Ziele & Erfolgskriterien</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <x-ui-input-text 
-                        name="search" 
-                        placeholder="OKRs durchsuchen..." 
+                    <x-ui-input-text
+                        name="search"
+                        placeholder="Zielsteuerungen durchsuchen..." 
                         class="w-80"
                         size="sm"
                     />
@@ -43,7 +43,7 @@
                     </div>
                     <div>
                         <div class="text-2xl font-bold text-[var(--ui-secondary)]">{{ $totalOkrs }}</div>
-                        <div class="text-xs text-[var(--ui-muted)]">Gesamt OKRs</div>
+                        <div class="text-xs text-[var(--ui-muted)]">Gesamt Zielsteuerungen</div>
                     </div>
                 </div>
             </div>
@@ -83,7 +83,7 @@
         </div>
 
         {{-- Tabelle --}}
-        <x-ui-panel title="OKR-Übersicht" subtitle="Alle Objectives and Key Results im Überblick">
+        <x-ui-panel title="Zielsteuerung-Übersicht" subtitle="Alle Ziele & Erfolgskriterien im Überblick">
                 <x-ui-table compact="true" class="[&_.x-ui-table-row:hover]:bg-[var(--ui-primary-5)]/40">
                 <x-ui-table-header>
                     <x-ui-table-header-cell compact="true" sortable="true" sortField="title" :currentSort="$sortField" :sortDirection="$sortDirection">Titel</x-ui-table-header-cell>
@@ -197,8 +197,8 @@
                     @svg('heroicon-o-plus', 'w-5 h-5')
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-[var(--ui-secondary)]">Neues OKR anlegen</h3>
-                    <p class="text-sm text-[var(--ui-muted)]">Erstelle ein neues Objectives and Key Results System</p>
+                    <h3 class="text-lg font-semibold text-[var(--ui-secondary)]">Neue Zielsteuerung anlegen</h3>
+                    <p class="text-sm text-[var(--ui-muted)]">Erstelle ein neues Ziele & Erfolgskriterien System</p>
                 </div>
             </div>
         </x-slot>
@@ -210,14 +210,14 @@
                     label="Titel"
                     wire:model.live="title"
                     required
-                    placeholder="Titel des OKR eingeben"
+                    placeholder="Titel der Zielsteuerung eingeben"
                 />
 
                 <x-ui-input-textarea
                     name="description"
                     label="Beschreibung"
                     wire:model.live="description"
-                    placeholder="Detaillierte Beschreibung des OKR (optional)"
+                    placeholder="Detaillierte Beschreibung der Zielsteuerung (optional)"
                     rows="3"
                 />
 
@@ -280,7 +280,7 @@
                     Abbrechen
                 </x-ui-button>
                 <x-ui-button type="button" variant="secondary" wire:click="createOkr">
-                    OKR anlegen
+                    Zielsteuerung anlegen
                 </x-ui-button>
             </div>
         </x-slot>
@@ -288,7 +288,7 @@
 
     {{-- Left Sidebar --}}
     <x-slot name="sidebar">
-        <x-ui-page-sidebar title="OKR Übersicht" width="w-80" :defaultOpen="true">
+        <x-ui-page-sidebar title="Zielsteuerung Übersicht" width="w-80" :defaultOpen="true">
             <div class="p-6 space-y-6">
                 {{-- Statistiken --}}
                 <div>
@@ -296,7 +296,7 @@
                     <div class="space-y-3">
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
                             <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalOkrs }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Gesamt OKRs</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Gesamt Zielsteuerungen</div>
                         </div>
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
                             <div class="text-2xl font-bold text-green-600">{{ $activeOkrs }}</div>

@@ -21,7 +21,7 @@ class UpdateKeyResultTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'PUT /okr/key-results/{id} - Aktualisiert ein Key Result. Optional cycle_id zur Kontext-Validierung.';
+        return 'PUT /okr/key-results/{id} - Aktualisiert ein Erfolgskriterium. Optional cycle_id zur Kontext-Validierung.';
     }
 
     public function getSchema(): array
@@ -84,17 +84,17 @@ class UpdateKeyResultTool implements ToolContract, ToolMetadataContract
                 ->with('objective')
                 ->find($id);
             if (!$kr) {
-                return ToolResult::error('NOT_FOUND', "Key Result {$id} nicht gefunden (Team-ID: {$teamId}).");
+                return ToolResult::error('NOT_FOUND', "Erfolgskriterium {$id} nicht gefunden (Team-ID: {$teamId}).");
             }
 
             $cycleId = $this->normalizeId($arguments['cycle_id'] ?? null);
             if ($cycleId && (int)($kr->objective?->cycle_id) !== (int)$cycleId) {
-                return ToolResult::error('CONTEXT_MISMATCH', "Key Result {$id} gehört nicht zu cycle_id {$cycleId}.");
+                return ToolResult::error('CONTEXT_MISMATCH', "Erfolgskriterium {$id} gehört nicht zu cycle_id {$cycleId}.");
             }
 
             $objectiveId = $this->normalizeId($arguments['objective_id'] ?? null);
             if ($objectiveId && (int)$kr->objective_id !== (int)$objectiveId) {
-                return ToolResult::error('CONTEXT_MISMATCH', "Key Result {$id} gehört nicht zu objective_id {$objectiveId}.");
+                return ToolResult::error('CONTEXT_MISMATCH', "Erfolgskriterium {$id} gehört nicht zu objective_id {$objectiveId}.");
             }
 
             $dirty = false;
@@ -164,10 +164,10 @@ class UpdateKeyResultTool implements ToolContract, ToolMetadataContract
                 'objective_id' => $kr->objective_id,
                 'title' => $kr->title,
                 'order' => $kr->order,
-                'message' => 'Key Result erfolgreich aktualisiert.',
+                'message' => 'Erfolgskriterium erfolgreich aktualisiert.',
             ]);
         } catch (\Throwable $e) {
-            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Aktualisieren des Key Results: ' . $e->getMessage());
+            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Aktualisieren des Erfolgskriteriums: ' . $e->getMessage());
         }
     }
 

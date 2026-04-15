@@ -38,7 +38,7 @@ class ListObjectivesTool implements ToolContract, ToolMetadataContract
                     ],
                     'include_key_results' => [
                         'type' => 'boolean',
-                        'description' => 'Optional: Key Results mitladen (Default false).',
+                        'description' => 'Optional: Erfolgskriterien mitladen (Default false).',
                     ],
                 ],
                 'required' => ['cycle_id'],

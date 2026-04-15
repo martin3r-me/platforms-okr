@@ -5,7 +5,7 @@
 
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
-            ['label' => 'OKR', 'icon' => 'flag'],
+            ['label' => 'Zielsteuerung', 'icon' => 'flag'],
         ]" />
     </x-slot>
 
@@ -21,7 +21,7 @@
                 size="lg"
             />
             <x-ui-dashboard-tile
-                title="Aktive OKRs"
+                title="Aktive Zielsteuerungen"
                 :count="$activeOkrsCount"
                 subtitle="laufende Ziele"
                 icon="flag"
@@ -47,7 +47,7 @@
         </div>
 
         {{-- Aktive Zyklen - Vereinfacht und fokussiert --}}
-        <x-ui-panel title="Aktive Zyklen" subtitle="Laufende OKR-Zyklen">
+        <x-ui-panel title="Aktive Zyklen" subtitle="Laufende Zielsteuerung-Zyklen">
             @if($activeCycles && $activeCycles->count() > 0)
                 <div class="space-y-4">
                     @foreach($activeCycles as $cycle)
@@ -65,7 +65,7 @@
                                         @svg('heroicon-o-calendar', 'w-5 h-5')
                                     </div>
                                     <div>
-                                        <h3 class="text-lg font-semibold text-[var(--ui-secondary)]">{{ $cycle->okr?->title ?? 'OKR' }}</h3>
+                                        <h3 class="text-lg font-semibold text-[var(--ui-secondary)]">{{ $cycle->okr?->title ?? 'Zielsteuerung' }}</h3>
                                         <div class="text-sm text-[var(--ui-muted)]">{{ $cycle->template?->label }} • {{ $cycle->template?->starts_at?->format('d.m.Y') }} - {{ $cycle->template?->ends_at?->format('d.m.Y') }}</div>
                                     </div>
                                 </div>
@@ -134,7 +134,7 @@
                         @svg('heroicon-o-calendar')
                     </div>
                     <h3 class="mt-2 text-sm font-medium text-[var(--ui-secondary)]">Kein aktiver Zyklus</h3>
-                    <p class="mt-1 text-sm text-[var(--ui-muted)]">Es ist aktuell kein OKR-Zyklus aktiv.</p>
+                    <p class="mt-1 text-sm text-[var(--ui-muted)]">Es ist aktuell kein Zielsteuerung-Zyklus aktiv.</p>
                 </div>
             @endif
         </x-ui-panel>
@@ -160,14 +160,14 @@
                                      style="width: {{ $averageScore ?? 0 }}%"></div>
                             </div>
                             <div class="text-xs text-[var(--ui-muted)]">
-                                Durchschnitt aller aktiven OKRs
+                                Durchschnitt aller aktiven Zielsteuerungen
                             </div>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-3">
                             <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
                                 <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $activeOkrsCount ?? 0 }}</div>
-                                <div class="text-xs text-[var(--ui-muted)]">Aktive OKRs</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Aktive Zielsteuerungen</div>
                             </div>
                             <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
                                 <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $activeCyclesCount ?? 0 }}</div>
@@ -186,11 +186,11 @@
                             <span class="text-sm text-[var(--ui-muted)]">{{ $achievedObjectivesCount ?? 0 }}/{{ $activeObjectivesCount ?? 0 }}</span>
                         </div>
                         <div class="flex items-center justify-between py-3 px-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
-                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Erreichte Key Results</span>
+                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Erreichte Erfolgskriterien</span>
                             <span class="text-sm text-[var(--ui-muted)]">{{ $achievedKeyResultsCount ?? 0 }}/{{ $activeKeyResultsCount ?? 0 }}</span>
                         </div>
                         <div class="flex items-center justify-between py-3 px-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
-                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Offene Key Results</span>
+                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Offene Erfolgskriterien</span>
                             <span class="text-sm text-[var(--ui-muted)]">{{ $openKeyResultsCount ?? 0 }}</span>
                         </div>
                     </div>

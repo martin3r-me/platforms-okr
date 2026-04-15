@@ -17,7 +17,7 @@ class OkrEntityLinkProvider implements EntityLinkProvider
     public function linkTypeConfig(): array
     {
         return [
-            'okr' => ['label' => 'OKR', 'singular' => 'OKR', 'icon' => 'chart-bar', 'route' => null],
+            'okr' => ['label' => 'Zielsteuerung', 'singular' => 'Zielsteuerung', 'icon' => 'chart-bar', 'route' => null],
         ];
     }
 

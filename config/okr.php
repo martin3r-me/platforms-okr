@@ -1,8 +1,8 @@
 <?php
 
 return [
-    'name' => 'OKR',
-    'description' => 'OKR Module',
+    'name' => 'Zielsteuerung',
+    'description' => 'Zielsteuerung Module',
     'version' => '1.0.0',
     
     // Scope-Type: 'parent' = root-scoped (immer Root-Team-ID), 'single' = team-spezifisch
@@ -24,8 +24,8 @@ return [
         [
             'model' => \Platform\Okr\Models\Okr::class,
             'type' => 'per_item',
-            'label' => 'OKR',
-            'description' => 'Jedes erstellte OKR verursacht tägliche Kosten nach Nutzung.',
+            'label' => 'Zielsteuerung',
+            'description' => 'Jede erstellte Zielsteuerung verursacht tägliche Kosten nach Nutzung.',
             'pricing' => [
                 [
                     'cost_per_day' => 0.01,
@@ -48,7 +48,7 @@ return [
         [
             'model' => \Platform\Okr\Models\Cycle::class,
             'type' => 'per_item',
-            'label' => 'OKR-Cycle',
+            'label' => 'Zielsteuerung-Cycle',
             'description' => 'Jeder erstellte Cycle verursacht tägliche Kosten nach Nutzung.',
             'pricing' => [
                 [
@@ -72,7 +72,7 @@ return [
         [
             'model' => \Platform\Okr\Models\Objective::class,
             'type' => 'per_item',
-            'label' => 'OKR-Objective',
+            'label' => 'Zielsteuerung-Objective',
             'description' => 'Jedes erstellte Objective verursacht tägliche Kosten nach Nutzung.',
             'pricing' => [
                 [
@@ -96,8 +96,8 @@ return [
         [
             'model' => \Platform\Okr\Models\KeyResult::class,
             'type' => 'per_item',
-            'label' => 'OKR-Key Result',
-            'description' => 'Jedes erstellte Key Result verursacht tägliche Kosten nach Nutzung.',
+            'label' => 'Zielsteuerung-Erfolgskriterium',
+            'description' => 'Jedes erstellte Erfolgskriterium verursacht tägliche Kosten nach Nutzung.',
             'pricing' => [
                 [
                     'cost_per_day' => 0.001,

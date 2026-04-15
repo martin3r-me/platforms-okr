@@ -5,8 +5,8 @@
 
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
-            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
-            ['label' => 'OKRs', 'href' => route('okr.okrs.index')],
+            ['label' => 'Zielsteuerung', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'Zielsteuerungen', 'href' => route('okr.okrs.index')],
             ['label' => $cycle->okr->title, 'href' => route('okr.okrs.show', ['okr' => $cycle->okr->id])],
             ['label' => $cycle->template?->label ?? 'Zyklus'],
         ]">
@@ -79,7 +79,7 @@
                         </div>
                         <div class="text-center p-4 bg-white rounded-lg border border-[var(--ui-border)]/40">
                             <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalKeyResults }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Key Results</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Erfolgskriterien</div>
                         </div>
                         <div class="text-center p-4 bg-white rounded-lg border border-[var(--ui-border)]/40">
                             <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $completedKeyResults }}</div>
@@ -164,7 +164,7 @@
                         @svg('heroicon-o-flag', 'w-4 h-4')
                     </div>
                     <div>
-                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Objectives & Key Results</h3>
+                        <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Ziele & Erfolgskriterien</h3>
                         <p class="text-sm text-[var(--ui-muted)]">Ziele und Messgrößen verwalten</p>
                     </div>
                 </div>
@@ -203,7 +203,16 @@
                                     @if($objective->description)
                                         <div class="text-sm text-[var(--ui-muted)] mt-2">{{ Str::limit($objective->description, 100) }}</div>
                                     @endif
-                                    {{-- Objective Performance Anzeige entfernt --}}
+                                    @if($objective->milestones->count() > 0)
+                                        <div class="flex flex-wrap items-center gap-1.5 mt-2">
+                                            @foreach($objective->milestones as $milestone)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200/60">
+                                                    @svg('heroicon-o-flag', 'w-3 h-3')
+                                                    {{ $milestone->title }}
+                                                </span>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                                 <div class="flex gap-2">
                                     <x-ui-button 
@@ -213,7 +222,7 @@
                                     >
                                         <div class="flex items-center gap-1">
                                             @svg('heroicon-o-plus', 'w-4 h-4')
-                                            KR hinzufügen
+                                            EK hinzufügen
                                         </div>
                                     </x-ui-button>
                                     <x-ui-button 
@@ -248,11 +257,10 @@
                                                 @php
                                                     $primaryContexts = $keyResult->primaryContexts()->with('context')->get();
                                                 @endphp
-                                                @if($primaryContexts->count() > 0)
+                                                @if($primaryContexts->count() > 0 || $keyResult->milestones->count() > 0)
                                                     <div class="flex flex-wrap items-center gap-1.5 mt-2">
                                                         @foreach($primaryContexts as $context)
                                                             @php
-                                                                // Loose coupling: wenn das Kontext-Modell ein done_at hat und es nicht null ist -> als erledigt markieren
                                                                 $contextModel = $context->context;
                                                                 $isContextDone = $contextModel && !is_null(data_get($contextModel, 'done_at'));
                                                             @endphp
@@ -265,6 +273,12 @@
                                                                 <span class="{{ $isContextDone ? 'line-through' : '' }}">
                                                                     {{ $context->context_label ?? class_basename($context->context_type) }}
                                                                 </span>
+                                                            </span>
+                                                        @endforeach
+                                                        @foreach($keyResult->milestones as $milestone)
+                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200/60">
+                                                                @svg('heroicon-o-flag', 'w-3 h-3')
+                                                                {{ $milestone->title }}
                                                             </span>
                                                         @endforeach
                                                     </div>
@@ -352,7 +366,7 @@
                                 </div>
                             @else
                                 <div class="text-center p-8 text-[var(--ui-muted)]">
-                                    <div class="text-sm">Keine Key Results</div>
+                                    <div class="text-sm">Keine Erfolgskriterien</div>
                                 </div>
                             @endif
                         </div>
@@ -409,7 +423,7 @@
                                 </div>
                                 <div class="text-xs text-[var(--ui-muted)]">
                                     {{ $cyclePerformance->completed_objectives }}/{{ $cyclePerformance->total_objectives }} Objectives • 
-                                    {{ $cyclePerformance->completed_key_results }}/{{ $cyclePerformance->total_key_results }} Key Results
+                                    {{ $cyclePerformance->completed_key_results }}/{{ $cyclePerformance->total_key_results }} Erfolgskriterien
                                 </div>
                             </div>
                         @else
@@ -425,7 +439,7 @@
                                          style="width: {{ $progress }}%"></div>
                                 </div>
                                 <div class="text-xs text-[var(--ui-muted)]">
-                                    {{ $completedKeyResults }}/{{ $totalKeyResults }} Key Results abgeschlossen
+                                    {{ $completedKeyResults }}/{{ $totalKeyResults }} Erfolgskriterien abgeschlossen
                                 </div>
                             </div>
                         @endif
@@ -437,7 +451,7 @@
                             </div>
                             <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
                                 <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $totalKeyResults }}</div>
-                                <div class="text-xs text-[var(--ui-muted)]">Key Results</div>
+                                <div class="text-xs text-[var(--ui-muted)]">Erfolgskriterien</div>
                             </div>
                         </div>
                         
@@ -448,7 +462,7 @@
                         @if($cycle->okr)
                             <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-4">
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">OKR Performance</span>
+                                    <span class="text-sm font-medium text-[var(--ui-secondary)]">Zielsteuerung Performance</span>
                                     <span class="text-sm text-[var(--ui-muted)]">
                                         @php
                                             $okrScore = $cycle->okr->performance_score ?? 0;
@@ -544,7 +558,7 @@
                                     @svg('heroicon-o-chart-bar', 'w-4 h-4')
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <div class="font-medium text-[var(--ui-secondary)] text-sm">{{ $totalKeyResults }} Key Results definiert</div>
+                                    <div class="font-medium text-[var(--ui-secondary)] text-sm">{{ $totalKeyResults }} Erfolgskriterien definiert</div>
                                     <div class="text-xs text-[var(--ui-muted)]">Messbare Ziele gesetzt</div>
                                 </div>
                             </div>
@@ -693,13 +707,23 @@
                     min="0"
                     required
                 />
+
+                <x-ui-input-select
+                    name="objectiveSelectedMilestoneIds"
+                    label="Meilensteine"
+                    :options="$this->availableMilestones->toArray()"
+                    wire:model="objectiveSelectedMilestoneIds"
+                    :nullable="true"
+                    :multiple="true"
+                    placeholder="Meilensteine auswählen..."
+                />
             </form>
         </div>
 
         <x-slot name="footer">
             <div class="flex justify-between items-center gap-4">
                 <div class="flex-shrink-0">
-                    <x-ui-confirm-button 
+                    <x-ui-confirm-button
                         action="deleteObjectiveAndCloseModal" 
                         text="Löschen" 
                         confirmText="Wirklich löschen?" 
@@ -729,7 +753,7 @@
         model="keyResultCreateModalShow"
     >
         <x-slot name="header">
-            Key Result hinzufügen
+            Erfolgskriterium hinzufügen
         </x-slot>
 
         <div class="space-y-4">
@@ -737,7 +761,7 @@
                 name="keyResultTitle"
                 label="Titel"
                 wire:model.live="keyResultTitle"
-                placeholder="Titel des Key Result eingeben..."
+                placeholder="Titel des Erfolgskriteriums eingeben..."
                 required
             />
 
@@ -745,7 +769,7 @@
                 name="keyResultDescription"
                 label="Beschreibung"
                 wire:model.live="keyResultDescription"
-                placeholder="Beschreibung des Key Result (optional)"
+                placeholder="Beschreibung des Erfolgskriteriums (optional)"
                 rows="3"
             />
 
@@ -766,7 +790,7 @@
                 {{-- Boolean: Einfach Checkbox für aktuellen Zustand --}}
                 <div class="space-y-4">
                     <div class="p-4 bg-[var(--ui-muted-5)] border border-[var(--ui-border)] rounded-lg">
-                        <div class="text-sm text-[var(--ui-secondary)] font-medium mb-2">Boolean Key Result</div>
+                        <div class="text-sm text-[var(--ui-secondary)] font-medium mb-2">Boolean Erfolgskriterium</div>
                         <div class="text-xs text-[var(--ui-muted)]">Ziel: Immer erreicht (1) | Aktuell: Wird durch Checkbox gesetzt</div>
                     </div>
                     
@@ -830,20 +854,30 @@
                 nullLabel="– Verantwortlichen auswählen –"
                 :nullable="true"
             />
+
+            <x-ui-input-select
+                name="keyResultSelectedMilestoneIds"
+                label="Meilensteine"
+                :options="$this->availableMilestones->toArray()"
+                wire:model="keyResultSelectedMilestoneIds"
+                :nullable="true"
+                :multiple="true"
+                placeholder="Meilensteine auswählen..."
+            />
         </div>
 
         <x-slot name="footer">
             <div class="flex justify-end gap-2">
-                <x-ui-button 
-                    type="button" 
-                    variant="secondary-ghost" 
+                <x-ui-button
+                    type="button"
+                    variant="secondary-ghost"
                     wire:click="closeKeyResultCreateModal"
                 >
                     Abbrechen
                 </x-ui-button>
-                <x-ui-button 
-                    type="button" 
-                    variant="secondary" 
+                <x-ui-button
+                    type="button"
+                    variant="secondary"
                     wire:click="saveKeyResult"
                 >
                     Hinzufügen
@@ -858,7 +892,7 @@
         model="keyResultEditModalShow"
     >
         <x-slot name="header">
-            Key Result bearbeiten
+            Erfolgskriterium bearbeiten
         </x-slot>
 
         <div class="space-y-6">
@@ -868,7 +902,7 @@
                     name="keyResultTitle"
                     label="Titel"
                     wire:model.live="keyResultTitle"
-                    placeholder="Titel des Key Result eingeben..."
+                    placeholder="Titel des Erfolgskriteriums eingeben..."
                     required
                 />
 
@@ -876,10 +910,10 @@
                     name="keyResultDescription"
                     label="Beschreibung"
                     wire:model.live="keyResultDescription"
-                    placeholder="Beschreibung des Key Result (optional)"
+                    placeholder="Beschreibung des Erfolgskriteriums (optional)"
                     rows="3"
                 />
-                
+
                 {{-- Verantwortlicher (nur aus OKR-Mitgliedern) --}}
                 <x-ui-input-select
                     name="keyResultManagerUserId"
@@ -889,8 +923,18 @@
                     nullLabel="– Verantwortlichen auswählen –"
                     :nullable="true"
                 />
+
+                <x-ui-input-select
+                    name="keyResultSelectedMilestoneIds"
+                    label="Meilensteine"
+                    :options="$this->availableMilestones->toArray()"
+                    wire:model="keyResultSelectedMilestoneIds"
+                    :nullable="true"
+                    :multiple="true"
+                    placeholder="Meilensteine auswählen..."
+                />
             </div>
-            
+
             {{-- Verknüpfungen (Contexts) --}}
             @php
                 $editingKeyResult = null;
@@ -921,7 +965,7 @@
                             </span>
                         @endforeach
                     </div>
-                    <p class="text-xs text-[var(--ui-muted)] mt-2">Diese KeyResult ist mit den oben genannten Kontexten verknüpft.</p>
+                    <p class="text-xs text-[var(--ui-muted)] mt-2">Dieses Erfolgskriterium ist mit den oben genannten Kontexten verknüpft.</p>
                 </div>
             @endif
 
@@ -1145,7 +1189,7 @@
                     <x-ui-confirm-button 
                         action="deleteKeyResultAndCloseModal" 
                         text="Löschen" 
-                        confirmText="Key Result wirklich löschen?" 
+                        confirmText="Erfolgskriterium wirklich löschen?" 
                         variant="danger"
                         size="sm"
                         :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"

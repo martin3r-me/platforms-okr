@@ -256,8 +256,8 @@ class StrategicDocumentsManagement extends Component
     public function getTypeDescription($type)
     {
         return match($type) {
-            'mission' => 'Die Mission beschreibt, warum die Organisation heute existiert und welchen übergeordneten Zweck sie erfüllt. Zeitlich stabil, selten geändert, keine KPIs/OKRs, Referenz für Entscheidungen.',
-            'vision' => 'Die Vision beschreibt einen bewusst angestrebten zukünftigen Zustand der Organisation. Normativ (gewollt, nicht prognostiziert), langfristig (5–10 Jahre), keine Key Results, dient als "North Star".',
+            'mission' => 'Die Mission beschreibt, warum die Organisation heute existiert und welchen übergeordneten Zweck sie erfüllt. Zeitlich stabil, selten geändert, keine KPIs/Zielsteuerungen, Referenz für Entscheidungen.',
+            'vision' => 'Die Vision beschreibt einen bewusst angestrebten zukünftigen Zustand der Organisation. Normativ (gewollt, nicht prognostiziert), langfristig (5–10 Jahre), keine Erfolgskriterien, dient als "North Star".',
             default => '',
         };
     }

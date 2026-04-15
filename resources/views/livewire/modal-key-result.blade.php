@@ -7,7 +7,7 @@
                 </div>
             </div>
             <div class="flex-1 min-w-0">
-                <h3 class="text-xl font-bold text-[var(--ui-secondary)]">KeyResult verknüpfen</h3>
+                <h3 class="text-xl font-bold text-[var(--ui-secondary)]">Erfolgskriterium verknüpfen</h3>
                 @if($contextType && $contextId)
                     @php
                         $resolver = app(\Platform\Okr\Services\KeyResultContextResolver::class);
@@ -19,13 +19,13 @@
                             @if($coveredKeyResults && $coveredKeyResults->count() > 0)
                                 <span class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-[var(--ui-success-10)] text-[var(--ui-success)] border border-[var(--ui-success)]/20">
                                     @svg('heroicon-o-check-circle', 'w-3 h-3')
-                                    {{ $coveredKeyResults->count() }} KeyResult(s) über Parent-Kontext abgedeckt
+                                    {{ $coveredKeyResults->count() }} Erfolgskriterium(e) über Parent-Kontext abgedeckt
                                 </span>
                             @endif
                         </p>
                     @endif
                 @else
-                    <p class="text-sm text-[var(--ui-muted)] mt-1">KeyResult mit Kontext verknüpfen</p>
+                    <p class="text-sm text-[var(--ui-muted)] mt-1">Erfolgskriterium mit Kontext verknüpfen</p>
                 @endif
             </div>
         </div>
@@ -37,7 +37,7 @@
             @if($coveredKeyResults && $coveredKeyResults->count() > 0)
                 <div>
                     <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">Über Parent-Kontext abgedeckt</h4>
-                    <p class="text-xs text-[var(--ui-muted)] mb-3">Diese KeyResults sind über einen übergeordneten Kontext (z.B. Project) abgedeckt. Alle Tasks im Project zahlen auf diese KeyResults ein.</p>
+                    <p class="text-xs text-[var(--ui-muted)] mb-3">Diese Erfolgskriterien sind über einen übergeordneten Kontext (z.B. Project) abgedeckt. Alle Tasks im Project zahlen auf diese Erfolgskriterien ein.</p>
                     <div class="space-y-2">
                         @foreach($coveredKeyResults as $keyResult)
                             <div class="flex items-center justify-between p-4 rounded-lg border border-[var(--ui-success)]/40 bg-[var(--ui-success-5)]">
@@ -76,7 +76,7 @@
             <!-- Direkt verknüpfte KeyResults -->
             @if($linkedKeyResults && $linkedKeyResults->count() > 0)
                 <div>
-                    <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">Direkt verknüpfte KeyResults</h4>
+                    <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">Direkt verknüpfte Erfolgskriterien</h4>
                     <div class="space-y-2">
                         @foreach($linkedKeyResults as $keyResult)
                             <div class="flex items-center justify-between p-4 rounded-lg border border-[var(--ui-border)]/60 bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] transition-colors">
@@ -124,7 +124,7 @@
 
             <!-- KeyResult auswählen -->
             <div>
-                <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">KeyResult auswählen</h4>
+                <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-3">Erfolgskriterium auswählen</h4>
                 
                 <!-- Suche -->
                 <div class="mb-4">
@@ -132,7 +132,7 @@
                         name="search"
                         label="Suchen"
                         wire:model.live.debounce.300ms="search"
-                        placeholder="KeyResult, Objective oder Beschreibung suchen..."
+                        placeholder="Erfolgskriterium, Objective oder Beschreibung suchen..."
                     />
                 </div>
 
@@ -198,12 +198,12 @@
                         <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--ui-surface)] flex items-center justify-center">
                             @svg('heroicon-o-chart-bar', 'w-8 h-8 text-[var(--ui-muted)]')
                         </div>
-                        <p class="text-sm font-medium text-[var(--ui-secondary)]">Keine KeyResults gefunden</p>
+                        <p class="text-sm font-medium text-[var(--ui-secondary)]">Keine Erfolgskriterien gefunden</p>
                         <p class="text-xs text-[var(--ui-muted)] mt-1">
                             @if(!empty($search))
-                                Keine KeyResults für "{{ $search }}" gefunden.
+                                Keine Erfolgskriterien für "{{ $search }}" gefunden.
                             @else
-                                Erstellen Sie zuerst ein KeyResult in einem OKR-Cycle.
+                                Erstellen Sie zuerst ein Erfolgskriterium in einem Zielsteuerung-Cycle.
                             @endif
                         </p>
                     </div>
@@ -215,7 +215,7 @@
                     @svg('heroicon-o-flag', 'w-8 h-8 text-[var(--ui-muted)]')
                 </div>
                 <p class="text-sm font-medium text-[var(--ui-secondary)]">Kein Kontext gesetzt</p>
-                <p class="text-xs text-[var(--ui-muted)] mt-1">Öffnen Sie eine Aufgabe oder ein Projekt, um KeyResults zu verknüpfen.</p>
+                <p class="text-xs text-[var(--ui-muted)] mt-1">Öffnen Sie eine Aufgabe oder ein Projekt, um Erfolgskriterien zu verknüpfen.</p>
             </div>
         @endif
     </div>

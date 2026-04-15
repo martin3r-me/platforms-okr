@@ -38,7 +38,7 @@ class GetKeyResultContextsTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/key-results/{id}/contexts - Findet alle verknüpften Kontexte zu einem KeyResult (Tasks, Projects, Notes, Meetings, etc.). Gibt gruppierte Ergebnisse nach Entitätstyp zurück.';
+        return 'GET /okr/key-results/{id}/contexts - Findet alle verknüpften Kontexte zu einem Erfolgskriterium (Tasks, Projects, Notes, Meetings, etc.). Gibt gruppierte Ergebnisse nach Entitätstyp zurück.';
     }
 
     public function getSchema(): array
@@ -87,7 +87,7 @@ class GetKeyResultContextsTool implements ToolContract, ToolMetadataContract
                 ->find($keyResultId);
             
             if (!$keyResult) {
-                return ToolResult::error('NOT_FOUND', "Key Result {$keyResultId} nicht gefunden (Team-ID: {$teamId}).");
+                return ToolResult::error('NOT_FOUND', "Erfolgskriterium {$keyResultId} nicht gefunden (Team-ID: {$teamId}).");
             }
 
             $contextType = $arguments['context_type'] ?? null;
@@ -181,7 +181,7 @@ class GetKeyResultContextsTool implements ToolContract, ToolMetadataContract
                 'message' => $this->buildMessage($summary),
             ]);
         } catch (\Throwable $e) {
-            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Laden der KeyResult-Kontexte: ' . $e->getMessage());
+            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Laden der Erfolgskriterium-Kontexte: ' . $e->getMessage());
         }
     }
 

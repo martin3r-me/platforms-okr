@@ -23,7 +23,7 @@ class ListKeyResultsTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/key-results?cycle_id={id}&objective_id={id}&filters=[...]&search=... - Listet Key Results. WICHTIG: cycle_id ist erforderlich (Kontext).';
+        return 'GET /okr/key-results?cycle_id={id}&objective_id={id}&filters=[...]&search=... - Listet Erfolgskriterien. WICHTIG: cycle_id ist erforderlich (Kontext).';
     }
 
     public function getSchema(): array
@@ -34,7 +34,7 @@ class ListKeyResultsTool implements ToolContract, ToolMetadataContract
                 'properties' => [
                     'cycle_id' => [
                         'type' => 'integer',
-                        'description' => 'Cycle-ID (required). Key Results werden über Objectives dem Cycle zugeordnet.',
+                        'description' => 'Cycle-ID (required). Erfolgskriterien werden über Objectives dem Cycle zugeordnet.',
                     ],
                     'objective_id' => [
                         'type' => 'integer',
@@ -123,10 +123,10 @@ class ListKeyResultsTool implements ToolContract, ToolMetadataContract
                 'objective_id' => $objectiveId,
                 'key_results' => $items,
                 'count' => count($items),
-                'message' => count($items) . ' Key Result(s) gefunden.',
+                'message' => count($items) . ' Erfolgskriterium/-kriterien gefunden.',
             ]);
         } catch (\Throwable $e) {
-            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Laden der Key Results: ' . $e->getMessage());
+            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Laden der Erfolgskriterien: ' . $e->getMessage());
         }
     }
 

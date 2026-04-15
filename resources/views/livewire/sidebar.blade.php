@@ -2,7 +2,7 @@
 <div>
     {{-- Modul Header --}}
     <div x-show="!collapsed" class="p-3 text-sm italic text-[var(--ui-secondary)] uppercase border-b border-[var(--ui-border)] mb-2">
-        OKR
+        Zielsteuerung
     </div>
     
     {{-- Abschnitt: Allgemein (über UI-Komponenten) --}}
@@ -13,7 +13,7 @@
         </x-ui-sidebar-item>
         <x-ui-sidebar-item :href="route('okr.okrs.index')">
             @svg('heroicon-o-flag', 'w-4 h-4 text-[var(--ui-secondary)]')
-            <span class="ml-2 text-sm">OKRs</span>
+            <span class="ml-2 text-sm">Zielsteuerungen</span>
         </x-ui-sidebar-item>
         <x-ui-sidebar-item :href="route('okr.strategic-documents.index')">
             @svg('heroicon-o-document-text', 'w-4 h-4 text-[var(--ui-secondary)]')
@@ -25,7 +25,7 @@
         </x-ui-sidebar-item>
         <x-ui-sidebar-item type="button" wire:click="openCreateModal">
             @svg('heroicon-o-plus', 'w-4 h-4 text-[var(--ui-secondary)]')
-            <span class="ml-2 text-sm">OKR anlegen</span>
+            <span class="ml-2 text-sm">Zielsteuerung anlegen</span>
         </x-ui-sidebar-item>
     </x-ui-sidebar-list>
 
@@ -73,7 +73,7 @@
     <div>
         <div class="mt-2" x-show="!collapsed">
     @if($okrs->count() > 0)
-                <x-ui-sidebar-list label="OKRs">
+                <x-ui-sidebar-list label="Zielsteuerungen">
             @foreach($okrs as $okr)
                         <x-ui-sidebar-item :href="route('okr.okrs.show', ['okr' => $okr])">
                             @svg('heroicon-o-flag', 'w-5 h-5 flex-shrink-0 text-[var(--ui-secondary)]')
@@ -88,7 +88,7 @@
             @endforeach
                 </x-ui-sidebar-list>
             @else
-                <div class="px-3 py-1 text-xs text-[var(--ui-muted)]">Keine OKRs</div>
+                <div class="px-3 py-1 text-xs text-[var(--ui-muted)]">Keine Zielsteuerungen</div>
             @endif
         </div>
     </div>
@@ -104,8 +104,8 @@
                     @svg('heroicon-o-plus', 'w-5 h-5')
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-[var(--ui-secondary)]">Neues OKR anlegen</h3>
-                    <p class="text-sm text-[var(--ui-muted)]">Erstelle ein neues Objectives and Key Results System</p>
+                    <h3 class="text-lg font-semibold text-[var(--ui-secondary)]">Neue Zielsteuerung anlegen</h3>
+                    <p class="text-sm text-[var(--ui-muted)]">Erstelle ein neues Ziele & Erfolgskriterien System</p>
                 </div>
             </div>
         </x-slot>
@@ -116,13 +116,13 @@
                 <div class="space-y-4">
                     <div class="border-l-4 border-[var(--ui-primary)] pl-4">
                         <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-2">Grundinformationen</h4>
-                        <p class="text-xs text-[var(--ui-muted)]">Titel und Beschreibung des OKR</p>
+                        <p class="text-xs text-[var(--ui-muted)]">Titel und Beschreibung der Zielsteuerung</p>
                     </div>
                     
                     <div class="space-y-4">
                         <x-ui-input-text
                             name="title"
-                            label="OKR-Titel"
+                            label="Titel"
                             wire:model.live="title"
                             required
                             placeholder="z.B. Kundenbetreuung verbessern"
@@ -156,7 +156,7 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
                             <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalOkrs }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">OKRs</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Zielsteuerungen</div>
                         </div>
                         <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
                             <div class="text-2xl font-bold text-green-600">{{ $activeOkrs }}</div>
@@ -213,7 +213,7 @@
                 <div class="space-y-4">
                     <div class="border-l-4 border-[var(--ui-primary)] pl-4">
                         <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-2">Erweiterte Optionen</h4>
-                        <p class="text-xs text-[var(--ui-muted)]">Zusätzliche Einstellungen für das OKR</p>
+                        <p class="text-xs text-[var(--ui-muted)]">Zusätzliche Einstellungen für die Zielsteuerung</p>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -229,7 +229,7 @@
                                     <label for="auto_transfer" class="text-sm font-medium text-[var(--ui-secondary)] cursor-pointer">
                                         Automatisch übertragen
                                     </label>
-                                    <p class="text-xs text-[var(--ui-muted)] mt-1">OKR wird automatisch in neue Zyklen übertragen</p>
+                                    <p class="text-xs text-[var(--ui-muted)] mt-1">Zielsteuerung wird automatisch in neue Zyklen übertragen</p>
                                 </div>
                             </div>
                         </div>
@@ -246,7 +246,7 @@
                                     <label for="is_template" class="text-sm font-medium text-[var(--ui-secondary)] cursor-pointer">
                                         Als Template speichern
                                     </label>
-                                    <p class="text-xs text-[var(--ui-muted)] mt-1">OKR als Vorlage für zukünftige Zyklen verwenden</p>
+                                    <p class="text-xs text-[var(--ui-muted)] mt-1">Zielsteuerung als Vorlage für zukünftige Zyklen verwenden</p>
                                 </div>
                             </div>
                         </div>
@@ -258,7 +258,7 @@
         <x-slot name="footer">
             <div class="flex justify-between items-center">
                 <div class="text-xs text-[var(--ui-muted)]">
-                    Das OKR wird für dein Team erstellt
+                    Die Zielsteuerung wird für dein Team erstellt
                 </div>
                 <div class="flex gap-3">
                     <x-ui-button 
@@ -276,7 +276,7 @@
                         class="min-w-32"
                     >
                         @svg('heroicon-o-check', 'w-4 h-4')
-                        OKR anlegen
+                        Zielsteuerung anlegen
                     </x-ui-button>
                 </div>
             </div>

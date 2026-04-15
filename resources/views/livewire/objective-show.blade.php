@@ -134,7 +134,7 @@
 
             {{-- Key Results --}}
             <div class="mb-6">
-                <h3 class="text-lg font-semibold mb-4 text-secondary">Key Results</h3>
+                <h3 class="text-lg font-semibold mb-4 text-secondary">Erfolgskriterien</h3>
                 <div class="space-y-2">
                     @foreach($objective->keyResults as $keyResult)
                         <div class="d-flex items-center gap-2 p-2 bg-muted-5 rounded cursor-pointer">
@@ -169,12 +169,12 @@
                         </div>
                     @endforeach
                     @if($objective->keyResults->count() === 0)
-                        <p class="text-sm text-muted">Noch keine Key Results vorhanden.</p>
+                        <p class="text-sm text-muted">Noch keine Erfolgskriterien vorhanden.</p>
                     @endif
                     <x-ui-button size="sm" variant="secondary-outline" wire:click="addKeyResult">
                         <div class="d-flex items-center gap-2">
                             @svg('heroicon-o-plus', 'w-4 h-4')
-                            Key Result hinzufügen
+                            Erfolgskriterium hinzufügen
                         </div>
                     </x-ui-button>
                 </div>
@@ -240,9 +240,9 @@
                 <div class="space-y-1 text-sm">
                     <div><strong>Titel:</strong> {{ $objective->title }}</div>
                     <div><strong>Reihenfolge:</strong> {{ $objective->order }}</div>
-                    <div><strong>Key Results:</strong> {{ $objective->keyResults->count() }}</div>
+                    <div><strong>Erfolgskriterien:</strong> {{ $objective->keyResults->count() }}</div>
                     <div><strong>Cycle:</strong> {{ $objective->cycle->template?->label ?? 'Unbekannt' }}</div>
-                    <div><strong>OKR:</strong> {{ $objective->okr->title }}</div>
+                    <div><strong>Zielsteuerung:</strong> {{ $objective->okr->title }}</div>
                 </div>
             </div>
 
@@ -257,7 +257,7 @@
         model="keyResultCreateModalShow"
     >
         <x-slot name="header">
-            Key Result hinzufügen
+            Erfolgskriterium hinzufügen
         </x-slot>
 
         <div class="space-y-4">
@@ -266,7 +266,7 @@
                     name="keyResultForm.title"
                     label="Titel"
                     wire:model.live="keyResultForm.title"
-                    placeholder="Titel des Key Result eingeben..."
+                    placeholder="Titel des Erfolgskriteriums eingeben..."
                     required
                 />
 
@@ -274,7 +274,7 @@
                     name="keyResultForm.description"
                     label="Beschreibung"
                     wire:model.live="keyResultForm.description"
-                    placeholder="Detaillierte Beschreibung des Key Result (optional)"
+                    placeholder="Detaillierte Beschreibung des Erfolgskriteriums (optional)"
                     rows="3"
                 />
 
@@ -334,7 +334,7 @@
         model="keyResultEditModalShow"
     >
         <x-slot name="header">
-            Key Result bearbeiten
+            Erfolgskriterium bearbeiten
         </x-slot>
 
         <div class="space-y-4">
@@ -343,7 +343,7 @@
                     name="keyResultForm.title"
                     label="Titel"
                     wire:model.live="keyResultForm.title"
-                    placeholder="Titel des Key Result eingeben..."
+                    placeholder="Titel des Erfolgskriteriums eingeben..."
                     required
                 />
 
@@ -351,7 +351,7 @@
                     name="keyResultForm.description"
                     label="Beschreibung"
                     wire:model.live="keyResultForm.description"
-                    placeholder="Detaillierte Beschreibung des Key Result (optional)"
+                    placeholder="Detaillierte Beschreibung des Erfolgskriteriums (optional)"
                     rows="3"
                 />
 

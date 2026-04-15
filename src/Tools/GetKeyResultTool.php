@@ -20,7 +20,7 @@ class GetKeyResultTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/key-results/{id} - Ruft ein Key Result ab (inkl. Objective + Performance).';
+        return 'GET /okr/key-results/{id} - Ruft ein Erfolgskriterium ab (inkl. Objective + Performance).';
     }
 
     public function getSchema(): array
@@ -29,7 +29,7 @@ class GetKeyResultTool implements ToolContract, ToolMetadataContract
             'type' => 'object',
             'properties' => [
                 'id' => ['type' => 'integer', 'description' => 'KeyResult-ID (required).'],
-                'cycle_id' => ['type' => 'integer', 'description' => 'Optional: Kontext-Validierung (Key Result muss zu diesem Cycle gehören).'],
+                'cycle_id' => ['type' => 'integer', 'description' => 'Optional: Kontext-Validierung (Erfolgskriterium muss zu diesem Cycle gehören).'],
             ],
             'required' => ['id'],
         ];
@@ -57,12 +57,12 @@ class GetKeyResultTool implements ToolContract, ToolMetadataContract
                 ->with(['objective', 'performance'])
                 ->find($id);
             if (!$kr) {
-                return ToolResult::error('NOT_FOUND', "Key Result {$id} nicht gefunden (Team-ID: {$teamId}).");
+                return ToolResult::error('NOT_FOUND', "Erfolgskriterium {$id} nicht gefunden (Team-ID: {$teamId}).");
             }
 
             $cycleId = $this->normalizeId($arguments['cycle_id'] ?? null);
             if ($cycleId && (int)($kr->objective?->cycle_id) !== (int)$cycleId) {
-                return ToolResult::error('CONTEXT_MISMATCH', "Key Result {$id} gehört nicht zu cycle_id {$cycleId}.");
+                return ToolResult::error('CONTEXT_MISMATCH', "Erfolgskriterium {$id} gehört nicht zu cycle_id {$cycleId}.");
             }
 
             return ToolResult::success([
@@ -96,7 +96,7 @@ class GetKeyResultTool implements ToolContract, ToolMetadataContract
                 ],
             ]);
         } catch (\Throwable $e) {
-            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Laden des Key Results: ' . $e->getMessage());
+            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Laden des Erfolgskriteriums: ' . $e->getMessage());
         }
     }
 

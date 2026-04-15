@@ -20,7 +20,7 @@ class GetCycleTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/cycles/{id} - Ruft einen Cycle ab (inkl. Template + Objectives + Key Results optional).';
+        return 'GET /okr/cycles/{id} - Ruft einen Cycle ab (inkl. Template + Objectives + Erfolgskriterien optional).';
     }
 
     public function getSchema(): array
@@ -29,7 +29,7 @@ class GetCycleTool implements ToolContract, ToolMetadataContract
             'type' => 'object',
             'properties' => [
                 'id' => ['type' => 'integer', 'description' => 'Cycle-ID (required).'],
-                'include_tree' => ['type' => 'boolean', 'description' => 'Optional: Objectives + Key Results laden. Default: true.'],
+                'include_tree' => ['type' => 'boolean', 'description' => 'Optional: Objectives + Erfolgskriterien laden. Default: true.'],
             ],
             'required' => ['id'],
         ];

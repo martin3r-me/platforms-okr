@@ -16,7 +16,7 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/overview - Zeigt Übersicht über OKR-Konzepte und Beziehungen (OKRs, CycleTemplates, Cycles, Objectives, Key Results, Performance). EMPFOHLEN als Einstieg, bevor du CRUD-Tools nutzt.';
+        return 'GET /okr/overview - Zeigt Übersicht über Zielsteuerung-Konzepte und Beziehungen (Zielsteuerungen, CycleTemplates, Cycles, Objectives, Erfolgskriterien, Performance). EMPFOHLEN als Einstieg, bevor du CRUD-Tools nutzt.';
     }
 
     public function getSchema(): array
@@ -34,7 +34,7 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
             'module' => 'okr',
             'scope' => [
                 'scope_type' => 'parent',
-                'description' => 'OKR ist root-scoped (scope_type=parent): Daten hängen am Root-Team (nicht am aktuellen Unterteam).',
+                'description' => 'Zielsteuerung ist root-scoped (scope_type=parent): Daten hängen am Root-Team (nicht am aktuellen Unterteam).',
                 'team_resolution' => 'Tools sollten intern die Root-Team-ID aus dem aktuellen Team ableiten.',
             ],
             'entities' => [
@@ -63,8 +63,8 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                     'note' => 'target_quarter kann nur gesetzt werden, wenn target_year gesetzt ist.',
                 ],
                 'okrs' => [
-                    'description' => 'OKR-Container (z.B. Company/Team OKR). Enthält mehrere Cycles.',
-                    'relations' => ['okr -> cycles', 'okr -> objectives (über cycles)', 'okr -> key_results (über objectives)'],
+                    'description' => 'Zielsteuerung-Container (z.B. Company/Team Zielsteuerung). Enthält mehrere Cycles.',
+                    'relations' => ['okr -> cycles', 'okr -> objectives (über cycles)', 'okr -> erfolgskriterien (über objectives)'],
                 ],
                 'cycle_templates' => [
                     'description' => 'Zeit-Templates (starts_at/ends_at/type). Markieren mit is_current, welche Perioden aktuell sind.',
@@ -76,11 +76,11 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                     'status' => ['draft', 'active', 'ending_soon', 'completed', 'past'],
                 ],
                 'objectives' => [
-                    'description' => 'Hauptziele in einem Cycle (cycle_id required). Enthält Key Results. Können mit Meilensteinen aus Forecasts verknüpft werden (m:n), um auf strategische Ziele einzuzahlen.',
+                    'description' => 'Hauptziele in einem Cycle (cycle_id required). Enthält Erfolgskriterien. Können mit Meilensteinen aus Forecasts verknüpft werden (m:n), um auf strategische Ziele einzuzahlen.',
                     'relations' => ['objective -> key_results', 'objective <-> milestones (m:n über okr_objective_milestone)'],
                 ],
                 'key_results' => [
-                    'description' => 'Messbare Ergebnisse zu einem Objective. Gehören indirekt immer zu einem Cycle (über objective).',
+                    'description' => 'Messbare Erfolgskriterien zu einem Objective. Gehören indirekt immer zu einem Cycle (über objective).',
                     'value_types' => [
                         'note' => 'Der KR-Typ ist aktuell am latest_performance.type (okr_key_result_performances.type) gespeichert.',
                         'supported' => [
@@ -110,7 +110,7 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                 ],
             ],
             'relationships' => [
-                'core' => 'OKR → Cycles (cycle_template_id) → Objectives (cycle_id) → Key Results (objective_id)',
+                'core' => 'Zielsteuerung → Cycles (cycle_template_id) → Objectives (cycle_id) → Erfolgskriterien (objective_id)',
                 'forecasts' => 'Forecast → FocusAreas → VisionImages/Obstacles/Milestones',
                 'current_cycles' => 'CycleTemplates.is_current=true markieren aktuelle Perioden; Cycles referenzieren Templates.',
             ],

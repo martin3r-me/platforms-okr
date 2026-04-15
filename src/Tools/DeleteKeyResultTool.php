@@ -20,7 +20,7 @@ class DeleteKeyResultTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'DELETE /okr/key-results/{id} - Löscht (soft-delete) ein Key Result.';
+        return 'DELETE /okr/key-results/{id} - Löscht (soft-delete) ein Erfolgskriterium.';
     }
 
     public function getSchema(): array
@@ -53,17 +53,17 @@ class DeleteKeyResultTool implements ToolContract, ToolMetadataContract
 
             $kr = KeyResult::query()->where('team_id', $teamId)->find($id);
             if (!$kr) {
-                return ToolResult::error('NOT_FOUND', "Key Result {$id} nicht gefunden (Team-ID: {$teamId}).");
+                return ToolResult::error('NOT_FOUND', "Erfolgskriterium {$id} nicht gefunden (Team-ID: {$teamId}).");
             }
 
             $kr->delete();
 
             return ToolResult::success([
                 'id' => $id,
-                'message' => 'Key Result erfolgreich gelöscht (soft-delete).',
+                'message' => 'Erfolgskriterium erfolgreich gelöscht (soft-delete).',
             ]);
         } catch (\Throwable $e) {
-            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Löschen des Key Results: ' . $e->getMessage());
+            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Löschen des Erfolgskriteriums: ' . $e->getMessage());
         }
     }
 

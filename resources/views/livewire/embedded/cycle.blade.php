@@ -31,7 +31,7 @@
         </div>
         <div>
           <h3 class="text-xl font-semibold text-[var(--ui-secondary)]">Objectives</h3>
-          <p class="text-sm text-[var(--ui-muted)]">Ziele und Key Results</p>
+          <p class="text-sm text-[var(--ui-muted)]">Ziele und Erfolgskriterien</p>
         </div>
       </div>
 
@@ -50,7 +50,7 @@
                     <div class="text-xs text-[var(--ui-muted)]">{{ ($kr->performance->is_completed ?? false) ? 'Erreicht' : 'Offen' }}</div>
                   </div>
                 @empty
-                  <div class="text-sm text-[var(--ui-muted)]">Keine Key Results vorhanden.</div>
+                  <div class="text-sm text-[var(--ui-muted)]">Keine Erfolgskriterien vorhanden.</div>
                 @endforelse
               </div>
             </div>

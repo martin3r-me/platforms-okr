@@ -105,7 +105,7 @@ class OkrManagement extends Component
         $this->resetForm();
         $this->modalShow = false;
         
-        session()->flash('message', 'OKR erfolgreich erstellt!');
+        session()->flash('message', 'Zielsteuerung erfolgreich erstellt!');
     }
 
     public function resetForm()
@@ -144,6 +144,6 @@ class OkrManagement extends Component
         $okr = Okr::findOrFail($okrId);
         $okr->delete();
         
-        session()->flash('message', 'OKR erfolgreich gelöscht!');
+        session()->flash('message', 'Zielsteuerung erfolgreich gelöscht!');
     }
 }

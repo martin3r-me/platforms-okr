@@ -74,7 +74,7 @@ class Sidebar extends Component
         $this->resetForm();
         $this->modalShow = false;
         
-        session()->flash('message', 'OKR erfolgreich erstellt!');
+        session()->flash('message', 'Zielsteuerung erfolgreich erstellt!');
         
         // Sidebar aktualisieren
         $this->dispatch('updateSidebar');

@@ -182,7 +182,7 @@ class ObjectiveShow extends Component
                 'unit' => $this->keyResultForm['unit'],
                 'order' => $this->keyResultForm['order'],
             ]);
-            session()->flash('message', 'Key Result erfolgreich aktualisiert!');
+            session()->flash('message', 'Erfolgskriterium erfolgreich aktualisiert!');
         } else {
             $this->objective->keyResults()->create([
                 'title' => $this->keyResultForm['title'],
@@ -194,7 +194,7 @@ class ObjectiveShow extends Component
                 'team_id' => auth()->user()->currentTeam?->id,
                 'user_id' => auth()->id(),
             ]);
-            session()->flash('message', 'Key Result erfolgreich hinzugefügt!');
+            session()->flash('message', 'Erfolgskriterium erfolgreich hinzugefügt!');
         }
 
         $this->objective->load('keyResults.performances'); // Refresh key results
@@ -206,7 +206,7 @@ class ObjectiveShow extends Component
     {
         $keyResult = $this->objective->keyResults()->findOrFail($this->editingKeyResultId);
         $keyResult->delete();
-        session()->flash('message', 'Key Result erfolgreich gelöscht!');
+        session()->flash('message', 'Erfolgskriterium erfolgreich gelöscht!');
         $this->objective->load('keyResults.performances'); // Refresh key results
         $this->closeKeyResultEditModal();
     }

@@ -211,7 +211,7 @@ class OkrShow extends Component
 
         $this->okr->save();
         $this->isDirty = false;
-        session()->flash('message', 'OKR erfolgreich aktualisiert!');
+        session()->flash('message', 'Zielsteuerung erfolgreich aktualisiert!');
     }
 
     // Member Management

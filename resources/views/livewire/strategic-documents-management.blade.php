@@ -5,7 +5,7 @@
 
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
-            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'Zielsteuerung', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
             ['label' => 'Strategische Dokumente'],
         ]" />
     </x-slot>
@@ -22,8 +22,8 @@
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
             <h3 class="text-lg font-semibold text-blue-900 mb-2">Über strategische Dokumente</h3>
             <p class="text-sm text-blue-800 mb-4">
-                Strategische Dokumente (Mission, Vision) dienen der Orientierung und sind nicht Teil der operativen OKR-Messung.
-                Sie können versioniert werden und werden in OKR-Zyklen als Referenz angezeigt.
+                Strategische Dokumente (Mission, Vision) dienen der Orientierung und sind nicht Teil der operativen Zielsteuerung-Messung.
+                Sie können versioniert werden und werden in Zielsteuerung-Zyklen als Referenz angezeigt.
             </p>
         </div>
 

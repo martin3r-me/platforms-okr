@@ -22,7 +22,7 @@ class CreateKeyResultTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'POST /okr/key-results - Erstellt ein Key Result. WICHTIG: cycle_id + objective_id sind erforderlich (Kontext/Relation).';
+        return 'POST /okr/key-results - Erstellt ein Erfolgskriterium. WICHTIG: cycle_id + objective_id sind erforderlich (Kontext/Relation).';
     }
 
     public function getSchema(): array
@@ -40,7 +40,7 @@ class CreateKeyResultTool implements ToolContract, ToolMetadataContract
                 'value_type' => [
                     'type' => 'string',
                     'enum' => ['boolean', 'absolute', 'relative'],
-                    'description' => 'Optional: Typ des Key Results. boolean=erledigt/offen, absolute=current/target, relative=current/target (intern percentage).',
+                    'description' => 'Optional: Typ des Erfolgskriteriums. boolean=erledigt/offen, absolute=current/target, relative=current/target (intern percentage).',
                 ],
                 'target_value' => [
                     'type' => 'number',
@@ -159,10 +159,10 @@ class CreateKeyResultTool implements ToolContract, ToolMetadataContract
                 'cycle_id' => $cycleId,
                 'title' => $kr->title,
                 'order' => $kr->order,
-                'message' => 'Key Result erfolgreich erstellt.',
+                'message' => 'Erfolgskriterium erfolgreich erstellt.',
             ]);
         } catch (\Throwable $e) {
-            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Erstellen des Key Results: ' . $e->getMessage());
+            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Erstellen des Erfolgskriteriums: ' . $e->getMessage());
         }
     }
 

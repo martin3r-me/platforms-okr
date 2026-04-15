@@ -23,14 +23,14 @@ class SeedOkrData extends Command
      *
      * @var string
      */
-    protected $description = 'Seed the OKR module data (cycle templates and demo data)';
+    protected $description = 'Seed the Zielsteuerung module data (cycle templates and demo data)';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->info('Seeding OKR data...');
+        $this->info('Seeding Zielsteuerung data...');
         
         try {
             // Lookup data (immer erlaubt)
@@ -38,7 +38,7 @@ class SeedOkrData extends Command
                 $this->info('Seeding lookup data...');
                 $seeder = new OkrLookupSeeder();
                 $seeder->run();
-                $this->info('✅ OKR lookup data seeded successfully!');
+                $this->info('✅ Zielsteuerung lookup data seeded successfully!');
             }
 
             // Demo data (nur wenn explizit gewünscht oder in non-production)
@@ -49,7 +49,7 @@ class SeedOkrData extends Command
                     $this->info('Seeding demo data...');
                     $seeder = new OkrDemoDataSeeder();
                     $seeder->run();
-                    $this->info('✅ OKR demo data seeded successfully!');
+                    $this->info('✅ Zielsteuerung demo data seeded successfully!');
                 }
             }
             
@@ -59,11 +59,11 @@ class SeedOkrData extends Command
                 $this->line('  • Cycle Templates (Q1-Q4 for 3 years)');
             }
             if ($this->option('demo') || (!$this->option('lookup') && !app()->environment('production'))) {
-                $this->line('  • Demo OKR with Objectives and Key Results');
+                $this->line('  • Demo Zielsteuerung with Objectives and Erfolgskriterien');
             }
             
         } catch (\Exception $e) {
-            $this->error('❌ Failed to seed OKR data: ' . $e->getMessage());
+            $this->error('❌ Failed to seed Zielsteuerung data: ' . $e->getMessage());
             return 1;
         }
 

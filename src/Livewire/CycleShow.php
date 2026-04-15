@@ -4,6 +4,7 @@ namespace Platform\Okr\Livewire;
 
 use Livewire\Component;
 use Platform\Okr\Models\Cycle;
+use Platform\Okr\Models\Milestone;
 use Platform\Okr\Models\Objective;
 use Platform\Okr\Models\StrategicDocument;
 use Platform\Core\Models\User;
@@ -37,6 +38,10 @@ class CycleShow extends Component
     public $keyResultUnit = '';
     public $keyResultManagerUserId = null;
 
+    // Milestone Properties
+    public $objectiveSelectedMilestoneIds = [];
+    public $keyResultSelectedMilestoneIds = [];
+
     // Delete Modal Properties
     public $deleteModalShow = false;
 
@@ -52,7 +57,7 @@ class CycleShow extends Component
     public function mount(Cycle $cycle)
     {
         $this->cycle = $cycle;
-        $this->cycle->load(['okr', 'template', 'objectives.keyResults.performance', 'objectives.keyResults.primaryContexts', 'objectives.keyResults.manager', 'okr.members']);
+        $this->cycle->load(['okr', 'template', 'objectives.milestones.focusArea', 'objectives.keyResults.performance', 'objectives.keyResults.primaryContexts', 'objectives.keyResults.manager', 'objectives.keyResults.milestones.focusArea', 'okr.members']);
     }
 
     public function rendered()
@@ -144,6 +149,21 @@ class CycleShow extends Component
     }
 
 
+    #[Computed]
+    public function availableMilestones()
+    {
+        if (!$this->cycle->okr) {
+            return collect();
+        }
+        return Milestone::where('team_id', $this->cycle->okr->team_id)
+            ->with('focusArea')
+            ->orderBy('title')
+            ->get()
+            ->mapWithKeys(fn($m) => [
+                $m->id => ($m->focusArea ? $m->focusArea->title . ' > ' : '') . $m->title,
+            ]);
+    }
+
     public function updated($property)
     {
         if (str($property)->startsWith('cycle.')) {
@@ -186,13 +206,14 @@ class CycleShow extends Component
 
     public function editObjective($objectiveId)
     {
-        $objective = $this->cycle->objectives()->findOrFail($objectiveId);
+        $objective = $this->cycle->objectives()->with('milestones')->findOrFail($objectiveId);
         $this->editingObjectiveId = $objective->id;
         $this->objectiveForm = [
             'title' => $objective->title,
             'description' => $objective->description,
             'order' => $objective->order,
         ];
+        $this->objectiveSelectedMilestoneIds = $objective->milestones->pluck('id')->map(fn($id) => (string) $id)->toArray();
         $this->objectiveEditModalShow = true;
     }
 
@@ -217,6 +238,7 @@ class CycleShow extends Component
                 'description' => $this->objectiveForm['description'],
                 'order' => $this->objectiveForm['order'],
             ]);
+            $objective->milestones()->sync(array_map('intval', array_filter($this->objectiveSelectedMilestoneIds)));
             session()->flash('message', 'Objective erfolgreich aktualisiert!');
         } else {
             // Für Parent Tools (scope_type = 'parent') das Root-Team verwenden
@@ -238,7 +260,7 @@ class CycleShow extends Component
             session()->flash('message', 'Objective erfolgreich hinzugefügt!');
         }
 
-        $this->cycle->load('objectives.keyResults'); // Refresh objectives
+        $this->cycle->load(['objectives.keyResults', 'objectives.milestones.focusArea', 'objectives.keyResults.milestones.focusArea']); // Refresh objectives
         $this->closeObjectiveCreateModal();
         $this->closeObjectiveEditModal();
     }
@@ -262,6 +284,7 @@ class CycleShow extends Component
         $this->keyResultTargetValue = '';
         $this->keyResultCurrentValue = '';
         $this->keyResultUnit = '';
+        $this->keyResultSelectedMilestoneIds = [];
         $this->keyResultCreateModalShow = true;
     }
 
@@ -276,12 +299,13 @@ class CycleShow extends Component
         $this->keyResultTargetValue = '';
         $this->keyResultCurrentValue = '';
         $this->keyResultUnit = '';
+        $this->keyResultSelectedMilestoneIds = [];
     }
 
     public function editKeyResult($keyResultId)
     {
         // Find the key result directly from the database
-        $keyResult = \Platform\Okr\Models\KeyResult::with('performance')->find($keyResultId);
+        $keyResult = \Platform\Okr\Models\KeyResult::with(['performance', 'milestones'])->find($keyResultId);
         
         if ($keyResult) {
             $this->editingKeyResultId = $keyResult->id;
@@ -303,6 +327,7 @@ class CycleShow extends Component
                 $this->keyResultCurrentValue = '0';
             }
             
+            $this->keyResultSelectedMilestoneIds = $keyResult->milestones->pluck('id')->map(fn($id) => (string) $id)->toArray();
             $this->keyResultEditModalShow = true;
         }
     }
@@ -318,6 +343,7 @@ class CycleShow extends Component
         $this->keyResultTargetValue = '';
         $this->keyResultCurrentValue = '';
         $this->keyResultUnit = '';
+        $this->keyResultSelectedMilestoneIds = [];
     }
 
     public function deleteKeyResultAndCloseModal()
@@ -328,7 +354,7 @@ class CycleShow extends Component
                 $keyResult->delete();
                 
                 $this->cycle->load('objectives.keyResults.performance');
-                session()->flash('message', 'Key Result erfolgreich gelöscht!');
+                session()->flash('message', 'Erfolgskriterium erfolgreich gelöscht!');
             } catch (\Exception $e) {
                 session()->flash('error', 'Fehler beim Löschen: ' . $e->getMessage());
             }
@@ -394,8 +420,9 @@ class CycleShow extends Component
                     'user_id' => auth()->id(),
                 ]);
                 
+                $keyResult->milestones()->sync(array_map('intval', array_filter($this->keyResultSelectedMilestoneIds)));
                 $this->closeKeyResultEditModal();
-                session()->flash('message', 'Key Result erfolgreich aktualisiert!');
+                session()->flash('message', 'Erfolgskriterium erfolgreich aktualisiert!');
             } else {
                 // Create new Key Result
                 $nextOrder = $objective->keyResults()->max('order') + 1;
@@ -429,12 +456,13 @@ class CycleShow extends Component
                     'user_id' => auth()->id(),
                 ]);
                 
+                $keyResult->milestones()->sync(array_map('intval', array_filter($this->keyResultSelectedMilestoneIds)));
                 $this->closeKeyResultCreateModal();
-                session()->flash('message', 'Key Result erfolgreich hinzugefügt!');
+                session()->flash('message', 'Erfolgskriterium erfolgreich hinzugefügt!');
             }
             
-            $this->cycle->load('objectives.keyResults.performance');
-            
+            $this->cycle->load(['objectives.keyResults.performance', 'objectives.milestones.focusArea', 'objectives.keyResults.milestones.focusArea']);
+
         } catch (\Exception $e) {
             session()->flash('error', 'Fehler beim Speichern: ' . $e->getMessage());
         }
@@ -454,7 +482,7 @@ class CycleShow extends Component
             }
             
             if ($keyResult->performance->type !== 'boolean') {
-                session()->flash('error', 'Diese Funktion ist nur für Boolean Key Results verfügbar!');
+                session()->flash('error', 'Diese Funktion ist nur für Boolean-Erfolgskriterien verfügbar!');
                 return;
             }
             
@@ -474,7 +502,7 @@ class CycleShow extends Component
             ]);
             
             $this->cycle->load('objectives.keyResults.performance');
-            session()->flash('message', $newStatus ? 'Key Result als erledigt markiert!' : 'Key Result als offen markiert!');
+            session()->flash('message', $newStatus ? 'Erfolgskriterium als erledigt markiert!' : 'Erfolgskriterium als offen markiert!');
             
         } catch (\Exception $e) {
             session()->flash('error', 'Fehler beim Umschalten: ' . $e->getMessage());
@@ -517,6 +545,7 @@ class CycleShow extends Component
             'description' => '',
             'order' => 0,
         ];
+        $this->objectiveSelectedMilestoneIds = [];
     }
 
 
@@ -549,7 +578,7 @@ class CycleShow extends Component
         }
         
         $this->cycle->load('objectives.keyResults.performance');
-        session()->flash('message', 'Key Result-Reihenfolge aktualisiert!');
+        session()->flash('message', 'Erfolgskriterien-Reihenfolge aktualisiert!');
     }
 
     /**

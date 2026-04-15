@@ -70,7 +70,7 @@ class OkrServiceProvider extends ServiceProvider
         ) {
             PlatformCore::registerModule([
                 'key'        => 'okr',
-                'title'      => 'OKR',
+                'title'      => 'Zielsteuerung',
                 'group'      => 'planning',
                 'routing'    => config('okr.routing'),
                 'guard'      => config('okr.guard'),

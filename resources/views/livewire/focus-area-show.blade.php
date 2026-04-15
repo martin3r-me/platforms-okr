@@ -5,7 +5,7 @@
 
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
-            ['label' => 'OKR', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
+            ['label' => 'Zielsteuerung', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
             ['label' => 'Forecasts', 'href' => route('okr.forecasts.index')],
             ['label' => $focusArea->forecast->title, 'href' => route('okr.forecasts.show', $focusArea->forecast)],
             ['label' => $focusArea->title],
