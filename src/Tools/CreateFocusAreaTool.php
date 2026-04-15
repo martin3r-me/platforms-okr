@@ -21,7 +21,7 @@ class CreateFocusAreaTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'POST /okr/focus_areas - Erstellt einen Fokusraum. WICHTIG: forecast_id ist erforderlich (Fokusräume gehören zu einem Forecast).';
+        return 'POST /okr/focus_areas - Erstellt einen Fokusraum. WICHTIG: forecast_id ist erforderlich (Fokusräume gehören zu einem Zukunftsbild).';
     }
 
     public function getSchema(): array
@@ -29,7 +29,7 @@ class CreateFocusAreaTool implements ToolContract, ToolMetadataContract
         return [
             'type' => 'object',
             'properties' => [
-                'forecast_id' => ['type' => 'integer', 'description' => 'Forecast-ID (required).'],
+                'forecast_id' => ['type' => 'integer', 'description' => 'Zukunftsbild-ID (required).'],
                 'title' => ['type' => 'string', 'description' => 'Titel (required).'],
                 'description' => ['type' => 'string'],
                 'content' => ['type' => 'string', 'description' => 'Optional: Markdown-Content.'],
@@ -62,7 +62,7 @@ class CreateFocusAreaTool implements ToolContract, ToolMetadataContract
 
             $forecast = Forecast::query()->where('team_id', $teamId)->find($forecastId);
             if (!$forecast) {
-                return ToolResult::error('NOT_FOUND', "Forecast {$forecastId} nicht gefunden (Team-ID: {$teamId}).");
+                return ToolResult::error('NOT_FOUND', "Zukunftsbild {$forecastId} nicht gefunden (Team-ID: {$teamId}).");
             }
 
             $order = array_key_exists('order', $arguments) ? $this->normalizeId($arguments['order']) : null;

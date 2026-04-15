@@ -6,7 +6,7 @@
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
             ['label' => 'Zielsteuerung', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
-            ['label' => 'Forecasts', 'href' => route('okr.forecasts.index')],
+            ['label' => 'Zukunftsbilder', 'href' => route('okr.forecasts.index')],
             ['label' => $focusArea->forecast->title, 'href' => route('okr.forecasts.show', $focusArea->forecast)],
             ['label' => $focusArea->title],
         ]">
@@ -490,7 +490,7 @@
                     <h3 class="text-sm font-bold text-[var(--ui-secondary)] uppercase tracking-wider mb-4">Details</h3>
                     <div class="space-y-3">
                         <div class="flex items-center justify-between py-3 px-4 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
-                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Forecast</span>
+                            <span class="text-sm font-medium text-[var(--ui-secondary)]">Zukunftsbild</span>
                             <a href="{{ route('okr.forecasts.show', $focusArea->forecast) }}" wire:navigate class="text-sm text-[var(--ui-primary)] hover:underline">
                                 {{ $focusArea->forecast->title }}
                             </a>

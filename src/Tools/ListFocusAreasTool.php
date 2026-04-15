@@ -23,7 +23,7 @@ class ListFocusAreasTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/focus_areas?forecast_id={id}&filters=[...]&search=... - Listet Fokusräume auf. WICHTIG: forecast_id ist erforderlich (Fokusräume gehören zu einem Forecast).';
+        return 'GET /okr/focus_areas?forecast_id={id}&filters=[...]&search=... - Listet Fokusräume auf. WICHTIG: forecast_id ist erforderlich (Fokusräume gehören zu einem Zukunftsbild).';
     }
 
     public function getSchema(): array
@@ -34,7 +34,7 @@ class ListFocusAreasTool implements ToolContract, ToolMetadataContract
                 'properties' => [
                     'forecast_id' => [
                         'type' => 'integer',
-                        'description' => 'Forecast-ID (required). Fokusräume sind immer forecast-bezogen.',
+                        'description' => 'Zukunftsbild-ID (required). Fokusräume sind immer zukunftsbild-bezogen.',
                     ],
                 ],
                 'required' => ['forecast_id'],
@@ -61,7 +61,7 @@ class ListFocusAreasTool implements ToolContract, ToolMetadataContract
 
             $forecast = Forecast::query()->where('team_id', $teamId)->find($forecastId);
             if (!$forecast) {
-                return ToolResult::error('NOT_FOUND', "Forecast {$forecastId} nicht gefunden (Team-ID: {$teamId}).");
+                return ToolResult::error('NOT_FOUND', "Zukunftsbild {$forecastId} nicht gefunden (Team-ID: {$teamId}).");
             }
 
             $query = FocusArea::query()

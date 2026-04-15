@@ -39,12 +39,12 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
             ],
             'entities' => [
                 'forecasts' => [
-                    'description' => 'Forecasts - Strategische Ausrichtung & Transformationssteuerung. Enthalten versionierbaren Content und Fokusräume.',
+                    'description' => 'Zukunftsbilder - Strategische Ausrichtung & Transformationssteuerung. Enthalten versionierbaren Content und Fokusräume.',
                     'relations' => ['forecast -> focus_areas', 'forecast -> versions'],
                     'important_fields' => ['title', 'target_date', 'content (versionierbar)'],
                 ],
                 'focus_areas' => [
-                    'description' => 'Fokusräume - gehören zu einem Forecast. Enthalten Zielbilder, Hindernisse und Meilensteine.',
+                    'description' => 'Fokusräume - gehören zu einem Zukunftsbild. Enthalten Zielbilder, Hindernisse und Meilensteine.',
                     'relations' => ['focus_area -> vision_images', 'focus_area -> obstacles', 'focus_area -> milestones'],
                     'important_fields' => ['title', 'description', 'content', 'order'],
                 ],

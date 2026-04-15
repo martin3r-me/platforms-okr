@@ -20,7 +20,7 @@ class GetForecastTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'GET /okr/forecasts/{id} - Ruft einen einzelnen Forecast ab.';
+        return 'GET /okr/forecasts/{id} - Ruft ein einzelnes Zukunftsbild ab.';
     }
 
     public function getSchema(): array
@@ -30,7 +30,7 @@ class GetForecastTool implements ToolContract, ToolMetadataContract
             'properties' => [
                 'id' => [
                     'type' => 'integer',
-                    'description' => 'Forecast-ID (required).',
+                    'description' => 'Zukunftsbild-ID (required).',
                 ],
             ],
             'required' => ['id'],
@@ -60,7 +60,7 @@ class GetForecastTool implements ToolContract, ToolMetadataContract
                 ->find($id);
 
             if (!$forecast) {
-                return ToolResult::error('NOT_FOUND', "Forecast {$id} nicht gefunden (Team-ID: {$teamId}).");
+                return ToolResult::error('NOT_FOUND', "Zukunftsbild {$id} nicht gefunden (Team-ID: {$teamId}).");
             }
 
             return ToolResult::success([
@@ -92,7 +92,7 @@ class GetForecastTool implements ToolContract, ToolMetadataContract
                 'updated_at' => $this->dateToYmd($forecast->updated_at),
             ]);
         } catch (\Throwable $e) {
-            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Abrufen des Forecasts: ' . $e->getMessage());
+            return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Abrufen des Zukunftsbilds: ' . $e->getMessage());
         }
     }
 

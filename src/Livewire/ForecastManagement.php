@@ -85,7 +85,7 @@ class ForecastManagement extends Component
         $this->resetForm();
         $this->modalShow = false;
         
-        session()->flash('message', 'Forecast erfolgreich erstellt!');
+        session()->flash('message', 'Zukunftsbild erfolgreich erstellt!');
         
         return redirect()->route('okr.forecasts.show', $forecast);
     }
@@ -121,6 +121,6 @@ class ForecastManagement extends Component
         $forecast = Forecast::findOrFail($forecastId);
         $forecast->delete();
         
-        session()->flash('message', 'Forecast erfolgreich gelöscht!');
+        session()->flash('message', 'Zukunftsbild erfolgreich gelöscht!');
     }
 }

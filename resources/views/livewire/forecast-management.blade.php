@@ -6,11 +6,11 @@
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
             ['label' => 'Zielsteuerung', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
-            ['label' => 'Forecasts'],
+            ['label' => 'Zukunftsbilder'],
         ]">
             <x-ui-button variant="primary" size="sm" wire:click="openCreateModal">
                 @svg('heroicon-o-plus', 'w-4 h-4')
-                <span>Forecast hinzufügen</span>
+                <span>Zukunftsbild hinzufügen</span>
             </x-ui-button>
         </x-ui-page-actionbar>
     </x-slot>
@@ -20,7 +20,7 @@
         <div class="mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-xl font-semibold text-[var(--ui-secondary)]">Forecast-Verwaltung</h2>
+                    <h2 class="text-xl font-semibold text-[var(--ui-secondary)]">Zukunftsbilder</h2>
                     <p class="text-sm text-[var(--ui-muted)] mt-1">Strategische Ausrichtung & Transformationssteuerung</p>
                 </div>
                 <div class="flex items-center gap-3">
@@ -29,7 +29,7 @@
                         wire:click="openCreateModal"
                     >
                         @svg('heroicon-o-plus', 'w-4 h-4')
-                        <span class="ml-1">Forecast hinzufügen</span>
+                        <span class="ml-1">Zukunftsbild hinzufügen</span>
                     </x-ui-button>
                 </div>
             </div>
@@ -40,7 +40,7 @@
             <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-[var(--ui-muted)]">Gesamt Forecasts</p>
+                        <p class="text-sm text-[var(--ui-muted)]">Gesamt Zukunftsbilder</p>
                         <p class="text-2xl font-bold text-[var(--ui-secondary)] mt-1">{{ $totalForecasts }}</p>
                     </div>
                     <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center">
@@ -51,7 +51,7 @@
             <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-[var(--ui-muted)]">Focus Areas</p>
+                        <p class="text-sm text-[var(--ui-muted)]">Fokusräume</p>
                         <p class="text-2xl font-bold text-[var(--ui-secondary)] mt-1">{{ $totalFocusAreas }}</p>
                     </div>
                     <div class="w-12 h-12 bg-[var(--ui-primary-10)] text-[var(--ui-primary)] rounded-lg flex items-center justify-center">
@@ -87,7 +87,7 @@
                                         @if($forecast->currentVersion)
                                             <x-ui-badge variant="secondary" size="sm">v{{ $forecast->currentVersion->version }}</x-ui-badge>
                                         @endif
-                                        <x-ui-badge variant="secondary" size="sm">{{ $forecast->focusAreas->count() }} Focus Areas</x-ui-badge>
+                                        <x-ui-badge variant="secondary" size="sm">{{ $forecast->focusAreas->count() }} Fokusräume</x-ui-badge>
                                     </div>
                                     <div class="flex items-center gap-4 text-sm text-[var(--ui-muted)]">
                                         <span class="flex items-center gap-1">
@@ -108,7 +108,7 @@
                                     <x-ui-confirm-button 
                                         action="deleteForecast({{ $forecast->id }})" 
                                         text="Löschen" 
-                                        confirmText="Forecast wirklich löschen?" 
+                                        confirmText="Zukunftsbild wirklich löschen?" 
                                         variant="secondary-ghost"
                                         size="sm"
                                         :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
@@ -128,14 +128,14 @@
                     <div class="w-16 h-16 bg-[var(--ui-muted-5)] rounded-full flex items-center justify-center mx-auto mb-4">
                         @svg('heroicon-o-sparkles', 'w-8 h-8 text-[var(--ui-muted)]')
                     </div>
-                    <h4 class="text-lg font-medium text-[var(--ui-secondary)] mb-2">Noch keine Forecasts vorhanden</h4>
-                    <p class="text-[var(--ui-muted)] mb-4">Erstellen Sie eine neue Forecast um zu beginnen</p>
+                    <h4 class="text-lg font-medium text-[var(--ui-secondary)] mb-2">Noch keine Zukunftsbilder vorhanden</h4>
+                    <p class="text-[var(--ui-muted)] mb-4">Erstelle ein neues Zukunftsbild um zu beginnen</p>
                     <x-ui-button 
                         variant="secondary" 
                         wire:click="openCreateModal"
                     >
                         @svg('heroicon-o-plus', 'w-4 h-4')
-                        <span class="ml-1">Erste Forecast erstellen</span>
+                        <span class="ml-1">Erstes Zukunftsbild erstellen</span>
                     </x-ui-button>
                 </div>
             @endif
@@ -144,7 +144,7 @@
 
     {{-- Left Sidebar --}}
     <x-slot name="sidebar">
-        <x-ui-page-sidebar title="Forecast Übersicht" width="w-80" :defaultOpen="true">
+        <x-ui-page-sidebar title="Zukunftsbild Übersicht" width="w-80" :defaultOpen="true">
             <div class="p-6 space-y-6">
                 {{-- Statistiken --}}
                 <div>
@@ -152,19 +152,19 @@
                     <div class="space-y-3">
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
                             <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalForecasts }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Gesamt Forecasts</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Gesamt Zukunftsbilder</div>
                         </div>
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
                             <div class="text-2xl font-bold text-indigo-600">{{ $totalFocusAreas }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Focus Areas</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Fokusräume</div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Aktuelle Forecasts --}}
+                {{-- Aktuelle Zukunftsbilder --}}
                 @if($forecasts->count() > 0)
                     <div>
-                        <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Aktuelle Forecasts</h3>
+                        <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Aktuelle Zukunftsbilder</h3>
                         <div class="space-y-2">
                             @foreach($forecasts->take(5) as $forecast)
                                 <a 
@@ -174,7 +174,7 @@
                                 >
                                     <div class="text-sm font-medium text-[var(--ui-secondary)]">{{ $forecast->title }}</div>
                                     <div class="text-xs text-[var(--ui-muted)] mt-1">
-                                        {{ $forecast->target_date->format('d.m.Y') }} • {{ $forecast->focusAreas->count() }} Focus Areas
+                                        {{ $forecast->target_date->format('d.m.Y') }} • {{ $forecast->focusAreas->count() }} Fokusräume
                                     </div>
                                 </a>
                             @endforeach
@@ -217,11 +217,11 @@
                     <div class="space-y-3">
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
                             <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $totalForecasts }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Gesamt Forecasts</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Gesamt Zukunftsbilder</div>
                         </div>
                         <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
                             <div class="text-lg font-bold text-indigo-600">{{ $totalFocusAreas }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Focus Areas</div>
+                            <div class="text-xs text-[var(--ui-muted)]">Fokusräume</div>
                         </div>
                     </div>
                 </div>
@@ -235,7 +235,7 @@
         model="modalShow"
     >
         <x-slot name="header">
-            Neue Forecast erstellen
+            Neues Zukunftsbild erstellen
         </x-slot>
 
         <div class="space-y-4">
@@ -244,7 +244,7 @@
                     name="title"
                     label="Titel"
                     wire:model.live="title"
-                    placeholder="z.B. Forecast 2028"
+                    placeholder="z.B. Zukunftsbild 2028"
                     required
                 />
 

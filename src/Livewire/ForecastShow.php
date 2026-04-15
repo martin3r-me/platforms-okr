@@ -66,7 +66,7 @@ class ForecastShow extends Component
 
         $this->forecast->refresh();
         $this->isDirty = false;
-        session()->flash('message', 'Forecast erfolgreich gespeichert!');
+        session()->flash('message', 'Zukunftsbild erfolgreich gespeichert!');
     }
 
     // FocusArea Management
@@ -126,7 +126,7 @@ class ForecastShow extends Component
                 'description' => $this->focusAreaForm['description'],
                 'order' => $this->focusAreaForm['order'],
             ]);
-            session()->flash('message', 'Focus Area erfolgreich aktualisiert!');
+            session()->flash('message', 'Fokusraum erfolgreich aktualisiert!');
         } else {
             // Auto-set order if not provided
             $order = $this->focusAreaForm['order'] ?? ($this->forecast->focusAreas()->max('order') ?? 0) + 1;
@@ -138,7 +138,7 @@ class ForecastShow extends Component
                 'team_id' => $teamId,
                 'user_id' => $user->id,
             ]);
-            session()->flash('message', 'Focus Area erfolgreich hinzugefügt!');
+            session()->flash('message', 'Fokusraum erfolgreich hinzugefügt!');
         }
 
         $this->forecast->refresh();
@@ -162,7 +162,7 @@ class ForecastShow extends Component
             'focusAreas.obstacles',
             'focusAreas.milestones'
         ]);
-        session()->flash('message', 'Focus Area erfolgreich gelöscht!');
+        session()->flash('message', 'Fokusraum erfolgreich gelöscht!');
     }
 
     protected function resetFocusAreaForm()
@@ -191,7 +191,7 @@ class ForecastShow extends Component
             'focusAreas.obstacles',
             'focusAreas.milestones'
         ]);
-        session()->flash('message', 'Focus Area-Reihenfolge aktualisiert!');
+        session()->flash('message', 'Fokusraum-Reihenfolge aktualisiert!');
     }
 
     #[Computed]

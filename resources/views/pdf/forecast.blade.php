@@ -217,7 +217,7 @@
     {{-- Forecast Content --}}
     @if($forecast->currentVersion && $forecast->currentVersion->content)
         <div class="content-section">
-            <h2>Forecast Inhalt</h2>
+            <h2>Inhalt</h2>
             <div>
                 {!! \Illuminate\Support\Str::markdown($forecast->currentVersion->content) !!}
             </div>

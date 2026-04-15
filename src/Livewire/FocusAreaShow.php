@@ -111,7 +111,7 @@ class FocusAreaShow extends Component
         ]);
         $this->focusArea->refresh();
         $this->isDirty = false;
-        session()->flash('message', 'Focus Area erfolgreich gespeichert!');
+        session()->flash('message', 'Fokusraum erfolgreich gespeichert!');
     }
 
     // VisionImage Management
