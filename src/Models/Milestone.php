@@ -96,4 +96,9 @@ class Milestone extends Model implements HasDisplayName
     {
         return $this->belongsToMany(Objective::class, 'okr_objective_milestone');
     }
+
+    public function keyResults(): BelongsToMany
+    {
+        return $this->belongsToMany(KeyResult::class, 'okr_key_result_milestone');
+    }
 }
