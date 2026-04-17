@@ -42,6 +42,10 @@ class CycleShow extends Component
     public $objectiveSelectedMilestoneIds = [];
     public $keyResultSelectedMilestoneIds = [];
 
+    // Inline Performance Edit
+    public $inlineEditKeyResultId = null;
+    public $inlineEditValue = '';
+
     // Delete Modal Properties
     public $deleteModalShow = false;
 
@@ -409,13 +413,23 @@ class CycleShow extends Component
                 ]);
 
                 // Immer eine neue Performance-Version erstellen (Versionierung)
-                // Verwende die Team-ID des KeyResults (bereits korrekt gesetzt)
+                $targetValue = $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue;
+                $currentValue = $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0);
+
+                if ($this->keyResultValueType === 'boolean') {
+                    $isCompleted = (bool) $this->keyResultCurrentValue;
+                    $performanceScore = $isCompleted ? 1.0 : 0.0;
+                } else {
+                    $isCompleted = $targetValue > 0 && $currentValue >= $targetValue;
+                    $performanceScore = $targetValue > 0 ? min(1.0, max(0.0, $currentValue / $targetValue)) : 0.0;
+                }
+
                 $keyResult->performances()->create([
                     'type' => $this->keyResultValueType,
-                    'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
-                    'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
-                    'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
-                    'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
+                    'target_value' => $targetValue,
+                    'current_value' => $currentValue,
+                    'is_completed' => $isCompleted,
+                    'performance_score' => $performanceScore,
                     'team_id' => $keyResult->team_id,
                     'user_id' => auth()->id(),
                 ]);
@@ -445,13 +459,23 @@ class CycleShow extends Component
                 ]);
 
                 // Create initial performance record (erste Version)
-                // Verwende die Team-ID des KeyResults (bereits korrekt gesetzt)
+                $initTarget = $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue;
+                $initCurrent = $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0);
+
+                if ($this->keyResultValueType === 'boolean') {
+                    $initCompleted = (bool) $this->keyResultCurrentValue;
+                    $initScore = $initCompleted ? 1.0 : 0.0;
+                } else {
+                    $initCompleted = $initTarget > 0 && $initCurrent >= $initTarget;
+                    $initScore = $initTarget > 0 ? min(1.0, max(0.0, $initCurrent / $initTarget)) : 0.0;
+                }
+
                 $keyResult->performances()->create([
                     'type' => $this->keyResultValueType,
-                    'target_value' => $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue,
-                    'current_value' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0),
-                    'is_completed' => $this->keyResultValueType === 'boolean' ? (bool) $this->keyResultCurrentValue : false,
-                    'performance_score' => $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : 0.0,
+                    'target_value' => $initTarget,
+                    'current_value' => $initCurrent,
+                    'is_completed' => $initCompleted,
+                    'performance_score' => $initScore,
                     'team_id' => $keyResult->team_id,
                     'user_id' => auth()->id(),
                 ]);
@@ -516,25 +540,61 @@ class CycleShow extends Component
     {
         try {
             $keyResult = \Platform\Okr\Models\KeyResult::findOrFail($keyResultId);
-            
-            // Neue Performance-Version erstellen
-            // Verwende die Team-ID des KeyResults (bereits korrekt gesetzt)
+
+            $type = $keyResult->performance->type;
+            $targetValue = $keyResult->performance->target_value;
+            $currentValue = (float) $newCurrentValue;
+
+            if ($type === 'boolean') {
+                $isCompleted = (bool) $newCurrentValue;
+                $score = $isCompleted ? 1.0 : 0.0;
+            } else {
+                $isCompleted = $targetValue > 0 && $currentValue >= $targetValue;
+                $score = $targetValue > 0 ? min(1.0, max(0.0, $currentValue / $targetValue)) : 0.0;
+            }
+
             $keyResult->performances()->create([
-                'type' => $keyResult->performance->type,
-                'target_value' => $keyResult->performance->target_value, // Zielwert bleibt unverändert
-                'current_value' => (float) $newCurrentValue,
-                'is_completed' => $keyResult->performance->type === 'boolean' ? (bool) $newCurrentValue : ($newCurrentValue >= $keyResult->performance->target_value),
-                'performance_score' => $keyResult->performance->type === 'boolean' ? ($newCurrentValue ? 1.0 : 0.0) : ($newCurrentValue / $keyResult->performance->target_value),
+                'type' => $type,
+                'target_value' => $targetValue,
+                'current_value' => $currentValue,
+                'is_completed' => $isCompleted,
+                'performance_score' => $score,
                 'team_id' => $keyResult->team_id,
                 'user_id' => auth()->id(),
             ]);
-            
+
             $this->cycle->load('objectives.keyResults.performance');
-            session()->flash('message', 'Performance erfolgreich aktualisiert!');
-            
+
         } catch (\Exception $e) {
             session()->flash('error', 'Fehler beim Aktualisieren: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Inline-Editing: KR-Wert direkt in der Zeile bearbeiten
+     */
+    public function startInlineEdit($keyResultId)
+    {
+        $keyResult = \Platform\Okr\Models\KeyResult::find($keyResultId);
+        if (!$keyResult || !$keyResult->performance) return;
+
+        $this->inlineEditKeyResultId = $keyResultId;
+        $this->inlineEditValue = (string) $keyResult->performance->current_value;
+    }
+
+    public function cancelInlineEdit()
+    {
+        $this->inlineEditKeyResultId = null;
+        $this->inlineEditValue = '';
+    }
+
+    public function saveInlineEdit()
+    {
+        if (!$this->inlineEditKeyResultId) return;
+
+        $this->updateKeyResultPerformance($this->inlineEditKeyResultId, $this->inlineEditValue);
+        $this->inlineEditKeyResultId = null;
+        $this->inlineEditValue = '';
     }
 
     protected function resetObjectiveForm()
