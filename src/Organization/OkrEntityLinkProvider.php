@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Platform\Okr\Models\Okr;
 use Platform\Organization\Contracts\EntityLinkProvider;
+use Platform\Organization\Contracts\HasMetricDefinitions;
 
-class OkrEntityLinkProvider implements EntityLinkProvider
+class OkrEntityLinkProvider implements EntityLinkProvider, HasMetricDefinitions
 {
     public function morphAliases(): array
     {
@@ -121,5 +122,17 @@ class OkrEntityLinkProvider implements EntityLinkProvider
         }
 
         return $result;
+    }
+
+    public function metricDefinitions(): array
+    {
+        return [
+            'okr_objectives_total'  => ['label' => 'Objectives (gesamt)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count'],
+            'okr_objectives_done'   => ['label' => 'Objectives (erledigt)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'count', 'pair' => 'okr_objectives_total'],
+            'okr_key_results_total' => ['label' => 'Key Results (gesamt)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count'],
+            'okr_key_results_done'  => ['label' => 'Key Results (erledigt)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'count', 'pair' => 'okr_key_results_total'],
+            'okr_performance_sum'   => ['label' => 'Performance (Summe)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'score'],
+            'okr_performance_count' => ['label' => 'Performance (Anzahl)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count'],
+        ];
     }
 }
