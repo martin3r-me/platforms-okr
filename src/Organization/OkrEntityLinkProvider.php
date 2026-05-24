@@ -127,12 +127,12 @@ class OkrEntityLinkProvider implements EntityLinkProvider, HasMetricDefinitions
     public function metricDefinitions(): array
     {
         return [
-            'okr_objectives_total'  => ['label' => 'Objectives (gesamt)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'complexity', 'type' => 'stock'],
-            'okr_objectives_done'   => ['label' => 'Objectives (erledigt)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'count', 'pair' => 'okr_objectives_total', 'dimension' => 'throughput', 'type' => 'flow'],
-            'okr_key_results_total' => ['label' => 'Key Results (gesamt)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'complexity', 'type' => 'stock'],
-            'okr_key_results_done'  => ['label' => 'Key Results (erledigt)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'count', 'pair' => 'okr_key_results_total', 'dimension' => 'throughput', 'type' => 'flow'],
-            'okr_performance_sum'   => ['label' => 'Performance (Summe)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'score', 'dimension' => 'quality', 'type' => 'modulator'],
-            'okr_performance_count' => ['label' => 'Performance (Anzahl)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'quality', 'type' => 'stock'],
+            'okr_objectives_total'  => ['label' => 'Objectives (gesamt)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'complexity', 'type' => 'stock', 'aggregation_mode' => 'rolled_up'],
+            'okr_objectives_done'   => ['label' => 'Objectives (erledigt)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'count', 'pair' => 'okr_objectives_total', 'dimension' => 'throughput', 'type' => 'flow', 'aggregation_mode' => 'rolled_up'],
+            'okr_key_results_total' => ['label' => 'Key Results (gesamt)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'complexity', 'type' => 'stock', 'aggregation_mode' => 'rolled_up'],
+            'okr_key_results_done'  => ['label' => 'Key Results (erledigt)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'count', 'pair' => 'okr_key_results_total', 'dimension' => 'throughput', 'type' => 'flow', 'aggregation_mode' => 'rolled_up'],
+            'okr_performance_sum'   => ['label' => 'Performance (Summe)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'score', 'dimension' => 'quality', 'type' => 'modulator', 'aggregation_mode' => 'rolled_up'],
+            'okr_performance_count' => ['label' => 'Performance (Anzahl)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'quality', 'type' => 'stock', 'aggregation_mode' => 'rolled_up'],
         ];
     }
 }
