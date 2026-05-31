@@ -2,6 +2,7 @@
 
 namespace Platform\Okr\Organization;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Platform\Okr\Models\Okr;
@@ -121,6 +122,167 @@ class OkrEntityLinkProvider implements EntityLinkProvider, HasMetricDefinitions
             ];
         }
 
+        // Milestone metrics: collect objective + key result IDs per entity, then query pivot tables
+        $objectiveIdsByEntity = [];
+        $krIdsByEntity = [];
+        $allObjectiveIds = [];
+        $allKrIds = [];
+
+        foreach ($linksByEntity as $entityId => $ids) {
+            $entityObjectiveIds = [];
+            $entityKrIds = [];
+            foreach ($ids as $id) {
+                $okr = $okrs[$id] ?? null;
+                if (!$okr) {
+                    continue;
+                }
+                // We need to query objectives and KRs for these OKRs
+                $entityObjectiveIds[] = $id;
+                $entityKrIds[] = $id;
+            }
+            $objectiveIdsByEntity[$entityId] = $entityObjectiveIds;
+            $krIdsByEntity[$entityId] = $entityKrIds;
+        }
+
+        // Batch load objective IDs per OKR
+        $objectivesByOkr = DB::table('okr_objectives')
+            ->whereIn('okr_id', $allIds)
+            ->whereNull('deleted_at')
+            ->select('id', 'okr_id')
+            ->get()
+            ->groupBy('okr_id');
+
+        // Build objective IDs per entity and collect all objective IDs
+        $objectiveIdsPerEntity = [];
+        foreach ($linksByEntity as $entityId => $ids) {
+            $objIds = [];
+            foreach ($ids as $id) {
+                if (isset($objectivesByOkr[$id])) {
+                    foreach ($objectivesByOkr[$id] as $obj) {
+                        $objIds[] = $obj->id;
+                    }
+                }
+            }
+            $objectiveIdsPerEntity[$entityId] = array_unique($objIds);
+            $allObjectiveIds = array_merge($allObjectiveIds, $objIds);
+        }
+        $allObjectiveIds = array_values(array_unique($allObjectiveIds));
+
+        // Batch load KR IDs per objective
+        $krsByObjective = [];
+        if (!empty($allObjectiveIds)) {
+            $krsByObjective = DB::table('okr_key_results')
+                ->whereIn('objective_id', $allObjectiveIds)
+                ->whereNull('deleted_at')
+                ->select('id', 'objective_id')
+                ->get()
+                ->groupBy('objective_id');
+        }
+
+        // Build KR IDs per entity
+        $krIdsPerEntity = [];
+        foreach ($objectiveIdsPerEntity as $entityId => $objIds) {
+            $entityKrIds = [];
+            foreach ($objIds as $objId) {
+                if (isset($krsByObjective[$objId])) {
+                    foreach ($krsByObjective[$objId] as $kr) {
+                        $entityKrIds[] = $kr->id;
+                    }
+                }
+            }
+            $krIdsPerEntity[$entityId] = array_unique($entityKrIds);
+            $allKrIds = array_merge($allKrIds, $entityKrIds);
+        }
+        $allKrIds = array_values(array_unique($allKrIds));
+
+        // Load milestone IDs via objective pivot
+        $milestonesByObjective = [];
+        if (!empty($allObjectiveIds)) {
+            $milestonesByObjective = DB::table('okr_objective_milestone')
+                ->whereIn('objective_id', $allObjectiveIds)
+                ->select('objective_id', 'milestone_id')
+                ->get()
+                ->groupBy('objective_id');
+        }
+
+        // Load milestone IDs via KR pivot
+        $milestonesByKr = [];
+        if (!empty($allKrIds)) {
+            $milestonesByKr = DB::table('okr_key_result_milestone')
+                ->whereIn('key_result_id', $allKrIds)
+                ->select('key_result_id', 'milestone_id')
+                ->get()
+                ->groupBy('key_result_id');
+        }
+
+        // Collect unique milestone IDs per entity
+        $milestoneIdsPerEntity = [];
+        $allMilestoneIds = [];
+        foreach ($linksByEntity as $entityId => $ids) {
+            $mIds = [];
+            foreach ($objectiveIdsPerEntity[$entityId] ?? [] as $objId) {
+                if (isset($milestonesByObjective[$objId])) {
+                    foreach ($milestonesByObjective[$objId] as $row) {
+                        $mIds[] = $row->milestone_id;
+                    }
+                }
+            }
+            foreach ($krIdsPerEntity[$entityId] ?? [] as $krId) {
+                if (isset($milestonesByKr[$krId])) {
+                    foreach ($milestonesByKr[$krId] as $row) {
+                        $mIds[] = $row->milestone_id;
+                    }
+                }
+            }
+            $mIds = array_values(array_unique($mIds));
+            $milestoneIdsPerEntity[$entityId] = $mIds;
+            $allMilestoneIds = array_merge($allMilestoneIds, $mIds);
+        }
+        $allMilestoneIds = array_values(array_unique($allMilestoneIds));
+
+        // Load milestone target_dates
+        $milestoneTargetDates = [];
+        if (!empty($allMilestoneIds)) {
+            $milestoneTargetDates = DB::table('okr_milestones')
+                ->whereIn('id', $allMilestoneIds)
+                ->whereNull('deleted_at')
+                ->select('id', 'target_date')
+                ->get()
+                ->keyBy('id');
+        }
+
+        $now = Carbon::now();
+        $in30days = $now->copy()->addDays(30);
+
+        foreach ($milestoneIdsPerEntity as $entityId => $mIds) {
+            $total = 0;
+            $overdue = 0;
+            $due30d = 0;
+
+            foreach ($mIds as $mId) {
+                $milestone = $milestoneTargetDates[$mId] ?? null;
+                if (!$milestone) {
+                    continue; // deleted
+                }
+                $total++;
+                if ($milestone->target_date !== null) {
+                    $targetDate = Carbon::parse($milestone->target_date);
+                    if ($targetDate->lt($now)) {
+                        $overdue++;
+                    }
+                    if ($targetDate->lte($in30days)) {
+                        $due30d++;
+                    }
+                }
+            }
+
+            $result[$entityId] = array_merge($result[$entityId] ?? [], [
+                'okr_milestones_total' => $total,
+                'okr_milestones_overdue' => $overdue,
+                'okr_milestones_due_30d' => $due30d,
+            ]);
+        }
+
         return $result;
     }
 
@@ -133,6 +295,9 @@ class OkrEntityLinkProvider implements EntityLinkProvider, HasMetricDefinitions
             'okr_key_results_done'  => ['label' => 'Key Results (erledigt)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'count', 'pair' => 'okr_key_results_total', 'dimension' => 'throughput', 'type' => 'flow', 'aggregation_mode' => 'rolled_up'],
             'okr_performance_sum'   => ['label' => 'Performance (Summe)', 'group' => 'okr', 'direction' => 'up', 'unit' => 'score', 'dimension' => 'quality', 'type' => 'modulator', 'aggregation_mode' => 'rolled_up'],
             'okr_performance_count' => ['label' => 'Performance (Anzahl)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'quality', 'type' => 'stock', 'aggregation_mode' => 'rolled_up'],
+            'okr_milestones_total'   => ['label' => 'Meilensteine (gesamt)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'complexity', 'type' => 'stock', 'aggregation_mode' => 'rolled_up'],
+            'okr_milestones_overdue' => ['label' => 'Meilensteine (überfällig)', 'group' => 'okr', 'direction' => 'down', 'unit' => 'count', 'dimension' => 'quality', 'type' => 'modulator', 'aggregation_mode' => 'rolled_up'],
+            'okr_milestones_due_30d' => ['label' => 'Meilensteine (nächste 30d)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'energy', 'type' => 'flow', 'aggregation_mode' => 'rolled_up'],
         ];
     }
 }
