@@ -297,7 +297,7 @@ class OkrEntityLinkProvider implements EntityLinkProvider, HasMetricDefinitions
             'okr_performance_count' => ['label' => 'Performance (Anzahl)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'quality', 'type' => 'stock', 'aggregation_mode' => 'rolled_up'],
             'okr_milestones_total'   => ['label' => 'Meilensteine (gesamt)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'complexity', 'type' => 'stock', 'aggregation_mode' => 'rolled_up'],
             'okr_milestones_overdue' => ['label' => 'Meilensteine (überfällig)', 'group' => 'okr', 'direction' => 'down', 'unit' => 'count', 'dimension' => 'quality', 'type' => 'modulator', 'aggregation_mode' => 'rolled_up'],
-            'okr_milestones_due_30d' => ['label' => 'Meilensteine (nächste 30d)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'energy', 'type' => 'flow', 'aggregation_mode' => 'rolled_up'],
+            'okr_milestones_due_30d' => ['label' => 'Meilensteine (nächste 30d)', 'group' => 'okr', 'direction' => 'neutral', 'unit' => 'count', 'dimension' => 'energy', 'type' => 'flow', 'aggregation_mode' => 'rolled_up', 'basis' => 'window_30d'],
         ];
     }
 }
