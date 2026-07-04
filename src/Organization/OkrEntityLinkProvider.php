@@ -122,27 +122,9 @@ class OkrEntityLinkProvider implements EntityLinkProvider, HasMetricDefinitions
             ];
         }
 
-        // Milestone metrics: collect objective + key result IDs per entity, then query pivot tables
-        $objectiveIdsByEntity = [];
-        $krIdsByEntity = [];
+        // Milestone metrics: resolve objective + KR IDs per entity, then query pivot tables
         $allObjectiveIds = [];
         $allKrIds = [];
-
-        foreach ($linksByEntity as $entityId => $ids) {
-            $entityObjectiveIds = [];
-            $entityKrIds = [];
-            foreach ($ids as $id) {
-                $okr = $okrs[$id] ?? null;
-                if (!$okr) {
-                    continue;
-                }
-                // We need to query objectives and KRs for these OKRs
-                $entityObjectiveIds[] = $id;
-                $entityKrIds[] = $id;
-            }
-            $objectiveIdsByEntity[$entityId] = $entityObjectiveIds;
-            $krIdsByEntity[$entityId] = $entityKrIds;
-        }
 
         // Batch load objective IDs per OKR
         $objectivesByOkr = DB::table('okr_objectives')
