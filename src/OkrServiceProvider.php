@@ -44,12 +44,22 @@ class OkrServiceProvider extends ServiceProvider
     {
         Relation::morphMap([
             'okr' => \Platform\Okr\Models\Okr::class,
+            'okr_objective' => \Platform\Okr\Models\Objective::class,
+            'okr_key_result' => \Platform\Okr\Models\KeyResult::class,
         ]);
 
         // EntityLinkProvider registrieren (loose Kopplung mit Organization-Modul)
         try {
             resolve(\Platform\Organization\Services\EntityLinkRegistry::class)
                 ->register(new \Platform\Okr\Organization\OkrEntityLinkProvider());
+        } catch (\Throwable $e) {
+            // Organization-Modul nicht geladen
+        }
+
+        // MilestoneContributor registrieren (OKR-Items als Beitraege auf der Transformations-Map)
+        try {
+            resolve(\Platform\Organization\Services\MilestoneContributorRegistry::class)
+                ->register(new \Platform\Okr\Organization\OkrMilestoneContributor());
         } catch (\Throwable $e) {
             // Organization-Modul nicht geladen
         }
