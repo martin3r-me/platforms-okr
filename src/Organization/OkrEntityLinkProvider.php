@@ -50,7 +50,11 @@ class OkrEntityLinkProvider implements EntityLinkProvider, HasMetricDefinitions
 
     public function timeTrackableCascades(): array
     {
-        return [];
+        // Zeit wird auf dem OKR-Container selbst gebucht (Steuerungszeit).
+        // Keine Child-Cascade: Umsetzungsarbeit an Objectives/KRs läuft als Tasks.
+        return [
+            'okr' => [Okr::class, []],
+        ];
     }
 
     public function activityChildren(string $morphAlias, array $linkableIds): array
