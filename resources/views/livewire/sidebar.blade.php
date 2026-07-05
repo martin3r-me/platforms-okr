@@ -69,25 +69,41 @@
         </div>
     </div>
 
-    {{-- Abschnitt: OKRs --}}
+    {{-- Abschnitt: Zielsteuerungen (Entity-basierte Gruppierung) --}}
     <div>
         <div class="mt-2" x-show="!collapsed">
-    @if($okrs->count() > 0)
-                <x-ui-sidebar-list label="Zielsteuerungen">
-            @foreach($okrs as $okr)
-                        <x-ui-sidebar-item :href="route('okr.okrs.show', ['okr' => $okr])">
+            {{-- Entity-Type-Gruppen (Baum-Darstellung nach Organisations-Knoten) --}}
+            @foreach($entityTypeGroups as $typeGroup)
+                <x-ui-sidebar-list wire:key="okr-type-group-{{ $typeGroup['type_id'] }}" :label="$typeGroup['type_name']">
+                    @foreach($typeGroup['entities'] as $entityNode)
+                        @include('okr::livewire.partials.sidebar-entity-node', [
+                            'node' => $entityNode,
+                            'typeIcon' => $typeGroup['type_icon'] ?? null,
+                        ])
+                    @endforeach
+                </x-ui-sidebar-list>
+            @endforeach
+
+            {{-- Unverknüpfte Zielsteuerungen (noch an keinem Entity-Knoten) --}}
+            @if($unlinkedOkrs->isNotEmpty())
+                <x-ui-sidebar-list label="{{ $entityTypeGroups->isEmpty() ? 'Zielsteuerungen' : 'Unverknüpft' }}">
+                    @foreach($unlinkedOkrs as $okr)
+                        @php
+                            $performance = $okr->performance;
+                            $score = $performance ? $performance->performance_score : 0;
+                            $scoreColor = $score >= 80 ? 'text-green-600' : ($score >= 60 ? 'text-yellow-600' : 'text-red-600');
+                        @endphp
+                        <x-ui-sidebar-item wire:key="okr-unlinked-{{ $okr->id }}" :href="route('okr.okrs.show', ['okr' => $okr])">
                             @svg('heroicon-o-flag', 'w-5 h-5 flex-shrink-0 text-[var(--ui-secondary)]')
                             <span class="truncate text-sm ml-2">{{ $okr->title }}</span>
-                            @php
-                                $performance = $okr->performance;
-                                $score = $performance ? $performance->performance_score : 0;
-                                $scoreColor = $score >= 80 ? 'text-green-600' : ($score >= 60 ? 'text-yellow-600' : 'text-red-600');
-                            @endphp
                             <span class="ml-auto text-xs {{ $scoreColor }} font-medium">{{ round($score, 0) }}%</span>
                         </x-ui-sidebar-item>
-            @endforeach
+                    @endforeach
                 </x-ui-sidebar-list>
-            @else
+            @endif
+
+            {{-- Leerer Zustand --}}
+            @if($entityTypeGroups->isEmpty() && $unlinkedOkrs->isEmpty())
                 <div class="px-3 py-1 text-xs text-[var(--ui-muted)]">Keine Zielsteuerungen</div>
             @endif
         </div>
