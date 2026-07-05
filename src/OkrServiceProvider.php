@@ -228,6 +228,9 @@ class OkrServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Okr\Tools\ListObstaclesTool());
             $registry->register(new \Platform\Okr\Tools\ListMilestonesTool());
 
+            // Write tool (OKR container / Zielsteuerung)
+            $registry->register(new \Platform\Okr\Tools\CreateOkrTool());
+
             // Write tools (Cycles/Objectives/KRs)
             $registry->register(new \Platform\Okr\Tools\CreateCycleTool());
             $registry->register(new \Platform\Okr\Tools\UpdateCycleTool());
