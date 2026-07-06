@@ -36,6 +36,7 @@ class OkrServiceProvider extends ServiceProvider
                 \Platform\Okr\Console\Commands\SeedOkrData::class,
                 \Platform\Okr\Console\Commands\SeedOkrLookupData::class,
                 \Platform\Okr\Console\Commands\UpdateOkrPerformance::class,
+                \Platform\Okr\Console\Commands\SyncKeyResultMeasuresCommand::class,
             ]);
         }
     }
@@ -244,6 +245,12 @@ class OkrServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Okr\Tools\CreateKeyResultTool());
             $registry->register(new \Platform\Okr\Tools\UpdateKeyResultTool());
             $registry->register(new \Platform\Okr\Tools\DeleteKeyResultTool());
+
+            // Dynamische KR-Measures (Metrik-getriebene Zielerreichung)
+            $registry->register(new \Platform\Okr\Tools\ListKeyResultMetricsTool());
+            $registry->register(new \Platform\Okr\Tools\CreateKeyResultMeasureTool());
+            $registry->register(new \Platform\Okr\Tools\ListKeyResultMeasuresTool());
+            $registry->register(new \Platform\Okr\Tools\DeleteKeyResultMeasureTool());
 
             // FocusArea Tools
             $registry->register(new \Platform\Okr\Tools\CreateFocusAreaTool());
