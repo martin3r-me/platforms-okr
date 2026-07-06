@@ -194,6 +194,14 @@ class OkrServiceProvider extends ServiceProvider
             ->everyFifteenMinutes()
             ->withoutOverlapping()
             ->runInBackground();
+
+        // KR-Measures Sync: dynamische Metriken (planner, syltjunkie, …) → Zielerreichung.
+        // Alle 15 Minuten, damit die Erreichungsquote nahezu aktuell ist und die
+        // nächtliche Rollup-Berechnung (02:00) auf frischen Werten aufsetzt.
+        Schedule::command('okr:sync-measures')
+            ->everyFifteenMinutes()
+            ->withoutOverlapping()
+            ->runInBackground();
     }
 
     /**
