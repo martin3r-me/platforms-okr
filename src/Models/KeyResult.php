@@ -107,6 +107,11 @@ class KeyResult extends Model implements AgendaRenderable
         return $this->hasMany(KeyResultContext::class, 'key_result_id');
     }
 
+    public function measures(): HasMany
+    {
+        return $this->hasMany(KeyResultMeasure::class, 'key_result_id')->orderBy('order');
+    }
+
     public function primaryContexts(): HasMany
     {
         return $this->hasMany(KeyResultContext::class, 'key_result_id')
