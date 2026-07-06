@@ -145,10 +145,9 @@ class KeyResultMeasureSyncService
                 $m->label = $value->label;
             }
 
-            // Baseline auto-freeze: nur wenn nicht explizit und nicht up+ratio/boolean
-            // (die messen ab 0 → Baseline bleibt 0, siehe Evaluation::baselineFor).
-            $isAbsoluteFromZero = $m->polarity === 'up' && in_array($m->value_type, ['ratio', 'boolean'], true);
-            if ($m->baseline_value === null && ! $isAbsoluteFromZero) {
+            // Baseline auto-freeze nur bei down (Reduktion ab Startwert). up misst ab 0
+            // (siehe Evaluation::baselineFor) → keine Freeze.
+            if ($m->baseline_value === null && $m->polarity === 'down') {
                 $m->baseline_value = $value->value;
             }
         }

@@ -27,7 +27,9 @@ class KeyResultEvaluationService
         if ($m->baseline_value !== null) {
             return (float) $m->baseline_value;
         }
-        if ($m->polarity === 'up' && in_array($m->value_type, ['ratio', 'boolean'], true)) {
+        // up misst absolute Zielerreichung ab 0 (Quoten UND Counter wachsen von 0);
+        // down misst ab dem eingefrorenen Startwert (Auto-Freeze im Sync).
+        if ($m->polarity === 'up') {
             return 0.0;
         }
         return $m->current_value !== null ? (float) $m->current_value : null;
