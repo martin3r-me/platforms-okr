@@ -80,6 +80,7 @@ class KeyResultEvaluationService
         $scoredNum = 0.0;
         $scoredDen = 0.0;
         $scoredCount = 0;
+        $scoreMeasures = [];
         $caps = [];
         $hasGate = false;
         $gatesPass = true;
@@ -101,6 +102,7 @@ class KeyResultEvaluationService
                     $scoredNum += $w * $a;
                     $scoredDen += $w;
                     $scoredCount++;
+                    $scoreMeasures[] = $m;
                     break;
                 case KeyResultMeasure::ROLE_CAP:
                     $caps[] = $a;
@@ -130,11 +132,31 @@ class KeyResultEvaluationService
         $completed = $progress !== null && $progress >= $this->completionThreshold && $gatesPass;
 
         if ($progress !== null) {
+            // Anzeige: bei genau EINER Score-Metrik (ohne Cap-Deckelung) die echten
+            // Quellwerte durchreichen (z.B. "38 von 500") statt der abstrakten Quote.
+            // performance_score/is_completed bleiben die aggregierte Zielerreichung.
+            $type = 'calculated';
+            $currentValue = round($progress, 4);
+            $targetValue = 1.0;
+            $calculatedValue = round($progress, 4);
+
+            if (count($scoreMeasures) === 1 && empty($caps)) {
+                $h = $scoreMeasures[0];
+                $type = match ($h->value_type) {
+                    'boolean' => 'boolean',
+                    'ratio' => 'percentage',
+                    default => 'absolute',
+                };
+                $currentValue = (float) $h->current_value;
+                $targetValue = $h->target_value !== null ? (float) $h->target_value : 1.0;
+                $calculatedValue = null;
+            }
+
             $keyResult->performances()->create([
-                'type' => 'calculated',
-                'target_value' => 1.0,
-                'current_value' => round($progress, 4),
-                'calculated_value' => round($progress, 4),
+                'type' => $type,
+                'target_value' => $targetValue,
+                'current_value' => $currentValue,
+                'calculated_value' => $calculatedValue,
                 'is_completed' => $completed,
                 'performance_score' => round($progress, 4),
                 'team_id' => $keyResult->team_id,
