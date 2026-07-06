@@ -46,7 +46,7 @@ class ObjectiveShow extends Component
     public function mount(Objective $objective)
     {
         $this->objective = $objective;
-        $this->objective->load(['cycle', 'okr', 'keyResults.performances', 'vision', 'milestones.focusArea']);
+        $this->objective->load(['cycle', 'okr', 'keyResults.performances', 'keyResults.measures', 'vision', 'milestones.focusArea']);
         $this->selectedMilestoneIds = $this->objective->milestones->pluck('id')->toArray();
     }
 
@@ -197,7 +197,7 @@ class ObjectiveShow extends Component
             session()->flash('message', 'Erfolgskriterium erfolgreich hinzugefügt!');
         }
 
-        $this->objective->load('keyResults.performances'); // Refresh key results
+        $this->objective->load(['keyResults.performances', 'keyResults.measures']); // Refresh key results
         $this->closeKeyResultCreateModal();
         $this->closeKeyResultEditModal();
     }
@@ -207,7 +207,7 @@ class ObjectiveShow extends Component
         $keyResult = $this->objective->keyResults()->findOrFail($this->editingKeyResultId);
         $keyResult->delete();
         session()->flash('message', 'Erfolgskriterium erfolgreich gelöscht!');
-        $this->objective->load('keyResults.performances'); // Refresh key results
+        $this->objective->load(['keyResults.performances', 'keyResults.measures']); // Refresh key results
         $this->closeKeyResultEditModal();
     }
 

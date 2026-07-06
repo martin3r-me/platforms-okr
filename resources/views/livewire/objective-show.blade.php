@@ -153,6 +153,25 @@
                                         • Aktuell: {{ $keyResult->current_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
                                     @endif
                                 </div>
+                                @if($keyResult->measures->isNotEmpty())
+                                    <div class="mt-1 flex flex-wrap items-center gap-1">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-800">
+                                            @svg('heroicon-o-bolt', 'w-3 h-3') Auto-Metrik
+                                        </span>
+                                        @foreach($keyResult->measures as $measure)
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-[var(--ui-muted-5)] text-[var(--ui-secondary)]"
+                                                  title="{{ $measure->metric_key }}{{ $measure->selector ? ' · ' . json_encode($measure->selector) : '' }}">
+                                                <span class="uppercase tracking-wide opacity-60">{{ $measure->role }}</span>
+                                                <span class="truncate max-w-[16rem]">{{ $measure->label ?? $measure->metric_key }}</span>
+                                                @if($measure->is_available && $measure->achievement !== null)
+                                                    <span class="font-semibold">{{ round($measure->achievement * 100) }}%</span>
+                                                @elseif(! $measure->is_available)
+                                                    <span class="opacity-60">N/A</span>
+                                                @endif
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                             <div class="d-flex gap-1">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
