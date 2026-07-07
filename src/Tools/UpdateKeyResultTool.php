@@ -36,6 +36,16 @@ class UpdateKeyResultTool implements ToolContract, ToolMetadataContract
                 'description' => ['type' => 'string'],
                 'order' => ['type' => 'integer'],
                 'manager_user_id' => ['type' => 'integer'],
+                // Rollup-Steuerung (Objective-Aggregation)
+                'weight' => [
+                    'type' => 'number',
+                    'description' => 'Optional: Gewicht des KR im Objective-Score. Default 1. Beispiel: KR-1=2, KR-2=1 → KR-1 zählt doppelt.',
+                ],
+                'role' => [
+                    'type' => 'string',
+                    'enum' => ['score', 'gate', 'info'],
+                    'description' => 'Optional: Rolle im Objective-Rollup. score=gewichteter Beitrag (Default); gate=muss erreicht sein, blockt Objective-Completion, verdünnt den Score aber nicht; info=nur Anzeige, zählt nicht.',
+                ],
                 // Optional: neue Performance-Version schreiben (wie UI)
                 'value_type' => [
                     'type' => 'string',
@@ -97,8 +107,16 @@ class UpdateKeyResultTool implements ToolContract, ToolMetadataContract
                 return ToolResult::error('CONTEXT_MISMATCH', "Erfolgskriterium {$id} gehört nicht zu objective_id {$objectiveId}.");
             }
 
+            if (array_key_exists('role', $arguments)
+                && ! in_array($arguments['role'], ['score', 'gate', 'info'], true)) {
+                return ToolResult::error('VALIDATION_ERROR', 'role muss score|gate|info sein.');
+            }
+            if (array_key_exists('weight', $arguments) && (! is_numeric($arguments['weight']) || $arguments['weight'] < 0)) {
+                return ToolResult::error('VALIDATION_ERROR', 'weight muss eine Zahl ≥ 0 sein.');
+            }
+
             $dirty = false;
-            foreach (['title', 'description', 'order', 'manager_user_id'] as $field) {
+            foreach (['title', 'description', 'order', 'manager_user_id', 'weight', 'role'] as $field) {
                 if (array_key_exists($field, $arguments)) {
                     $kr->{$field} = $arguments[$field];
                     $dirty = true;
@@ -158,13 +176,28 @@ class UpdateKeyResultTool implements ToolContract, ToolMetadataContract
                 ]);
             }
 
+            // Objective sofort hochrollen (Gewicht/Rolle/Performance beeinflussen den Score)
+            $objectiveProgress = null;
+            $objective = \Platform\Okr\Models\Objective::with([
+                'cycle.okr',
+                'keyResults' => fn ($q) => $q->withCount('measures'),
+                'keyResults.performances',
+            ])->find($kr->objective_id);
+            if ($objective) {
+                $agg = resolve(\Platform\Okr\Services\OkrRollupService::class)->evaluateObjective($objective);
+                $objectiveProgress = $agg['progress'];
+            }
+
             return ToolResult::success([
                 'id' => $kr->id,
                 'uuid' => $kr->uuid,
                 'objective_id' => $kr->objective_id,
                 'title' => $kr->title,
                 'order' => $kr->order,
-                'message' => 'Erfolgskriterium erfolgreich aktualisiert.',
+                'weight' => (float) $kr->weight,
+                'role' => $kr->role,
+                'objective_progress' => $objectiveProgress,
+                'message' => 'Erfolgskriterium aktualisiert und Objective neu bewertet.',
             ]);
         } catch (\Throwable $e) {
             return ToolResult::error('EXECUTION_ERROR', 'Fehler beim Aktualisieren des Erfolgskriteriums: ' . $e->getMessage());

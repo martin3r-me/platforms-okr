@@ -165,8 +165,9 @@
                     @php
                         $totalOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->count();
                         $activeOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->whereNull('performance_score')->count();
-                        $completedOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->where('performance_score', '>=', 100)->count();
-                        $averageScore = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->avg('performance_score') ?? 0;
+                        // performance_score-Cache ist [0,1] (decimal(4,3)) → Completion bei ≥ 1, Ø auf 0–100.
+                        $completedOkrs = \Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->where('performance_score', '>=', 1)->count();
+                        $averageScore = (\Platform\Okr\Models\Okr::where('team_id', auth()->user()->current_team_id)->avg('performance_score') ?? 0) * 100;
                     @endphp
                     
                     <div class="grid grid-cols-2 gap-3">

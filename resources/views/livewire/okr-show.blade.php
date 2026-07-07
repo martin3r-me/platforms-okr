@@ -74,7 +74,7 @@
                                     <span class="flex items-center gap-2">
                                         @svg('heroicon-o-chart-bar', 'w-4 h-4')
                                         <span class="font-medium text-[var(--ui-muted)]">
-                                            {{ $okr->performance_score }}%
+                                            {{ round($okr->performance_score * 100) }}%
                                         </span>
                                     </span>
                                 @endif

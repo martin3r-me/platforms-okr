@@ -40,8 +40,15 @@ class Objective extends Model implements AgendaRenderable
         'description',
         'is_mountain',
         'performance_score',
+        'weight',
         'order',
         'vision_id',
+    ];
+
+    protected $casts = [
+        'is_mountain' => 'boolean',
+        'performance_score' => 'decimal:3',
+        'weight' => 'decimal:2',
     ];
 
     protected static function booted(): void

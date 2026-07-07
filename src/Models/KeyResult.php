@@ -30,6 +30,11 @@ class KeyResult extends Model implements AgendaRenderable
     protected $table = 'okr_key_results';
     use SoftDeletes, LogsActivity;
 
+    /** Rolle im Objective-Rollup (analog KeyResultMeasure, eine Ebene höher). */
+    public const ROLE_SCORE = 'score'; // gewichteter Beitrag zum Objective-Score
+    public const ROLE_GATE = 'gate';   // muss erreicht sein, verdünnt den Score aber nicht
+    public const ROLE_INFO = 'info';   // nur Anzeige, zählt nicht in die Aggregation
+
     protected $fillable = [
         'uuid',
         'objective_id',
@@ -39,7 +44,14 @@ class KeyResult extends Model implements AgendaRenderable
         'title',
         'description',
         'performance_score',
+        'weight',
+        'role',
         'order',
+    ];
+
+    protected $casts = [
+        'performance_score' => 'decimal:3',
+        'weight' => 'decimal:2',
     ];
 
     protected static function booted(): void

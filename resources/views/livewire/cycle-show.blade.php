@@ -492,7 +492,8 @@
                                     <span class="text-sm font-medium text-[var(--ui-secondary)]">Zielsteuerung Performance</span>
                                     <span class="text-sm text-[var(--ui-muted)]">
                                         @php
-                                            $okrScore = $cycle->okr->performance_score ?? 0;
+                                            // Model-Cache ist [0,1] (decimal(4,3)) → für Anzeige auf 0–100.
+                                            $okrScore = round(($cycle->okr->performance_score ?? 0) * 100);
                                         @endphp
                                         {{ $okrScore }}%
                                     </span>

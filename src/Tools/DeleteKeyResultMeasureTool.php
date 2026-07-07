@@ -8,7 +8,7 @@ use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
 use Platform\Okr\Models\KeyResult;
 use Platform\Okr\Models\KeyResultMeasure;
-use Platform\Okr\Services\KeyResultEvaluationService;
+use Platform\Okr\Services\KeyResultMeasureSyncService;
 use Platform\Okr\Tools\Concerns\ResolvesOkrScope;
 
 class DeleteKeyResultMeasureTool implements ToolContract, ToolMetadataContract
@@ -61,11 +61,11 @@ class DeleteKeyResultMeasureTool implements ToolContract, ToolMetadataContract
             $krId = $measure->key_result_id;
             $measure->delete();
 
-            // KR neu bewerten (ohne das gelöschte Measure)
+            // KR neu bewerten (ohne das gelöschte Measure) und Objective hochrollen
             $eval = ['progress' => null, 'completed' => false];
             $kr = KeyResult::find($krId);
             if ($kr) {
-                $eval = resolve(KeyResultEvaluationService::class)->evaluate($kr);
+                $eval = resolve(KeyResultMeasureSyncService::class)->syncKeyResult($kr);
             }
 
             return ToolResult::success([

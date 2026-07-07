@@ -9,6 +9,7 @@ use Platform\Core\Models\Team;
 use Platform\Core\Services\KeyResultMetricRegistry;
 use Platform\Okr\Models\KeyResult;
 use Platform\Okr\Models\KeyResultMeasure;
+use Platform\Okr\Models\Objective;
 
 /**
  * Löst dynamische Measures gegen ihre Provider auf (batch, N+1-frei), schreibt
@@ -26,6 +27,7 @@ class KeyResultMeasureSyncService
     public function __construct(
         protected KeyResultMetricRegistry $registry,
         protected KeyResultEvaluationService $evaluator,
+        protected OkrRollupService $rollup,
     ) {
     }
 
@@ -89,13 +91,17 @@ class KeyResultMeasureSyncService
             }
         }
 
-        // Betroffene KRs neu bewerten
+        // Betroffene KRs neu bewerten und ihre Objectives sofort hochrollen
+        $affectedObjectiveIds = [];
         foreach (array_keys($affectedKrIds) as $krId) {
             $kr = KeyResult::find($krId);
             if ($kr) {
                 $this->evaluator->evaluate($kr);
+                $affectedObjectiveIds[$kr->objective_id] = true;
             }
         }
+
+        $this->rollUpObjectives(array_keys($affectedObjectiveIds));
 
         return $updated;
     }
@@ -131,7 +137,36 @@ class KeyResultMeasureSyncService
             }
         }
 
-        return $this->evaluator->evaluate($keyResult);
+        $result = $this->evaluator->evaluate($keyResult);
+
+        $this->rollUpObjectives([$keyResult->objective_id]);
+
+        return $result;
+    }
+
+    /**
+     * Rollt die betroffenen Objectives sofort hoch (Objective-Ebene), damit
+     * measure-getriebene Änderungen nicht erst über Nacht sichtbar werden.
+     * Cycle/OKR bleiben dem nächtlichen Command überlassen (günstig halten).
+     *
+     * @param  array<int>  $objectiveIds
+     */
+    protected function rollUpObjectives(array $objectiveIds): void
+    {
+        $objectiveIds = array_values(array_unique(array_filter($objectiveIds)));
+        if (empty($objectiveIds)) {
+            return;
+        }
+
+        $objectives = Objective::with([
+            'cycle.okr',
+            'keyResults' => fn ($q) => $q->withCount('measures'),
+            'keyResults.performances',
+        ])->whereIn('id', $objectiveIds)->get();
+
+        foreach ($objectives as $objective) {
+            $this->rollup->evaluateObjective($objective);
+        }
     }
 
     /** Schreibt Rohwert + Baseline-Auto-Freeze ans Measure. N/A → nie 0. */
