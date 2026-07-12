@@ -221,16 +221,8 @@
                     rows="3"
                 />
 
+                {{-- Performance-Score wird automatisch hochgerollt (KR→Objective→Cycle→OKR), nicht manuell gesetzt. --}}
                 <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-number
-                        name="performance_score"
-                        label="Performance Score (%)"
-                        wire:model.live="performance_score"
-                        min="0"
-                        max="100"
-                        required
-                    />
-
                     <x-ui-input-select
                         name="manager_user_id"
                         label="Verantwortlicher Manager"

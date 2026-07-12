@@ -81,6 +81,10 @@ class GetKeyResultTool implements ToolContract, ToolMetadataContract
                     'description' => $kr->description,
                     'order' => $kr->order,
                     'performance_score' => $kr->performance_score,
+                    // Rollup-Steuerung
+                    'weight' => (float) $kr->weight,
+                    'role' => $kr->role,
+                    'is_metric_driven' => $kr->isMetricDriven(),
                     // Normalisierte Sicht: value_type = boolean|absolute|relative (relative == percentage)
                     'value_summary' => $this->buildKeyResultValueSummary($kr->performance),
                     // Raw: bleibt kompatibel zu bestehenden Clients

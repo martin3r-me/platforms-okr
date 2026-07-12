@@ -203,7 +203,7 @@ class OkrShow extends Component
         $this->validate([
             'okr.title' => 'required|string|max:255',
             'okr.description' => 'nullable|string',
-            'okr.performance_score' => 'nullable|numeric|min:0|max:100',
+            // performance_score wird NICHT manuell editiert — der Rollup besitzt ihn.
             'okr.auto_transfer' => 'boolean',
             'okr.is_template' => 'boolean',
             'okr.manager_user_id' => 'nullable|exists:users,id',

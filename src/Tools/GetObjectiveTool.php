@@ -75,6 +75,9 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
                         'description' => $kr->description,
                         'order' => $kr->order,
                         'performance_score' => $kr->performance_score,
+                        'weight' => (float) $kr->weight,
+                        'role' => $kr->role,
+                        'is_metric_driven' => $kr->isMetricDriven(),
                         'value_summary' => $this->buildKeyResultValueSummary($kr->performance),
                         'latest_performance' => $kr->performance ? [
                             'type' => $kr->performance->type,

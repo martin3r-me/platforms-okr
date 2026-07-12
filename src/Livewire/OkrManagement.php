@@ -29,7 +29,7 @@ class OkrManagement extends Component
     protected $rules = [
         'title' => 'required|string|max:255',
         'description' => 'nullable|string',
-        'performance_score' => 'required|numeric|min:0|max:100',
+        // performance_score wird NICHT manuell gesetzt — der Rollup besitzt ihn (eine Wahrheit).
         'auto_transfer' => 'boolean',
         'is_template' => 'boolean',
         'manager_user_id' => 'nullable|exists:users,id',
@@ -69,8 +69,9 @@ class OkrManagement extends Component
         $totalOkrs = $allOkrs->count();
         $activeOkrs = $allOkrs->where('status', 'active')->count();
         $templateOkrs = $allOkrs->where('is_template', true)->count();
-        $averageScore = $allOkrs->avg('performance_score') ?? 0;
-        $successfulOkrs = $allOkrs->where('performance_score', '>=', 80)->count();
+        // performance_score-Cache ist [0,1] → Ø auf 0–100 skalieren, "erfolgreich" ab 0.8.
+        $averageScore = ($allOkrs->avg('performance_score') ?? 0) * 100;
+        $successfulOkrs = $allOkrs->where('performance_score', '>=', 0.8)->count();
         $autoTransferOkrs = $allOkrs->where('auto_transfer', true)->count();
 
         return view('okr::livewire.okr-management', [
@@ -94,7 +95,7 @@ class OkrManagement extends Component
         $okr = Okr::create([
             'title' => $this->title,
             'description' => $this->description ?: null,
-            'performance_score' => $this->performance_score ?: 0,
+            // performance_score bleibt beim Default (0) — der Rollup füllt ihn.
             'auto_transfer' => $this->auto_transfer,
             'is_template' => $this->is_template,
             'manager_user_id' => $this->manager_user_id ?: null,

@@ -145,8 +145,9 @@ class Dashboard extends Component
         
         // Performance-Statistiken - NUR wenn nicht bereits aus Snapshot geladen
         if (!isset($this->averageScore) || $this->averageScore === 0) {
-            $this->averageScore = (float) ($this->okrs->where('performance_score', '!=', null)->avg('performance_score') ?? 0);
-            $this->successfulOkrsCount = (int) $this->okrs->where('performance_score', '>=', 80)->count();
+            // performance_score-Cache ist [0,1] → auf 0–100 skalieren (wie der Snapshot), "erfolgreich" ab 0.8.
+            $this->averageScore = (float) (($this->okrs->where('performance_score', '!=', null)->avg('performance_score') ?? 0) * 100);
+            $this->successfulOkrsCount = (int) $this->okrs->where('performance_score', '>=', 0.8)->count();
         }
         
         

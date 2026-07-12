@@ -412,28 +412,33 @@ class CycleShow extends Component
                     'manager_user_id' => $this->keyResultManagerUserId ?: null,
                 ]);
 
-                // Immer eine neue Performance-Version erstellen (Versionierung)
-                $targetValue = $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue;
-                $currentValue = $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0);
-
-                if ($this->keyResultValueType === 'boolean') {
-                    $isCompleted = (bool) $this->keyResultCurrentValue;
-                    $performanceScore = $isCompleted ? 1.0 : 0.0;
+                // Neue Performance-Version — außer das KR ist metrik-getrieben,
+                // dann besitzen die Measures den Wert (eine Wahrheit pro KR).
+                if ($keyResult->isMetricDriven()) {
+                    session()->flash('warning', 'Wert wird von Auto-Metrik gesteuert — manuelle Eingabe wurde ignoriert.');
                 } else {
-                    $isCompleted = $targetValue > 0 && $currentValue >= $targetValue;
-                    $performanceScore = $targetValue > 0 ? min(1.0, max(0.0, $currentValue / $targetValue)) : 0.0;
+                    $targetValue = $this->keyResultValueType === 'boolean' ? 1.0 : (float) $this->keyResultTargetValue;
+                    $currentValue = $this->keyResultValueType === 'boolean' ? ($this->keyResultCurrentValue ? 1.0 : 0.0) : (float) ($this->keyResultCurrentValue ?: 0);
+
+                    if ($this->keyResultValueType === 'boolean') {
+                        $isCompleted = (bool) $this->keyResultCurrentValue;
+                        $performanceScore = $isCompleted ? 1.0 : 0.0;
+                    } else {
+                        $isCompleted = $targetValue > 0 && $currentValue >= $targetValue;
+                        $performanceScore = $targetValue > 0 ? min(1.0, max(0.0, $currentValue / $targetValue)) : 0.0;
+                    }
+
+                    $keyResult->performances()->create([
+                        'type' => $this->keyResultValueType,
+                        'target_value' => $targetValue,
+                        'current_value' => $currentValue,
+                        'is_completed' => $isCompleted,
+                        'performance_score' => $performanceScore,
+                        'team_id' => $keyResult->team_id,
+                        'user_id' => auth()->id(),
+                    ]);
                 }
 
-                $keyResult->performances()->create([
-                    'type' => $this->keyResultValueType,
-                    'target_value' => $targetValue,
-                    'current_value' => $currentValue,
-                    'is_completed' => $isCompleted,
-                    'performance_score' => $performanceScore,
-                    'team_id' => $keyResult->team_id,
-                    'user_id' => auth()->id(),
-                ]);
-                
                 $keyResult->milestones()->sync(array_map('intval', array_filter($this->keyResultSelectedMilestoneIds)));
                 $this->closeKeyResultEditModal();
                 session()->flash('message', 'Erfolgskriterium erfolgreich aktualisiert!');
@@ -509,7 +514,12 @@ class CycleShow extends Component
                 session()->flash('error', 'Diese Funktion ist nur für Boolean-Erfolgskriterien verfügbar!');
                 return;
             }
-            
+
+            if ($keyResult->isMetricDriven()) {
+                session()->flash('error', 'Dieses Erfolgskriterium wird von Auto-Metrik gesteuert — der Status kommt aus den Measures.');
+                return;
+            }
+
             // Neuen Status (gegenteil von aktuell)
             $newStatus = !$keyResult->performance->is_completed;
             
@@ -540,6 +550,11 @@ class CycleShow extends Component
     {
         try {
             $keyResult = \Platform\Okr\Models\KeyResult::findOrFail($keyResultId);
+
+            if ($keyResult->isMetricDriven()) {
+                session()->flash('error', 'Dieses Erfolgskriterium wird von Auto-Metrik gesteuert — der Wert kommt aus den Measures und kann nicht manuell gesetzt werden.');
+                return;
+            }
 
             $type = $keyResult->performance->type;
             $targetValue = $keyResult->performance->target_value;

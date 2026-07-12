@@ -115,6 +115,15 @@ class UpdateKeyResultTool implements ToolContract, ToolMetadataContract
                 return ToolResult::error('VALIDATION_ERROR', 'weight muss eine Zahl ≥ 0 sein.');
             }
 
+            // Eine Wahrheit pro KR: metrik-getriebene KRs akzeptieren keine manuellen Werte.
+            $hasPerfInput = array_key_exists('value_type', $arguments)
+                || array_key_exists('target_value', $arguments)
+                || array_key_exists('current_value', $arguments)
+                || array_key_exists('is_completed', $arguments);
+            if ($hasPerfInput && $kr->isMetricDriven()) {
+                return ToolResult::error('MEASURE_DRIVEN', "Erfolgskriterium {$id} wird von Measures gesteuert — manuelle Werte (value_type/target_value/current_value/is_completed) sind gesperrt, sonst überschreibt der nächste Sync sie. Passe die Measures an (okr.kr_measures.*) oder entferne sie, um das KR manuell zu führen.");
+            }
+
             $dirty = false;
             foreach (['title', 'description', 'order', 'manager_user_id', 'weight', 'role'] as $field) {
                 if (array_key_exists($field, $arguments)) {
@@ -126,11 +135,7 @@ class UpdateKeyResultTool implements ToolContract, ToolMetadataContract
                 $kr->save();
             }
 
-            // Optional: neue Performance-Version erzeugen
-            $hasPerfInput = array_key_exists('value_type', $arguments)
-                || array_key_exists('target_value', $arguments)
-                || array_key_exists('current_value', $arguments)
-                || array_key_exists('is_completed', $arguments);
+            // Optional: neue Performance-Version erzeugen (nur manuelle KRs, s. Guard oben)
             if ($hasPerfInput) {
                 $valueType = array_key_exists('value_type', $arguments)
                     ? ($arguments['value_type'] ?? null)

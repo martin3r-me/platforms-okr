@@ -33,7 +33,7 @@ class Sidebar extends Component
     protected $rules = [
         'title' => 'required|string|max:255',
         'description' => 'nullable|string',
-        'performance_score' => 'required|numeric|min:0|max:100',
+        // performance_score wird NICHT manuell gesetzt — der Rollup besitzt ihn (eine Wahrheit).
         'auto_transfer' => 'boolean',
         'is_template' => 'boolean',
         'manager_user_id' => 'nullable|exists:users,id',
@@ -66,7 +66,7 @@ class Sidebar extends Component
         $okr = \Platform\Okr\Models\Okr::create([
             'title' => $this->title,
             'description' => $this->description ?: null,
-            'performance_score' => $this->performance_score ?: 0,
+            // performance_score bleibt beim Default (0) — der Rollup füllt ihn.
             'auto_transfer' => $this->auto_transfer,
             'is_template' => $this->is_template,
             'manager_user_id' => $this->manager_user_id ?: null,

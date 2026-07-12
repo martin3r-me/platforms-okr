@@ -124,6 +124,26 @@ class KeyResult extends Model implements AgendaRenderable
         return $this->hasMany(KeyResultMeasure::class, 'key_result_id')->orderBy('order');
     }
 
+    /**
+     * Ist dieses KR metrik-getrieben? (≥1 Measure mit wertender Rolle, also nicht info)
+     *
+     * Wenn ja, besitzen die Measures die Wahrheit: manuelle Performance-Eingaben
+     * werden gesperrt, sonst überschreibt der nächste Sync sie (eine Wahrheit pro KR).
+     * Nutzt geladenes measures-Relation/Count, sonst eine schlanke exists()-Query.
+     */
+    public function isMetricDriven(): bool
+    {
+        if ($this->relationLoaded('measures')) {
+            return $this->measures
+                ->where('role', '!=', KeyResultMeasure::ROLE_INFO)
+                ->isNotEmpty();
+        }
+
+        return $this->measures()
+            ->where('role', '!=', KeyResultMeasure::ROLE_INFO)
+            ->exists();
+    }
+
     public function primaryContexts(): HasMany
     {
         return $this->hasMany(KeyResultContext::class, 'key_result_id')

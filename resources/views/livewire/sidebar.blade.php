@@ -202,17 +202,8 @@
                         <p class="text-xs text-[var(--ui-muted)]">Score und Verantwortlichkeiten</p>
                     </div>
                     
+                    {{-- Performance-Score wird automatisch hochgerollt (KR→Objective→Cycle→OKR), nicht manuell gesetzt. --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <x-ui-input-number
-                            name="performance_score"
-                            label="Performance Score (%)"
-                            wire:model.live="performance_score"
-                            min="0"
-                            max="100"
-                            required
-                            placeholder="0"
-                        />
-
                         <x-ui-input-select
                             name="manager_user_id"
                             label="Verantwortlicher Manager"
