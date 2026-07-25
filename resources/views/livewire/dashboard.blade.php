@@ -12,10 +12,10 @@
     <x-ui-page-container>
         {{-- Hero Stats - Nur die wichtigsten 4 Metriken --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <x-nx-stat label="Performance Score" :value="round($averageScore ?? 0, 1)" hint="Team Durchschnitt" icon="chart-bar" />
-            <x-nx-stat label="Aktive Zielsteuerungen" :value="$activeOkrsCount" hint="laufende Ziele" icon="flag" />
-            <x-nx-stat label="Erreichte Ziele" :value="$achievedObjectivesCount" hint="von {{ $activeObjectivesCount }}" icon="check-circle" />
-            <x-nx-stat label="Aktive Zyklen" :value="$activeCyclesCount" hint="laufende Zeiträume" icon="calendar" />
+            <x-nx-stat label="Performance Score" :value="round($averageScore ?? 0, 1)" hint="Team Durchschnitt" icon="heroicon-o-chart-bar" />
+            <x-nx-stat label="Aktive Zielsteuerungen" :value="$activeOkrsCount" hint="laufende Ziele" icon="heroicon-o-flag" />
+            <x-nx-stat label="Erreichte Ziele" :value="$achievedObjectivesCount" hint="von {{ $activeObjectivesCount }}" icon="heroicon-o-check-circle" />
+            <x-nx-stat label="Aktive Zyklen" :value="$activeCyclesCount" hint="laufende Zeiträume" icon="heroicon-o-calendar" />
         </div>
 
         {{-- Aktive Zyklen - Vereinfacht und fokussiert --}}
