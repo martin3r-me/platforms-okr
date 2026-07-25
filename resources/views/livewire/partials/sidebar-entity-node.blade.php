@@ -7,30 +7,30 @@
     {{-- Entity-Zeile --}}
     <button type="button"
             @click="open = !open; localStorage.setItem('okr.entity.' + {{ $node['entity_id'] }}, open)"
-            class="flex items-center gap-1 py-1 px-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] transition w-full text-left group">
-        <span class="w-3 h-3 flex-shrink-0 flex items-center justify-center transition-transform text-[var(--ui-muted)]"
+            class="flex items-center gap-1 py-1 px-2 rounded-md text-[var(--nx-text)] hover:bg-[var(--nx-bg)] transition w-full text-left group">
+        <span class="w-3 h-3 flex-shrink-0 flex items-center justify-center transition-transform text-[var(--nx-muted)]"
               :class="open ? 'rotate-90' : ''">
             @svg('heroicon-o-chevron-right', 'w-2.5 h-2.5')
         </span>
         <span class="truncate text-xs font-medium">{{ $node['entity_name'] }}</span>
-        <span class="ml-auto text-[10px] tabular-nums text-[var(--ui-muted)] opacity-60">{{ $node['total_okrs'] }}</span>
+        <span class="ml-auto text-[10px] tabular-nums text-[var(--nx-muted)] opacity-60">{{ $node['total_okrs'] }}</span>
     </button>
 
     {{-- Aufgeklappter Inhalt --}}
-    <div x-show="open" x-collapse class="flex flex-col ml-3 border-l border-[var(--ui-border)]">
+    <div x-show="open" x-collapse class="flex flex-col ml-3 border-l border-[color:var(--nx-line)]">
         {{-- 1. Eigene OKRs --}}
         @foreach($node['okrs'] as $okr)
             @php
                 $performance = $okr->performance;
                 $score = $performance ? $performance->performance_score : 0;
-                $scoreColor = $score >= 80 ? 'text-green-600' : ($score >= 60 ? 'text-yellow-600' : 'text-red-600');
+                $scoreColor = $score >= 80 ? 'text-[color:var(--nx-success)]' : ($score >= 60 ? 'text-[color:var(--nx-warning)]' : 'text-[color:var(--nx-danger)]');
             @endphp
             <a wire:key="okr-entity-{{ $node['entity_id'] }}-okr-{{ $okr->id }}"
                href="{{ route('okr.okrs.show', ['okr' => $okr]) }}"
                wire:navigate
                title="{{ $okr->title }}"
-               class="flex items-center gap-1.5 py-0.5 pl-3 pr-2 text-[var(--ui-secondary)] hover:text-[var(--ui-primary)] transition truncate">
-                <span class="w-1 h-1 rounded-full flex-shrink-0 bg-[var(--ui-muted)] opacity-40"></span>
+               class="flex items-center gap-1.5 py-0.5 pl-3 pr-2 text-[var(--nx-text)] hover:text-[var(--nx-accent)] transition truncate">
+                <span class="w-1 h-1 rounded-full flex-shrink-0 bg-[var(--nx-muted)] opacity-40"></span>
                 <span class="truncate text-[11px]">{{ $okr->title }}</span>
                 <span class="ml-auto text-[10px] {{ $scoreColor }} font-medium tabular-nums">{{ round($score, 0) }}%</span>
             </a>
@@ -46,11 +46,11 @@
                     <button type="button"
                             @click="groupOpen = !groupOpen; localStorage.setItem('okr.entity.' + {{ $node['entity_id'] }} + '.type.' + {{ $typeGroup['type_id'] }}, groupOpen)"
                             class="flex items-center gap-1 mt-1 mb-0.5 pl-2.5 pr-2 w-full text-left group cursor-pointer">
-                        <span class="w-2.5 h-2.5 flex-shrink-0 flex items-center justify-center transition-transform text-[var(--ui-muted)] opacity-50"
+                        <span class="w-2.5 h-2.5 flex-shrink-0 flex items-center justify-center transition-transform text-[var(--nx-muted)] opacity-50"
                               :class="groupOpen ? 'rotate-90' : ''">
                             @svg('heroicon-o-chevron-right', 'w-2 h-2')
                         </span>
-                        <span class="text-[9px] uppercase tracking-wider text-[var(--ui-muted)] opacity-60 group-hover:opacity-100 transition-opacity">
+                        <span class="text-[9px] uppercase tracking-wider text-[var(--nx-muted)] opacity-60 group-hover:opacity-100 transition-opacity">
                             {{ $typeGroup['type_name'] }}
                         </span>
                     </button>

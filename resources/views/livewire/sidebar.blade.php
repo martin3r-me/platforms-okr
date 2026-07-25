@@ -1,50 +1,50 @@
 {{-- OKR Sidebar --}}
 <div>
     {{-- Modul Header --}}
-    <div x-show="!collapsed" class="p-3 text-sm italic text-[var(--ui-secondary)] uppercase border-b border-[var(--ui-border)] mb-2">
+    <div x-show="!collapsed" class="p-3 text-sm italic text-[var(--nx-text)] uppercase border-b border-[color:var(--nx-line)] mb-2">
         Zielsteuerung
     </div>
     
     {{-- Abschnitt: Allgemein (über UI-Komponenten) --}}
     <x-ui-sidebar-list label="Allgemein">
         <x-ui-sidebar-item :href="route('okr.dashboard')">
-            @svg('heroicon-o-chart-bar', 'w-4 h-4 text-[var(--ui-secondary)]')
+            @svg('heroicon-o-chart-bar', 'w-4 h-4 text-[var(--nx-text)]')
             <span class="ml-2 text-sm">Dashboard</span>
         </x-ui-sidebar-item>
         <x-ui-sidebar-item :href="route('okr.okrs.index')">
-            @svg('heroicon-o-flag', 'w-4 h-4 text-[var(--ui-secondary)]')
+            @svg('heroicon-o-flag', 'w-4 h-4 text-[var(--nx-text)]')
             <span class="ml-2 text-sm">Zielsteuerungen</span>
         </x-ui-sidebar-item>
         <x-ui-sidebar-item :href="route('okr.strategic-documents.index')">
-            @svg('heroicon-o-document-text', 'w-4 h-4 text-[var(--ui-secondary)]')
+            @svg('heroicon-o-document-text', 'w-4 h-4 text-[var(--nx-text)]')
             <span class="ml-2 text-sm">Strategische Dokumente</span>
         </x-ui-sidebar-item>
         <x-ui-sidebar-item :href="route('okr.forecasts.index')">
-            @svg('heroicon-o-sparkles', 'w-4 h-4 text-[var(--ui-secondary)]')
+            @svg('heroicon-o-sparkles', 'w-4 h-4 text-[var(--nx-text)]')
             <span class="ml-2 text-sm">Zukunftsbilder</span>
         </x-ui-sidebar-item>
         <x-ui-sidebar-item type="button" wire:click="openCreateModal">
-            @svg('heroicon-o-plus', 'w-4 h-4 text-[var(--ui-secondary)]')
+            @svg('heroicon-o-plus', 'w-4 h-4 text-[var(--nx-text)]')
             <span class="ml-2 text-sm">Zielsteuerung anlegen</span>
         </x-ui-sidebar-item>
     </x-ui-sidebar-list>
 
     {{-- Collapsed: Icons-only für Allgemein --}}
-    <div x-show="collapsed" class="px-2 py-2 border-b border-[var(--ui-border)]">
+    <div x-show="collapsed" class="px-2 py-2 border-b border-[color:var(--nx-line)]">
         <div class="flex flex-col gap-2">
-            <a href="{{ route('okr.dashboard') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
+            <a href="{{ route('okr.dashboard') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--nx-text)] hover:bg-[var(--nx-bg)]">
                 @svg('heroicon-o-chart-bar', 'w-5 h-5')
             </a>
-            <a href="{{ route('okr.okrs.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
+            <a href="{{ route('okr.okrs.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--nx-text)] hover:bg-[var(--nx-bg)]">
                 @svg('heroicon-o-flag', 'w-5 h-5')
             </a>
-            <a href="{{ route('okr.strategic-documents.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
+            <a href="{{ route('okr.strategic-documents.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--nx-text)] hover:bg-[var(--nx-bg)]">
                 @svg('heroicon-o-document-text', 'w-5 h-5')
             </a>
-            <a href="{{ route('okr.forecasts.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
+            <a href="{{ route('okr.forecasts.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--nx-text)] hover:bg-[var(--nx-bg)]">
                 @svg('heroicon-o-sparkles', 'w-5 h-5')
             </a>
-            <button type="button" wire:click="openCreateModal" class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)]">
+            <button type="button" wire:click="openCreateModal" class="flex items-center justify-center p-2 rounded-md text-[var(--nx-text)] hover:bg-[var(--nx-bg)]">
                 @svg('heroicon-o-plus', 'w-5 h-5')
             </button>
         </div>
@@ -57,14 +57,14 @@
                 <x-ui-sidebar-list label="Zukunftsbilder">
                     @foreach($forecasts as $forecast)
                         <x-ui-sidebar-item :href="route('okr.forecasts.show', ['forecast' => $forecast])">
-                            @svg('heroicon-o-sparkles', 'w-5 h-5 flex-shrink-0 text-[var(--ui-secondary)]')
+                            @svg('heroicon-o-sparkles', 'w-5 h-5 flex-shrink-0 text-[var(--nx-text)]')
                             <span class="truncate text-sm ml-2">{{ $forecast->title }}</span>
-                            <span class="ml-auto text-xs text-[var(--ui-muted)] font-medium">{{ $forecast->target_date->format('Y') }}</span>
+                            <span class="ml-auto text-xs text-[var(--nx-muted)] font-medium">{{ $forecast->target_date->format('Y') }}</span>
                         </x-ui-sidebar-item>
                     @endforeach
                 </x-ui-sidebar-list>
             @else
-                <div class="px-3 py-1 text-xs text-[var(--ui-muted)]">Keine Zukunftsbilder</div>
+                <div class="px-3 py-1 text-xs text-[var(--nx-muted)]">Keine Zukunftsbilder</div>
             @endif
         </div>
     </div>
@@ -91,10 +91,10 @@
                         @php
                             $performance = $okr->performance;
                             $score = $performance ? $performance->performance_score : 0;
-                            $scoreColor = $score >= 80 ? 'text-green-600' : ($score >= 60 ? 'text-yellow-600' : 'text-red-600');
+                            $scoreColor = $score >= 80 ? 'text-[color:var(--nx-success)]' : ($score >= 60 ? 'text-[color:var(--nx-warning)]' : 'text-[color:var(--nx-danger)]');
                         @endphp
                         <x-ui-sidebar-item wire:key="okr-unlinked-{{ $okr->id }}" :href="route('okr.okrs.show', ['okr' => $okr])">
-                            @svg('heroicon-o-flag', 'w-5 h-5 flex-shrink-0 text-[var(--ui-secondary)]')
+                            @svg('heroicon-o-flag', 'w-5 h-5 flex-shrink-0 text-[var(--nx-text)]')
                             <span class="truncate text-sm ml-2">{{ $okr->title }}</span>
                             <span class="ml-auto text-xs {{ $scoreColor }} font-medium">{{ round($score, 0) }}%</span>
                         </x-ui-sidebar-item>
@@ -104,24 +104,24 @@
 
             {{-- Leerer Zustand --}}
             @if($entityTypeGroups->isEmpty() && $unlinkedOkrs->isEmpty())
-                <div class="px-3 py-1 text-xs text-[var(--ui-muted)]">Keine Zielsteuerungen</div>
+                <div class="px-3 py-1 text-xs text-[var(--nx-muted)]">Keine Zielsteuerungen</div>
             @endif
         </div>
     </div>
 
     <!-- Create OKR Modal -->
-    <x-ui-modal
+    <x-nx-modal
         wire:model="modalShow"
         size="xl"
     >
         <x-slot name="header">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-[var(--ui-primary)] text-[var(--ui-on-primary)] rounded-lg flex items-center justify-center">
+                <div class="w-10 h-10 bg-[var(--nx-accent)] text-[var(--nx-on-accent)] rounded-lg flex items-center justify-center">
                     @svg('heroicon-o-plus', 'w-5 h-5')
                 </div>
                 <div>
-                    <h3 class="text-lg font-semibold text-[var(--ui-secondary)]">Neue Zielsteuerung anlegen</h3>
-                    <p class="text-sm text-[var(--ui-muted)]">Erstelle ein neues Ziele & Erfolgskriterien System</p>
+                    <h3 class="text-lg font-semibold text-[var(--nx-text)]">Neue Zielsteuerung anlegen</h3>
+                    <p class="text-sm text-[var(--nx-muted)]">Erstelle ein neues Ziele & Erfolgskriterien System</p>
                 </div>
             </div>
         </x-slot>
@@ -130,13 +130,13 @@
             <form wire:submit.prevent="createOkr" class="space-y-6">
                 <!-- Grundinformationen -->
                 <div class="space-y-4">
-                    <div class="border-l-4 border-[var(--ui-primary)] pl-4">
-                        <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-2">Grundinformationen</h4>
-                        <p class="text-xs text-[var(--ui-muted)]">Titel und Beschreibung der Zielsteuerung</p>
+                    <div class="border-l-4 border-[var(--nx-accent)] pl-4">
+                        <h4 class="text-sm font-semibold text-[var(--nx-text)] mb-2">Grundinformationen</h4>
+                        <p class="text-xs text-[var(--nx-muted)]">Titel und Beschreibung der Zielsteuerung</p>
                     </div>
                     
                     <div class="space-y-4">
-                        <x-ui-input-text
+                        <x-nx-input-text
                             name="title"
                             label="Titel"
                             wire:model.live="title"
@@ -145,7 +145,7 @@
                             class="text-lg"
                         />
 
-                        <x-ui-input-textarea
+                        <x-nx-input-textarea
                             name="description"
                             label="Beschreibung"
                             wire:model.live="description"
@@ -157,9 +157,9 @@
 
                 <!-- Performance Statistiken -->
                 <div class="space-y-4">
-                    <div class="border-l-4 border-[var(--ui-primary)] pl-4">
-                        <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-2">Performance Statistiken</h4>
-                        <p class="text-xs text-[var(--ui-muted)]">Aktuelle Performance-Übersicht</p>
+                    <div class="border-l-4 border-[var(--nx-accent)] pl-4">
+                        <h4 class="text-sm font-semibold text-[var(--nx-text)] mb-2">Performance Statistiken</h4>
+                        <p class="text-xs text-[var(--nx-muted)]">Aktuelle Performance-Übersicht</p>
                     </div>
                     
                     @php
@@ -171,40 +171,40 @@
                     @endphp
                     
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
-                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalOkrs }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Zielsteuerungen</div>
+                        <div class="bg-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)] p-3 text-center">
+                            <div class="text-2xl font-bold text-[var(--nx-accent)]">{{ $totalOkrs }}</div>
+                            <div class="text-xs text-[var(--nx-muted)]">Zielsteuerungen</div>
                         </div>
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
-                            <div class="text-2xl font-bold text-green-600">{{ $activeOkrs }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Aktiv</div>
+                        <div class="bg-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)] p-3 text-center">
+                            <div class="text-2xl font-bold text-[color:var(--nx-success)]">{{ $activeOkrs }}</div>
+                            <div class="text-xs text-[var(--nx-muted)]">Aktiv</div>
                         </div>
                     </div>
                     
                     <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
-                            <div class="text-2xl font-bold text-blue-600">{{ $completedOkrs }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Abgeschlossen</div>
+                        <div class="bg-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)] p-3 text-center">
+                            <div class="text-2xl font-bold text-[color:var(--nx-info)]">{{ $completedOkrs }}</div>
+                            <div class="text-xs text-[var(--nx-muted)]">Abgeschlossen</div>
                         </div>
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40 p-3 text-center">
-                            <div class="text-2xl font-bold {{ $averageScore >= 80 ? 'text-green-600' : ($averageScore >= 50 ? 'text-yellow-600' : 'text-red-600') }}">
+                        <div class="bg-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)] p-3 text-center">
+                            <div class="text-2xl font-bold {{ $averageScore >= 80 ? 'text-[color:var(--nx-success)]' : ($averageScore >= 50 ? 'text-[color:var(--nx-warning)]' : 'text-[color:var(--nx-danger)]') }}">
                                 {{ round($averageScore, 1) }}%
                             </div>
-                            <div class="text-xs text-[var(--ui-muted)]">Ø Score</div>
+                            <div class="text-xs text-[var(--nx-muted)]">Ø Score</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Performance & Management -->
                 <div class="space-y-4">
-                    <div class="border-l-4 border-[var(--ui-primary)] pl-4">
-                        <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-2">Performance & Management</h4>
-                        <p class="text-xs text-[var(--ui-muted)]">Score und Verantwortlichkeiten</p>
+                    <div class="border-l-4 border-[var(--nx-accent)] pl-4">
+                        <h4 class="text-sm font-semibold text-[var(--nx-text)] mb-2">Performance & Management</h4>
+                        <p class="text-xs text-[var(--nx-muted)]">Score und Verantwortlichkeiten</p>
                     </div>
                     
                     {{-- Performance-Score wird automatisch hochgerollt (KR→Objective→Cycle→OKR), nicht manuell gesetzt. --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <x-ui-input-select
+                        <x-nx-input-select
                             name="manager_user_id"
                             label="Verantwortlicher Manager"
                             :options="$users"
@@ -219,42 +219,42 @@
 
                 <!-- Optionen -->
                 <div class="space-y-4">
-                    <div class="border-l-4 border-[var(--ui-primary)] pl-4">
-                        <h4 class="text-sm font-semibold text-[var(--ui-secondary)] mb-2">Erweiterte Optionen</h4>
-                        <p class="text-xs text-[var(--ui-muted)]">Zusätzliche Einstellungen für die Zielsteuerung</p>
+                    <div class="border-l-4 border-[var(--nx-accent)] pl-4">
+                        <h4 class="text-sm font-semibold text-[var(--nx-text)] mb-2">Erweiterte Optionen</h4>
+                        <p class="text-xs text-[var(--nx-muted)]">Zusätzliche Einstellungen für die Zielsteuerung</p>
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-3">
-                            <div class="flex items-start gap-3 p-3 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
+                            <div class="flex items-start gap-3 p-3 bg-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)]">
                                 <input 
                                     type="checkbox" 
                                     id="auto_transfer"
                                     wire:model.live="auto_transfer"
-                                    class="w-4 h-4 text-[var(--ui-primary)] bg-[var(--ui-muted-5)] border-[var(--ui-border)] rounded focus:ring-[var(--ui-primary)] focus:ring-2 mt-0.5"
+                                    class="w-4 h-4 text-[var(--nx-accent)] bg-[var(--nx-bg)] border-[color:var(--nx-line)] rounded focus:ring-[var(--nx-accent)] focus:ring-2 mt-0.5"
                                 >
                                 <div>
-                                    <label for="auto_transfer" class="text-sm font-medium text-[var(--ui-secondary)] cursor-pointer">
+                                    <label for="auto_transfer" class="text-sm font-medium text-[var(--nx-text)] cursor-pointer">
                                         Automatisch übertragen
                                     </label>
-                                    <p class="text-xs text-[var(--ui-muted)] mt-1">Zielsteuerung wird automatisch in neue Zyklen übertragen</p>
+                                    <p class="text-xs text-[var(--nx-muted)] mt-1">Zielsteuerung wird automatisch in neue Zyklen übertragen</p>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="space-y-3">
-                            <div class="flex items-start gap-3 p-3 bg-[var(--ui-muted-5)] rounded-lg border border-[var(--ui-border)]/40">
+                            <div class="flex items-start gap-3 p-3 bg-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)]">
                                 <input 
                                     type="checkbox" 
                                     id="is_template"
                                     wire:model.live="is_template"
-                                    class="w-4 h-4 text-[var(--ui-primary)] bg-[var(--ui-muted-5)] border-[var(--ui-border)] rounded focus:ring-[var(--ui-primary)] focus:ring-2 mt-0.5"
+                                    class="w-4 h-4 text-[var(--nx-accent)] bg-[var(--nx-bg)] border-[color:var(--nx-line)] rounded focus:ring-[var(--nx-accent)] focus:ring-2 mt-0.5"
                                 >
                                 <div>
-                                    <label for="is_template" class="text-sm font-medium text-[var(--ui-secondary)] cursor-pointer">
+                                    <label for="is_template" class="text-sm font-medium text-[var(--nx-text)] cursor-pointer">
                                         Als Template speichern
                                     </label>
-                                    <p class="text-xs text-[var(--ui-muted)] mt-1">Zielsteuerung als Vorlage für zukünftige Zyklen verwenden</p>
+                                    <p class="text-xs text-[var(--nx-muted)] mt-1">Zielsteuerung als Vorlage für zukünftige Zyklen verwenden</p>
                                 </div>
                             </div>
                         </div>
@@ -265,19 +265,19 @@
 
         <x-slot name="footer">
             <div class="flex justify-between items-center">
-                <div class="text-xs text-[var(--ui-muted)]">
+                <div class="text-xs text-[var(--nx-muted)]">
                     Die Zielsteuerung wird für dein Team erstellt
                 </div>
                 <div class="flex gap-3">
-                    <x-ui-button 
+                    <x-nx-button 
                         type="button" 
-                        variant="secondary-ghost" 
+                        variant="ghost" 
                         wire:click="closeCreateModal"
                     >
                         @svg('heroicon-o-x-mark', 'w-4 h-4')
                         Abbrechen
-                    </x-ui-button>
-                    <x-ui-button 
+                    </x-nx-button>
+                    <x-nx-button 
                         type="button" 
                         variant="secondary" 
                         wire:click="createOkr"
@@ -285,9 +285,9 @@
                     >
                         @svg('heroicon-o-check', 'w-4 h-4')
                         Zielsteuerung anlegen
-                    </x-ui-button>
+                    </x-nx-button>
                 </div>
             </div>
         </x-slot>
-    </x-ui-modal>
+    </x-nx-modal>
 </div>
