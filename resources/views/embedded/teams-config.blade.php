@@ -1,46 +1,46 @@
 @extends('platform::layouts.embedded')
 
 @section('content')
-<div class="min-h-screen w-full bg-white">
+<div class="min-h-screen w-full bg-[color:var(--nx-surface)]">
   <div class="max-w-4xl mx-auto p-6 space-y-6">
-    <h1 class="text-xl font-semibold text-[var(--ui-secondary)]">Teams – OKR Tab konfigurieren</h1>
-    <p class="text-sm text-[var(--ui-muted)]">Wähle ein Team und anschließend den Zyklus.</p>
+    <h1 class="text-xl font-semibold text-[var(--nx-text)]">Teams – OKR Tab konfigurieren</h1>
+    <p class="text-sm text-[var(--nx-muted)]">Wähle ein Team und anschließend den Zyklus.</p>
 
     <!-- Teams Auswahl -->
-    <div class="bg-white rounded-lg border p-4">
+    <div class="bg-[color:var(--nx-surface)] rounded-lg border p-4">
       <div class="mb-2">
-        <div class="text-sm text-[var(--ui-secondary)]">Team auswählen</div>
-        <div class="text-xs text-[var(--ui-muted)]">Nur Teams, denen du angehörst</div>
+        <div class="text-sm text-[var(--nx-text)]">Team auswählen</div>
+        <div class="text-xs text-[var(--nx-muted)]">Nur Teams, denen du angehörst</div>
       </div>
       <div id="teamGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
         @forelse(($teams ?? collect()) as $team)
-          <button type="button" class="team-tile flex items-center justify-center p-3 rounded-lg border border-[var(--ui-border)] bg-white hover:border-[var(--ui-primary)] text-sm"
+          <button type="button" class="team-tile flex items-center justify-center p-3 rounded-lg border border-[color:var(--nx-line)] bg-[color:var(--nx-surface)] hover:border-[var(--nx-accent)] text-sm"
                   data-team-id="{{ $team->id }}" data-team-name="{{ $team->name }}">
             <span class="truncate">{{ $team->name }}</span>
           </button>
         @empty
-          <div class="text-xs text-[var(--ui-muted)]">Keine Teams gefunden.</div>
+          <div class="text-xs text-[var(--nx-muted)]">Keine Teams gefunden.</div>
         @endforelse
       </div>
     </div>
 
     <!-- Zyklen -->
-    <div class="bg-white rounded-lg border p-4">
+    <div class="bg-[color:var(--nx-surface)] rounded-lg border p-4">
       <div class="flex items-center justify-between mb-2">
         <div>
-          <div class="text-sm text-[var(--ui-secondary)]">Zyklus auswählen</div>
-          <div class="text-xs text-[var(--ui-muted)]">Nur Zyklen aus dem gewählten Team</div>
+          <div class="text-sm text-[var(--nx-text)]">Zyklus auswählen</div>
+          <div class="text-xs text-[var(--nx-muted)]">Nur Zyklen aus dem gewählten Team</div>
         </div>
       </div>
-      <label class="block text-sm font-medium text-[var(--ui-secondary)] mb-2">Zyklus</label>
-      <select id="cycleSelect" class="w-full px-3 py-2 border border-[var(--ui-border)] rounded-lg focus:ring-2 focus:ring-[var(--ui-primary)] focus:border-[var(--ui-primary)]">
+      <label class="block text-sm font-medium text-[var(--nx-text)] mb-2">Zyklus</label>
+      <select id="cycleSelect" class="w-full px-3 py-2 border border-[color:var(--nx-line)] rounded-lg focus:ring-2 focus:ring-[var(--nx-accent)] focus:border-[var(--nx-accent)]">
         <option value="">– Bitte erst ein Team wählen –</option>
       </select>
-      <div class="text-xs text-[var(--ui-muted)] mt-2"><span id="cycleCount">0</span> Zyklen verfügbar</div>
+      <div class="text-xs text-[var(--nx-muted)] mt-2"><span id="cycleCount">0</span> Zyklen verfügbar</div>
     </div>
 
     <div class="flex items-center justify-end">
-      <x-ui-button id="okrSave" variant="primary" size="sm" disabled>Als Tab hinzufügen</x-ui-button>
+      <x-nx-button id="okrSave" variant="primary" size="sm" disabled>Als Tab hinzufügen</x-nx-button>
     </div>
   </div>
 </div>
@@ -84,8 +84,8 @@
 
   teamTiles.forEach(tile => {
     tile.addEventListener('click', function(){
-      teamTiles.forEach(t => t.classList.remove('ring-2','ring-[var(--ui-primary)]'));
-      this.classList.add('ring-2','ring-[var(--ui-primary)]');
+      teamTiles.forEach(t => t.classList.remove('ring-2','ring-[var(--nx-accent)]'));
+      this.classList.add('ring-2','ring-[var(--nx-accent)]');
       selectedTeamId = this.getAttribute('data-team-id');
       renderCycles();
     });
