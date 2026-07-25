@@ -12,7 +12,7 @@
                 <div class="flex-grow-1 text-right d-flex items-center justify-end gap-2">
                     <span>{{ $objective->title }}</span>
                     @if($this->isDirty)
-                        <x-ui-button 
+                        <x-nx-button 
                             variant="primary" 
                             size="sm"
                             wire:click="save"
@@ -21,7 +21,7 @@
                                 @svg('heroicon-o-check', 'w-4 h-4')
                                 Speichern
                             </div>
-                        </x-ui-button>
+                        </x-nx-button>
                     @endif
                 </div>
             </div>
@@ -34,7 +34,7 @@
             <div class="mb-6">
                 <h3 class="text-lg font-semibold mb-4 text-secondary">Objective Details</h3>
                 <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text 
+                    <x-nx-input-text 
                         name="objective.title"
                         label="Titel"
                         wire:model.live.debounce.500ms="objective.title"
@@ -42,7 +42,7 @@
                         required
                         :errorKey="'objective.title'"
                     />
-                    <x-ui-input-number
+                    <x-nx-input-number
                         name="objective.order"
                         label="Reihenfolge"
                         wire:model.live.debounce.500ms="objective.order"
@@ -52,7 +52,7 @@
                     />
                 </div>
                 <div class="mt-4">
-                    <x-ui-input-textarea 
+                    <x-nx-input-textarea 
                         name="objective.description"
                         label="Beschreibung"
                         wire:model.live.debounce.500ms="objective.description"
@@ -62,7 +62,7 @@
                     />
                 </div>
                 <div class="mt-4">
-                    <x-ui-input-select
+                    <x-nx-input-select
                         name="objective.vision_id"
                         label="Vision (optional)"
                         :options="$this->availableVisions->toArray()"
@@ -72,9 +72,9 @@
                     />
                 </div>
                 @if($objective->vision)
-                    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <p class="text-sm text-blue-800 font-medium mb-2">Strategische Referenzen:</p>
-                        <div class="space-y-1 text-sm text-blue-700">
+                    <div class="mt-4 p-3 bg-[var(--nx-info)]/10 border border-[var(--nx-info)]/30 rounded-lg">
+                        <p class="text-sm text-[color:var(--nx-info)] font-medium mb-2">Strategische Referenzen:</p>
+                        <div class="space-y-1 text-sm text-[color:var(--nx-info)]">
                             <div>Vision: {{ $objective->vision->title }}</div>
                         </div>
                     </div>
@@ -96,13 +96,13 @@
                                         <div class="text-xs text-muted">{{ $milestone->focusArea->title }}</div>
                                     @endif
                                 </div>
-                                <x-ui-button
+                                <x-nx-button
                                     size="xs"
-                                    variant="danger-outline"
+                                    variant="danger"
                                     wire:click="removeMilestone({{ $milestone->id }})"
                                 >
                                     @svg('heroicon-o-x-mark', 'w-3 h-3')
-                                </x-ui-button>
+                                </x-nx-button>
                             </div>
                         @endforeach
                     </div>
@@ -113,7 +113,7 @@
                 {{-- Multi-Select + Speichern --}}
                 <div class="d-flex gap-2 items-end">
                     <div class="flex-grow-1">
-                        <x-ui-input-select
+                        <x-nx-input-select
                             name="selectedMilestoneIds"
                             label="Meilenstein hinzufügen"
                             :options="$this->availableMilestones->toArray()"
@@ -123,12 +123,12 @@
                             placeholder="Meilenstein auswählen..."
                         />
                     </div>
-                    <x-ui-button size="sm" variant="primary" wire:click="saveMilestones">
+                    <x-nx-button size="sm" variant="primary" wire:click="saveMilestones">
                         <div class="d-flex items-center gap-2">
                             @svg('heroicon-o-check', 'w-4 h-4')
                             Speichern
                         </div>
-                    </x-ui-button>
+                    </x-nx-button>
                 </div>
             </div>
 
@@ -155,11 +155,11 @@
                                 </div>
                                 @if($keyResult->measures->isNotEmpty())
                                     <div class="mt-1 flex flex-wrap items-center gap-1">
-                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-100 text-emerald-800">
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-[var(--nx-success)]/10 text-[color:var(--nx-success)]">
                                             @svg('heroicon-o-bolt', 'w-3 h-3') Auto-Metrik
                                         </span>
                                         @foreach($keyResult->measures as $measure)
-                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-[var(--ui-muted-5)] text-[var(--ui-secondary)]"
+                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-[var(--nx-bg)] text-[var(--nx-text)]"
                                                   title="{{ $measure->metric_key }}{{ $measure->selector ? ' · ' . json_encode($measure->selector) : '' }}">
                                                 <span class="uppercase tracking-wide opacity-60">{{ $measure->role }}</span>
                                                 <span class="truncate max-w-[16rem]">{{ $measure->label ?? $measure->metric_key }}</span>
@@ -174,28 +174,28 @@
                                 @endif
                             </div>
                             <div class="d-flex gap-1">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[var(--nx-info)]/10 text-[color:var(--nx-info)]">
                                     Order: {{ $keyResult->order }}
                                 </span>
-                                <x-ui-button 
+                                <x-nx-button 
                                     size="xs" 
-                                    variant="secondary-outline" 
+                                    variant="secondary" 
                                     wire:click="editKeyResult({{ $keyResult->id }})"
                                 >
                                     @svg('heroicon-o-cog-6-tooth', 'w-3 h-3')
-                                </x-ui-button>
+                                </x-nx-button>
                             </div>
                         </div>
                     @endforeach
                     @if($objective->keyResults->count() === 0)
                         <p class="text-sm text-muted">Noch keine Erfolgskriterien vorhanden.</p>
                     @endif
-                    <x-ui-button size="sm" variant="secondary-outline" wire:click="addKeyResult">
+                    <x-nx-button size="sm" variant="secondary" wire:click="addKeyResult">
                         <div class="d-flex items-center gap-2">
                             @svg('heroicon-o-plus', 'w-4 h-4')
                             Erfolgskriterium hinzufügen
                         </div>
-                    </x-ui-button>
+                    </x-nx-button>
                 </div>
             </div>
         </div>
@@ -204,7 +204,7 @@
         <div x-data="{ open: false }" class="flex-shrink-0 border-t border-muted">
             <div 
                 @click="open = !open" 
-                class="cursor-pointer border-top-1 border-top-solid border-top-muted border-bottom-1 border-bottom-solid border-bottom-muted p-2 text-center d-flex items-center justify-center gap-1 mx-2 shadow-lg"
+                class="cursor-pointer border-top-1 border-top-solid border-top-muted border-bottom-1 border-bottom-solid border-bottom-muted p-2 text-center d-flex items-center justify-center gap-1 mx-2 shadow-[var(--nx-shadow-pop)]"
             >
                 AKTIVITÄTEN 
                 <span class="text-xs">
@@ -239,8 +239,8 @@
 
             {{-- Navigation Buttons --}}
             <div class="d-flex flex-col gap-2 mb-4">
-                <x-ui-button 
-                    variant="secondary-outline" 
+                <x-nx-button 
+                    variant="secondary" 
                     size="md" 
                     :href="route('okr.cycles.show', ['cycle' => $objective->cycle_id])" 
                     wire:navigate
@@ -250,7 +250,7 @@
                         @svg('heroicon-o-arrow-left', 'w-4 h-4')
                         Zurück zu Cycle
                     </div>
-                </x-ui-button>
+                </x-nx-button>
             </div>
 
             {{-- Kurze Übersicht --}}
@@ -271,7 +271,7 @@
     </div>
 
     <!-- Key Result Create Modal -->
-    <x-ui-modal
+    <x-nx-modal
         size="lg"
         model="keyResultCreateModalShow"
     >
@@ -281,7 +281,7 @@
 
         <div class="space-y-4">
             <form wire:submit.prevent="saveKeyResult" class="space-y-4">
-                <x-ui-input-text
+                <x-nx-input-text
                     name="keyResultForm.title"
                     label="Titel"
                     wire:model.live="keyResultForm.title"
@@ -289,7 +289,7 @@
                     required
                 />
 
-                <x-ui-input-textarea
+                <x-nx-input-textarea
                     name="keyResultForm.description"
                     label="Beschreibung"
                     wire:model.live="keyResultForm.description"
@@ -298,14 +298,14 @@
                 />
 
                 <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text
+                    <x-nx-input-text
                         name="keyResultForm.target_value"
                         label="Zielwert"
                         wire:model.live="keyResultForm.target_value"
                         placeholder="Zielwert eingeben..."
                         required
                     />
-                    <x-ui-input-text
+                    <x-nx-input-text
                         name="keyResultForm.current_value"
                         label="Aktueller Wert"
                         wire:model.live="keyResultForm.current_value"
@@ -314,13 +314,13 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text
+                    <x-nx-input-text
                         name="keyResultForm.unit"
                         label="Einheit"
                         wire:model.live="keyResultForm.unit"
                         placeholder="z.B. %, €, Stück"
                     />
-                    <x-ui-input-number
+                    <x-nx-input-number
                         name="keyResultForm.order"
                         label="Reihenfolge"
                         wire:model.live="keyResultForm.order"
@@ -333,22 +333,22 @@
 
         <x-slot name="footer">
             <div class="d-flex justify-end gap-2">
-                <x-ui-button 
+                <x-nx-button 
                     type="button" 
-                    variant="secondary-outline" 
+                    variant="secondary" 
                     wire:click="closeKeyResultCreateModal"
                 >
                     Abbrechen
-                </x-ui-button>
-                <x-ui-button type="button" variant="primary" wire:click="saveKeyResult">
+                </x-nx-button>
+                <x-nx-button type="button" variant="primary" wire:click="saveKeyResult">
                     Hinzufügen
-                </x-ui-button>
+                </x-nx-button>
             </div>
         </x-slot>
-    </x-ui-modal>
+    </x-nx-modal>
 
     <!-- Key Result Edit Modal -->
-    <x-ui-modal
+    <x-nx-modal
         size="lg"
         model="keyResultEditModalShow"
     >
@@ -358,7 +358,7 @@
 
         <div class="space-y-4">
             <form wire:submit.prevent="saveKeyResult" class="space-y-4">
-                <x-ui-input-text
+                <x-nx-input-text
                     name="keyResultForm.title"
                     label="Titel"
                     wire:model.live="keyResultForm.title"
@@ -366,7 +366,7 @@
                     required
                 />
 
-                <x-ui-input-textarea
+                <x-nx-input-textarea
                     name="keyResultForm.description"
                     label="Beschreibung"
                     wire:model.live="keyResultForm.description"
@@ -375,14 +375,14 @@
                 />
 
                 <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text
+                    <x-nx-input-text
                         name="keyResultForm.target_value"
                         label="Zielwert"
                         wire:model.live="keyResultForm.target_value"
                         placeholder="Zielwert eingeben..."
                         required
                     />
-                    <x-ui-input-text
+                    <x-nx-input-text
                         name="keyResultForm.current_value"
                         label="Aktueller Wert"
                         wire:model.live="keyResultForm.current_value"
@@ -391,13 +391,13 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <x-ui-input-text
+                    <x-nx-input-text
                         name="keyResultForm.unit"
                         label="Einheit"
                         wire:model.live="keyResultForm.unit"
                         placeholder="z.B. %, €, Stück"
                     />
-                    <x-ui-input-number
+                    <x-nx-input-number
                         name="keyResultForm.order"
                         label="Reihenfolge"
                         wire:model.live="keyResultForm.order"
@@ -411,27 +411,21 @@
         <x-slot name="footer">
             <div class="d-flex justify-between items-center gap-4">
                 <div class="flex-shrink-0">
-                    <x-ui-confirm-button 
-                        action="deleteKeyResultAndCloseModal" 
-                        text="Löschen" 
-                        confirmText="Wirklich löschen?" 
-                        variant="danger-outline"
-                        :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
-                    />
+                    <x-nx-button variant="danger" size="sm" wire:click="deleteKeyResultAndCloseModal" wire:confirm="Wirklich löschen?">Löschen</x-nx-button>
                 </div>
                 <div class="d-flex gap-2 flex-shrink-0">
-                    <x-ui-button 
+                    <x-nx-button 
                         type="button" 
-                        variant="secondary-outline" 
+                        variant="secondary" 
                         wire:click="closeKeyResultEditModal"
                     >
                         Abbrechen
-                    </x-ui-button>
-                    <x-ui-button type="button" variant="primary" wire:click="saveKeyResult">
+                    </x-nx-button>
+                    <x-nx-button type="button" variant="primary" wire:click="saveKeyResult">
                         Speichern
-                    </x-ui-button>
+                    </x-nx-button>
                 </div>
             </div>
         </x-slot>
-    </x-ui-modal>
+    </x-nx-modal>
 </div>
