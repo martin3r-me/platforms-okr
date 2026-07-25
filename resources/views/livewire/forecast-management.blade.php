@@ -8,10 +8,10 @@
             ['label' => 'Zielsteuerung', 'href' => route('okr.dashboard'), 'icon' => 'flag'],
             ['label' => 'Zukunftsbilder'],
         ]">
-            <x-ui-button variant="primary" size="sm" wire:click="openCreateModal">
+            <x-nx-button variant="primary" size="sm" wire:click="openCreateModal">
                 @svg('heroicon-o-plus', 'w-4 h-4')
                 <span>Zukunftsbild hinzufügen</span>
-            </x-ui-button>
+            </x-nx-button>
         </x-ui-page-actionbar>
     </x-slot>
 
@@ -20,41 +20,41 @@
         <div class="mb-6">
             <div class="flex items-center justify-between mb-4">
                 <div>
-                    <h2 class="text-xl font-semibold text-[var(--ui-secondary)]">Zukunftsbilder</h2>
-                    <p class="text-sm text-[var(--ui-muted)] mt-1">Strategische Ausrichtung & Transformationssteuerung</p>
+                    <h2 class="text-xl font-semibold text-[var(--nx-text)]">Zukunftsbilder</h2>
+                    <p class="text-sm text-[var(--nx-muted)] mt-1">Strategische Ausrichtung & Transformationssteuerung</p>
                 </div>
                 <div class="flex items-center gap-3">
-                    <x-ui-button 
+                    <x-nx-button 
                         variant="secondary" 
                         wire:click="openCreateModal"
                     >
                         @svg('heroicon-o-plus', 'w-4 h-4')
                         <span class="ml-1">Zukunftsbild hinzufügen</span>
-                    </x-ui-button>
+                    </x-nx-button>
                 </div>
             </div>
         </div>
 
         {{-- Statistiken --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-6">
+            <div class="bg-[color:var(--nx-surface)] rounded-lg border border-[color:var(--nx-line)] p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-[var(--ui-muted)]">Gesamt Zukunftsbilder</p>
-                        <p class="text-2xl font-bold text-[var(--ui-secondary)] mt-1">{{ $totalForecasts }}</p>
+                        <p class="text-sm text-[var(--nx-muted)]">Gesamt Zukunftsbilder</p>
+                        <p class="text-2xl font-bold text-[var(--nx-text)] mt-1">{{ $totalForecasts }}</p>
                     </div>
-                    <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center">
+                    <div class="w-12 h-12 bg-[color:var(--nx-accent)] text-[color:var(--nx-accent)] rounded-lg flex items-center justify-center">
                         @svg('heroicon-o-sparkles', 'w-6 h-6')
                     </div>
                 </div>
             </div>
-            <div class="bg-white rounded-lg border border-[var(--ui-border)]/60 p-6">
+            <div class="bg-[color:var(--nx-surface)] rounded-lg border border-[color:var(--nx-line)] p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm text-[var(--ui-muted)]">Fokusräume</p>
-                        <p class="text-2xl font-bold text-[var(--ui-secondary)] mt-1">{{ $totalFocusAreas }}</p>
+                        <p class="text-sm text-[var(--nx-muted)]">Fokusräume</p>
+                        <p class="text-2xl font-bold text-[var(--nx-text)] mt-1">{{ $totalFocusAreas }}</p>
                     </div>
-                    <div class="w-12 h-12 bg-[var(--ui-primary-10)] text-[var(--ui-primary)] rounded-lg flex items-center justify-center">
+                    <div class="w-12 h-12 bg-[var(--nx-accent)]/10 text-[var(--nx-accent)] rounded-lg flex items-center justify-center">
                         @svg('heroicon-o-viewfinder-circle', 'w-6 h-6')
                     </div>
                 </div>
@@ -63,33 +63,33 @@
 
         {{-- Flash Messages --}}
         @if(session()->has('message'))
-            <div class="p-4 bg-[var(--ui-muted-5)] border border-[var(--ui-border)] rounded-lg mb-6">
-                <p class="text-[var(--ui-secondary)]">{{ session('message') }}</p>
+            <div class="p-4 bg-[var(--nx-bg)] border border-[color:var(--nx-line)] rounded-lg mb-6">
+                <p class="text-[var(--nx-text)]">{{ session('message') }}</p>
             </div>
         @endif
 
         {{-- Forecasts Liste --}}
-        <div class="bg-white rounded-lg border border-[var(--ui-border)]/60">
+        <div class="bg-[color:var(--nx-surface)] rounded-lg border border-[color:var(--nx-line)]">
             @if($forecasts->count() > 0)
-                <div class="divide-y divide-[var(--ui-border)]/40">
+                <div class="divide-y divide-[color:var(--nx-line)]">
                     @foreach($forecasts as $forecast)
-                        <div class="p-6 hover:bg-[var(--ui-muted-5)] transition-colors">
+                        <div class="p-6 hover:bg-[var(--nx-bg)] transition-colors">
                             <div class="flex items-start justify-between">
                                 <div class="flex-1 min-w-0">
                                     <div class="flex items-center gap-3 mb-2">
                                         <a 
                                             href="{{ route('okr.forecasts.show', $forecast) }}" 
                                             wire:navigate
-                                            class="text-lg font-semibold text-[var(--ui-primary)] hover:underline"
+                                            class="text-lg font-semibold text-[var(--nx-accent)] hover:underline"
                                         >
                                             {{ $forecast->title }}
                                         </a>
                                         @if($forecast->currentVersion)
-                                            <x-ui-badge variant="secondary" size="sm">v{{ $forecast->currentVersion->version }}</x-ui-badge>
+                                            <x-nx-badge variant="neutral" size="sm">v{{ $forecast->currentVersion->version }}</x-nx-badge>
                                         @endif
-                                        <x-ui-badge variant="secondary" size="sm">{{ $forecast->focusAreas->count() }} Fokusräume</x-ui-badge>
+                                        <x-nx-badge variant="neutral" size="sm">{{ $forecast->focusAreas->count() }} Fokusräume</x-nx-badge>
                                     </div>
-                                    <div class="flex items-center gap-4 text-sm text-[var(--ui-muted)]">
+                                    <div class="flex items-center gap-4 text-sm text-[var(--nx-muted)]">
                                         <span class="flex items-center gap-1">
                                             @svg('heroicon-o-calendar', 'w-4 h-4')
                                             Zieldatum: {{ $forecast->target_date->format('d.m.Y') }}
@@ -105,14 +105,7 @@
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-2 ml-4">
-                                    <x-ui-confirm-button 
-                                        action="deleteForecast({{ $forecast->id }})" 
-                                        text="Löschen" 
-                                        confirmText="Zukunftsbild wirklich löschen?" 
-                                        variant="secondary-ghost"
-                                        size="sm"
-                                        :icon="@svg('heroicon-o-trash', 'w-4 h-4')->toHtml()"
-                                    />
+                                    <x-nx-button variant="ghost" size="sm" wire:click="deleteForecast({{ $forecast->id }})" wire:confirm="Zukunftsbild wirklich löschen?">Löschen</x-nx-button>
                                 </div>
                             </div>
                         </div>
@@ -120,23 +113,23 @@
                 </div>
 
                 {{-- Pagination --}}
-                <div class="p-4 border-t border-[var(--ui-border)]/40">
+                <div class="p-4 border-t border-[color:var(--nx-line)]">
                     {{ $forecasts->links() }}
                 </div>
             @else
                 <div class="text-center py-12">
-                    <div class="w-16 h-16 bg-[var(--ui-muted-5)] rounded-full flex items-center justify-center mx-auto mb-4">
-                        @svg('heroicon-o-sparkles', 'w-8 h-8 text-[var(--ui-muted)]')
+                    <div class="w-16 h-16 bg-[var(--nx-bg)] rounded-full flex items-center justify-center mx-auto mb-4">
+                        @svg('heroicon-o-sparkles', 'w-8 h-8 text-[var(--nx-muted)]')
                     </div>
-                    <h4 class="text-lg font-medium text-[var(--ui-secondary)] mb-2">Noch keine Zukunftsbilder vorhanden</h4>
-                    <p class="text-[var(--ui-muted)] mb-4">Erstelle ein neues Zukunftsbild um zu beginnen</p>
-                    <x-ui-button 
+                    <h4 class="text-lg font-medium text-[var(--nx-text)] mb-2">Noch keine Zukunftsbilder vorhanden</h4>
+                    <p class="text-[var(--nx-muted)] mb-4">Erstelle ein neues Zukunftsbild um zu beginnen</p>
+                    <x-nx-button 
                         variant="secondary" 
                         wire:click="openCreateModal"
                     >
                         @svg('heroicon-o-plus', 'w-4 h-4')
                         <span class="ml-1">Erstes Zukunftsbild erstellen</span>
-                    </x-ui-button>
+                    </x-nx-button>
                 </div>
             @endif
         </div>
@@ -148,15 +141,15 @@
             <div class="p-6 space-y-6">
                 {{-- Statistiken --}}
                 <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Statistiken</h3>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--nx-muted)] mb-3">Statistiken</h3>
                     <div class="space-y-3">
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
-                            <div class="text-2xl font-bold text-[var(--ui-primary)]">{{ $totalForecasts }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Gesamt Zukunftsbilder</div>
+                        <div class="bg-[var(--nx-bg)] rounded-lg p-3">
+                            <div class="text-2xl font-bold text-[var(--nx-accent)]">{{ $totalForecasts }}</div>
+                            <div class="text-xs text-[var(--nx-muted)]">Gesamt Zukunftsbilder</div>
                         </div>
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
-                            <div class="text-2xl font-bold text-indigo-600">{{ $totalFocusAreas }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Fokusräume</div>
+                        <div class="bg-[var(--nx-bg)] rounded-lg p-3">
+                            <div class="text-2xl font-bold text-[color:var(--nx-accent)]">{{ $totalFocusAreas }}</div>
+                            <div class="text-xs text-[var(--nx-muted)]">Fokusräume</div>
                         </div>
                     </div>
                 </div>
@@ -164,16 +157,16 @@
                 {{-- Aktuelle Zukunftsbilder --}}
                 @if($forecasts->count() > 0)
                     <div>
-                        <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Aktuelle Zukunftsbilder</h3>
+                        <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--nx-muted)] mb-3">Aktuelle Zukunftsbilder</h3>
                         <div class="space-y-2">
                             @foreach($forecasts->take(5) as $forecast)
                                 <a 
                                     href="{{ route('okr.forecasts.show', $forecast) }}" 
                                     wire:navigate
-                                    class="block p-2 rounded-lg border border-[var(--ui-border)]/40 hover:bg-[var(--ui-muted-5)] transition-colors"
+                                    class="block p-2 rounded-lg border border-[color:var(--nx-line)] hover:bg-[var(--nx-bg)] transition-colors"
                                 >
-                                    <div class="text-sm font-medium text-[var(--ui-secondary)]">{{ $forecast->title }}</div>
-                                    <div class="text-xs text-[var(--ui-muted)] mt-1">
+                                    <div class="text-sm font-medium text-[var(--nx-text)]">{{ $forecast->title }}</div>
+                                    <div class="text-xs text-[var(--nx-muted)] mt-1">
                                         {{ $forecast->target_date->format('d.m.Y') }} • {{ $forecast->focusAreas->count() }} Fokusräume
                                     </div>
                                 </a>
@@ -191,37 +184,37 @@
             <div class="p-6 space-y-6">
                 {{-- Recent Activities --}}
                 <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Letzte Aktivitäten</h3>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--nx-muted)] mb-3">Letzte Aktivitäten</h3>
                     <div class="space-y-3 text-sm">
                         @if($forecasts->count() > 0)
                             @foreach($forecasts->take(5) as $forecast)
-                                <div class="flex items-start gap-3 p-3 rounded-lg border border-[var(--ui-border)]/40 bg-[var(--ui-muted-5)]">
-                                    <div class="w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center text-xs font-semibold">
+                                <div class="flex items-start gap-3 p-3 rounded-lg border border-[color:var(--nx-line)] bg-[var(--nx-bg)]">
+                                    <div class="w-8 h-8 bg-[color:var(--nx-accent)] text-white rounded-full flex items-center justify-center text-xs font-semibold">
                                         @svg('heroicon-o-sparkles', 'w-4 h-4')
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="font-medium text-[var(--ui-secondary)] text-sm">{{ $forecast->title }}</div>
-                                        <div class="text-xs text-[var(--ui-muted)]">{{ $forecast->created_at->diffForHumans() }}</div>
+                                        <div class="font-medium text-[var(--nx-text)] text-sm">{{ $forecast->title }}</div>
+                                        <div class="text-xs text-[var(--nx-muted)]">{{ $forecast->created_at->diffForHumans() }}</div>
                                     </div>
                                 </div>
                             @endforeach
                         @else
-                            <div class="text-[var(--ui-muted)]">Keine Aktivitäten verfügbar</div>
+                            <div class="text-[var(--nx-muted)]">Keine Aktivitäten verfügbar</div>
                         @endif
                     </div>
                 </div>
 
                 {{-- Übersicht --}}
                 <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--ui-muted)] mb-3">Übersicht</h3>
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--nx-muted)] mb-3">Übersicht</h3>
                     <div class="space-y-3">
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-[var(--ui-primary)]">{{ $totalForecasts }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Gesamt Zukunftsbilder</div>
+                        <div class="bg-[var(--nx-bg)] rounded-lg p-3">
+                            <div class="text-lg font-bold text-[var(--nx-accent)]">{{ $totalForecasts }}</div>
+                            <div class="text-xs text-[var(--nx-muted)]">Gesamt Zukunftsbilder</div>
                         </div>
-                        <div class="bg-[var(--ui-muted-5)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-indigo-600">{{ $totalFocusAreas }}</div>
-                            <div class="text-xs text-[var(--ui-muted)]">Fokusräume</div>
+                        <div class="bg-[var(--nx-bg)] rounded-lg p-3">
+                            <div class="text-lg font-bold text-[color:var(--nx-accent)]">{{ $totalFocusAreas }}</div>
+                            <div class="text-xs text-[var(--nx-muted)]">Fokusräume</div>
                         </div>
                     </div>
                 </div>
@@ -230,7 +223,7 @@
     </x-slot>
 
     <!-- Create Modal -->
-    <x-ui-modal
+    <x-nx-modal
         size="lg"
         model="modalShow"
     >
@@ -240,7 +233,7 @@
 
         <div class="space-y-4">
             <form wire:submit.prevent="createForecast" class="space-y-4">
-                <x-ui-input-text
+                <x-nx-input-text
                     name="title"
                     label="Titel"
                     wire:model.live="title"
@@ -248,7 +241,7 @@
                     required
                 />
 
-                <x-ui-input-date
+                <x-nx-input-date
                     name="target_date"
                     label="Zieldatum"
                     wire:model.live="target_date"
@@ -259,17 +252,17 @@
 
         <x-slot name="footer">
             <div class="flex justify-end gap-2">
-                <x-ui-button 
+                <x-nx-button 
                     type="button" 
-                    variant="secondary-ghost" 
+                    variant="ghost" 
                     wire:click="closeCreateModal"
                 >
                     Abbrechen
-                </x-ui-button>
-                <x-ui-button type="button" variant="secondary" wire:click="createForecast">
+                </x-nx-button>
+                <x-nx-button type="button" variant="secondary" wire:click="createForecast">
                     Erstellen
-                </x-ui-button>
+                </x-nx-button>
             </div>
         </x-slot>
-    </x-ui-modal>
+    </x-nx-modal>
 </x-ui-page>
