@@ -38,30 +38,6 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                 'team_resolution' => 'Tools sollten intern die Root-Team-ID aus dem aktuellen Team ableiten.',
             ],
             'entities' => [
-                'forecasts' => [
-                    'description' => 'Zukunftsbilder - Strategische Ausrichtung & Transformationssteuerung. Enthalten versionierbaren Content und Fokusräume.',
-                    'relations' => ['forecast -> focus_areas', 'forecast -> versions'],
-                    'important_fields' => ['title', 'target_date', 'content (versionierbar)'],
-                ],
-                'focus_areas' => [
-                    'description' => 'Fokusräume - gehören zu einem Zukunftsbild. Enthalten Zielbilder, Hindernisse und Meilensteine.',
-                    'relations' => ['focus_area -> vision_images', 'focus_area -> obstacles', 'focus_area -> milestones'],
-                    'important_fields' => ['title', 'description', 'content', 'order'],
-                ],
-                'vision_images' => [
-                    'description' => 'Zielbilder - gehören zu einem Fokusraum.',
-                    'important_fields' => ['title', 'description', 'order'],
-                ],
-                'obstacles' => [
-                    'description' => 'Hindernisse - gehören zu einem Fokusraum.',
-                    'important_fields' => ['title', 'description', 'order'],
-                ],
-                'milestones' => [
-                    'description' => 'Meilensteine - gehören zu einem Fokusraum. Haben optional target_year und target_quarter. Können mit Objectives verknüpft werden (m:n), um strategische Ziele in die operative Arbeit zu überführen.',
-                    'relations' => ['milestone <-> objectives (m:n über okr_objective_milestone)'],
-                    'important_fields' => ['title', 'description', 'target_year', 'target_quarter', 'order'],
-                    'note' => 'target_quarter kann nur gesetzt werden, wenn target_year gesetzt ist.',
-                ],
                 'okrs' => [
                     'description' => 'Zielsteuerung-Container (z.B. Company/Team Zielsteuerung). Enthält mehrere Cycles.',
                     'relations' => ['okr -> cycles', 'okr -> objectives (über cycles)', 'okr -> erfolgskriterien (über objectives)'],
@@ -76,8 +52,8 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                     'status' => ['draft', 'active', 'ending_soon', 'completed', 'past'],
                 ],
                 'objectives' => [
-                    'description' => 'Hauptziele in einem Cycle (cycle_id required). Enthält Erfolgskriterien. Können mit Meilensteinen aus Forecasts verknüpft werden (m:n), um auf strategische Ziele einzuzahlen.',
-                    'relations' => ['objective -> key_results', 'objective <-> milestones (m:n über okr_objective_milestone)'],
+                    'description' => 'Hauptziele in einem Cycle (cycle_id required). Enthält Erfolgskriterien.',
+                    'relations' => ['objective -> key_results'],
                 ],
                 'key_results' => [
                     'description' => 'Messbare Erfolgskriterien zu einem Objective. Gehören indirekt immer zu einem Cycle (über objective).',
@@ -111,7 +87,6 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
             ],
             'relationships' => [
                 'core' => 'Zielsteuerung → Cycles (cycle_template_id) → Objectives (cycle_id) → Erfolgskriterien (objective_id)',
-                'forecasts' => 'Forecast → FocusAreas → VisionImages/Obstacles/Milestones',
                 'current_cycles' => 'CycleTemplates.is_current=true markieren aktuelle Perioden; Cycles referenzieren Templates.',
             ],
             'workflows' => [
@@ -122,7 +97,7 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                 ],
                 'create_objective' => [
                     'step_1' => 'okr.cycles.GET oder okr.cycle.GET → cycle_id auswählen',
-                    'step_2' => 'okr.objectives.POST (cycle_id + title + ... + optional vision_id)',
+                    'step_2' => 'okr.objectives.POST (cycle_id + title + ...)',
                 ],
                 'create_key_result' => [
                     'step_1' => 'okr.objectives.GET (cycle_id) → objective_id auswählen',
@@ -138,11 +113,6 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                     'overview' => 'okr.overview.GET',
                 ],
                 'read' => [
-                    'forecasts' => ['okr.forecasts.GET', 'okr.forecast.GET'],
-                    'focus_areas' => ['okr.focus_areas.GET'],
-                    'vision_images' => ['okr.vision_images.GET'],
-                    'obstacles' => ['okr.obstacles.GET'],
-                    'milestones' => ['okr.milestones.GET'],
                     'okrs' => [
                         'okr.okrs.GET' => 'Listet OKRs (alle Team-Mitglieder sehen alle OKRs). Um "meine OKRs" (die ich angelegt habe) zu finden: my_okrs=true oder filters=[{"field":"user_id","value":USER_ID}]. Um "OKRs die ich verwalte" zu finden: managed_okrs=true oder filters=[{"field":"manager_user_id","value":USER_ID}].',
                         'okr.okr.GET',
@@ -154,39 +124,6 @@ class OkrOverviewTool implements ToolContract, ToolMetadataContract
                     'performances' => ['okr.performances.GET'],
                 ],
                 'write' => [
-                    'forecasts' => ['okr.forecasts.POST', 'okr.forecasts.PUT', 'okr.forecasts.DELETE'],
-                    'focus_areas' => [
-                        'okr.focus_areas.POST',
-                        'okr.focus_areas.PUT',
-                        'okr.focus_areas.DELETE',
-                        'okr.focus_areas.bulk.POST',
-                        'okr.focus_areas.bulk.PUT',
-                        'okr.focus_areas.bulk.DELETE',
-                    ],
-                    'vision_images' => [
-                        'okr.vision_images.POST',
-                        'okr.vision_images.PUT',
-                        'okr.vision_images.DELETE',
-                        'okr.vision_images.bulk.POST',
-                        'okr.vision_images.bulk.PUT',
-                        'okr.vision_images.bulk.DELETE',
-                    ],
-                    'obstacles' => [
-                        'okr.obstacles.POST',
-                        'okr.obstacles.PUT',
-                        'okr.obstacles.DELETE',
-                        'okr.obstacles.bulk.POST',
-                        'okr.obstacles.bulk.PUT',
-                        'okr.obstacles.bulk.DELETE',
-                    ],
-                    'milestones' => [
-                        'okr.milestones.POST',
-                        'okr.milestones.PUT',
-                        'okr.milestones.DELETE',
-                        'okr.milestones.bulk.POST',
-                        'okr.milestones.bulk.PUT',
-                        'okr.milestones.bulk.DELETE',
-                    ],
                     'cycles' => ['okr.cycles.POST', 'okr.cycles.PUT', 'okr.cycles.DELETE'],
                     'objectives' => ['okr.objectives.POST', 'okr.objectives.PUT', 'okr.objectives.DELETE'],
                     'key_results' => ['okr.key_results.POST', 'okr.key_results.PUT', 'okr.key_results.DELETE'],

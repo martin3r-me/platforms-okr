@@ -4,8 +4,6 @@ use Illuminate\Support\Facades\Route;
 use Platform\Okr\Livewire\Dashboard;
 use Platform\Okr\Livewire\OkrManagement;
 use Platform\Okr\Livewire\OkrShow;
-use Platform\Okr\Livewire\StrategicDocumentsManagement;
-use Platform\Okr\Http\Controllers\ForecastPdfController;
 use Illuminate\Http\Middleware\FrameGuard;
 
 // Dashboard
@@ -20,17 +18,6 @@ Route::get('/cycles/{cycle}', \Platform\Okr\Livewire\CycleShow::class)->name('ok
 
 // Objective Management
 Route::get('/objectives/{objective}', \Platform\Okr\Livewire\ObjectiveShow::class)->name('okr.objectives.show');
-
-// Strategic Documents Management
-Route::get('/strategic-documents', StrategicDocumentsManagement::class)->name('okr.strategic-documents.index');
-
-// Forecast Management
-Route::get('/forecasts', \Platform\Okr\Livewire\ForecastManagement::class)->name('okr.forecasts.index');
-Route::get('/forecasts/{forecast}/pdf', ForecastPdfController::class)->name('okr.forecasts.pdf');
-Route::get('/forecasts/{forecast}', \Platform\Okr\Livewire\ForecastShow::class)->name('okr.forecasts.show');
-
-// Focus Area Management
-Route::get('/focus-areas/{focusArea}', \Platform\Okr\Livewire\FocusAreaShow::class)->name('okr.focus-areas.show');
 
 // Embedded Teams Config (OKR) – Platzhalter
 Route::middleware([\Platform\Core\Middleware\EmbeddedHeaderAuth::class])->get('/embedded/teams/config', function() {

@@ -75,9 +75,7 @@ class ListObjectivesTool implements ToolContract, ToolMetadataContract
                 ->where('team_id', $teamId);
 
             if ($includeKrs) {
-                $query->with(['keyResults.performance', 'vision', 'milestones.focusArea']);
-            } else {
-                $query->with(['vision', 'milestones.focusArea']);
+                $query->with(['keyResults.performance']);
             }
 
             $this->applyStandardFilters($query, $arguments, [
@@ -100,15 +98,6 @@ class ListObjectivesTool implements ToolContract, ToolMetadataContract
                     'is_mountain' => (bool)$o->is_mountain,
                     'performance_score' => $o->performance_score,
                     'order' => $o->order,
-                    'vision' => $o->vision ? [
-                        'id' => $o->vision->id,
-                        'type' => $o->vision->type,
-                        'title' => $o->vision->title,
-                        'version' => $o->vision->version,
-                        'is_active' => (bool)$o->vision->is_active,
-                        'valid_from' => $this->dateToYmd($o->vision->valid_from),
-                    ] : null,
-                    'milestone_ids' => $o->milestones->pluck('id')->values()->toArray(),
                     'key_results' => $includeKrs ? $o->keyResults->map(function ($kr) {
                         return [
                             'id' => $kr->id,

@@ -5,8 +5,6 @@ namespace Platform\Okr\Livewire;
 use Livewire\Component;
 use Platform\Okr\Models\Objective;
 use Platform\Okr\Models\KeyResult;
-use Platform\Okr\Models\Milestone;
-use Platform\Okr\Models\StrategicDocument;
 use Platform\Core\Models\User;
 use Livewire\Attributes\Computed;
 
@@ -14,7 +12,6 @@ class ObjectiveShow extends Component
 {
     public Objective $objective;
     public $isDirty = false;
-    public $selectedMilestoneIds = [];
 
     // Key Result Modal Properties
     public $keyResultCreateModalShow = false;
@@ -33,7 +30,6 @@ class ObjectiveShow extends Component
         'objective.title' => 'required|string|max:255',
         'objective.description' => 'nullable|string',
         'objective.order' => 'required|integer|min:0',
-        'objective.vision_id' => 'nullable|exists:okr_strategic_documents,id',
 
         'keyResultForm.title' => 'required|string|max:255',
         'keyResultForm.description' => 'nullable|string',
@@ -46,41 +42,13 @@ class ObjectiveShow extends Component
     public function mount(Objective $objective)
     {
         $this->objective = $objective;
-        $this->objective->load(['cycle', 'okr', 'keyResults.performances', 'keyResults.measures', 'vision', 'milestones.focusArea']);
-        $this->selectedMilestoneIds = $this->objective->milestones->pluck('id')->toArray();
+        $this->objective->load(['cycle', 'okr', 'keyResults.performances', 'keyResults.measures']);
     }
 
     #[Computed]
     public function users()
     {
         return User::where('current_team_id', auth()->user()->current_team_id)->get();
-    }
-
-    #[Computed]
-    public function availableVisions()
-    {
-        if (!$this->objective->okr) {
-            return collect();
-        }
-        return StrategicDocument::active('vision')
-            ->forTeam($this->objective->okr->team_id)
-            ->get()
-            ->mapWithKeys(fn($doc) => [$doc->id => $doc->title]);
-    }
-
-    #[Computed]
-    public function availableMilestones()
-    {
-        if (!$this->objective->okr) {
-            return collect();
-        }
-        return Milestone::where('team_id', $this->objective->okr->team_id)
-            ->with('focusArea')
-            ->orderBy('title')
-            ->get()
-            ->mapWithKeys(fn($m) => [
-                $m->id => ($m->focusArea ? $m->focusArea->title . ' > ' : '') . $m->title,
-            ]);
     }
 
 
@@ -101,30 +69,11 @@ class ObjectiveShow extends Component
             'objective.title' => 'required|string|max:255',
             'objective.description' => 'nullable|string',
             'objective.order' => 'required|integer|min:0',
-            'objective.vision_id' => 'nullable|exists:okr_strategic_documents,id',
         ]);
 
         $this->objective->save();
         $this->isDirty = false;
         session()->flash('message', 'Objective erfolgreich aktualisiert!');
-    }
-
-    // Milestone Management
-
-    public function saveMilestones()
-    {
-        $ids = array_map('intval', array_filter($this->selectedMilestoneIds));
-        $this->objective->milestones()->sync($ids);
-        $this->objective->load('milestones.focusArea');
-        session()->flash('message', 'Meilensteine erfolgreich aktualisiert!');
-    }
-
-    public function removeMilestone($id)
-    {
-        $this->objective->milestones()->detach($id);
-        $this->selectedMilestoneIds = array_values(array_diff($this->selectedMilestoneIds, [$id]));
-        $this->objective->load('milestones.focusArea');
-        session()->flash('message', 'Meilenstein entfernt.');
     }
 
     // Key Result Management

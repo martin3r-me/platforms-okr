@@ -9,7 +9,6 @@ use Platform\ActivityLog\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Facades\Auth;
@@ -42,7 +41,6 @@ class Objective extends Model implements AgendaRenderable
         'performance_score',
         'weight',
         'order',
-        'vision_id',
     ];
 
     protected $casts = [
@@ -119,19 +117,6 @@ class Objective extends Model implements AgendaRenderable
     public function performance(): HasOne
     {
         return $this->hasOne(ObjectivePerformance::class)->latest();
-    }
-
-    public function milestones(): BelongsToMany
-    {
-        return $this->belongsToMany(Milestone::class, 'okr_objective_milestone');
-    }
-
-    /**
-     * Vision, die dieses Objective referenziert (optional)
-     */
-    public function vision(): BelongsTo
-    {
-        return $this->belongsTo(StrategicDocument::class, 'vision_id');
     }
 
     // ── AgendaRenderable ──────────────────────────────────────

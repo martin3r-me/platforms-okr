@@ -7,7 +7,6 @@ use Platform\Core\Contracts\ToolContext;
 use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
 use Platform\Okr\Models\Objective;
-use Platform\Okr\Models\StrategicDocument;
 use Platform\Okr\Tools\Concerns\ResolvesOkrScope;
 
 class GetObjectiveTool implements ToolContract, ToolMetadataContract
@@ -56,9 +55,9 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
             $includeKrs = (bool)($arguments['include_key_results'] ?? true);
             $q = Objective::query()->where('team_id', $teamId);
             if ($includeKrs) {
-                $q->with(['keyResults.performance', 'performance', 'vision', 'milestones.focusArea']);
+                $q->with(['keyResults.performance', 'performance']);
             } else {
-                $q->with(['vision', 'milestones.focusArea']);
+                $q->with(['performance']);
             }
             $obj = $q->find($id);
             if (!$obj) {
@@ -102,26 +101,11 @@ class GetObjectiveTool implements ToolContract, ToolMetadataContract
                     'is_mountain' => (bool)$obj->is_mountain,
                     'performance_score' => $obj->performance_score,
                     'order' => $obj->order,
-                    'vision' => $obj->vision ? [
-                        'id' => $obj->vision->id,
-                        'type' => $obj->vision->type,
-                        'title' => $obj->vision->title,
-                        'version' => $obj->vision->version,
-                        'is_active' => (bool)$obj->vision->is_active,
-                        'valid_from' => $this->dateToYmd($obj->vision->valid_from),
-                    ] : null,
                     'performance' => $obj->performance ? [
                         'performance_date' => $this->dateToYmd($obj->performance->performance_date),
                         'performance_score' => $obj->performance->performance_score,
                         'completion_percentage' => $obj->performance->completion_percentage,
                     ] : null,
-                    'milestones' => $obj->milestones->map(fn($m) => [
-                        'id' => $m->id,
-                        'title' => $m->title,
-                        'focus_area' => $m->focusArea ? $m->focusArea->title : null,
-                        'target_year' => $m->target_year,
-                        'target_quarter' => $m->target_quarter,
-                    ])->values()->toArray(),
                 ],
                 'key_results' => $krs,
             ]);

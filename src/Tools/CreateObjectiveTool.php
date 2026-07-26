@@ -7,9 +7,7 @@ use Platform\Core\Contracts\ToolContext;
 use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
 use Platform\Okr\Models\Cycle;
-use Platform\Okr\Models\Milestone;
 use Platform\Okr\Models\Objective;
-use Platform\Okr\Models\StrategicDocument;
 use Platform\Okr\Tools\Concerns\ResolvesOkrScope;
 
 class CreateObjectiveTool implements ToolContract, ToolMetadataContract
@@ -37,8 +35,6 @@ class CreateObjectiveTool implements ToolContract, ToolMetadataContract
                 'is_mountain' => ['type' => 'boolean'],
                 'order' => ['type' => 'integer', 'description' => 'Optional: Reihenfolge. Wenn nicht gesetzt, wird ans Ende gehängt.'],
                 'manager_user_id' => ['type' => 'integer'],
-                'vision_id' => ['type' => 'integer', 'description' => 'Optional: StrategicDocument-ID vom Typ vision.'],
-                'milestone_ids' => ['type' => 'array', 'items' => ['type' => 'integer'], 'description' => 'Optional: Array von Milestone-IDs zum Verknüpfen.'],
             ],
             'required' => ['cycle_id', 'title'],
         ];
@@ -67,18 +63,6 @@ class CreateObjectiveTool implements ToolContract, ToolMetadataContract
                 return ToolResult::error('NOT_FOUND', "Cycle {$cycleId} nicht gefunden (Team-ID: {$teamId}).");
             }
 
-            $visionId = $this->normalizeId($arguments['vision_id'] ?? null);
-            if ($visionId) {
-                $ok = StrategicDocument::query()
-                    ->where('team_id', $teamId)
-                    ->where('type', 'vision')
-                    ->where('id', $visionId)
-                    ->exists();
-                if (!$ok) {
-                    return ToolResult::error('VALIDATION_ERROR', "vision_id={$visionId} ist ungültig (muss existieren, Typ=vision, Team-ID={$teamId}).");
-                }
-            }
-
             $order = array_key_exists('order', $arguments) ? $this->normalizeId($arguments['order']) : null;
             if ($order === null) {
                 $max = Objective::where('cycle_id', $cycleId)->max('order');
@@ -95,23 +79,7 @@ class CreateObjectiveTool implements ToolContract, ToolMetadataContract
                 'description' => $arguments['description'] ?? null,
                 'is_mountain' => (bool)($arguments['is_mountain'] ?? false),
                 'order' => $order,
-                'vision_id' => $visionId,
             ]);
-
-            // milestone_ids: Pivot-Tabelle synchronisieren
-            if (array_key_exists('milestone_ids', $arguments)) {
-                $milestoneIds = array_map('intval', array_filter((array) ($arguments['milestone_ids'] ?? []), fn($v) => $v !== null && $v !== '' && $v !== 0));
-                if (!empty($milestoneIds)) {
-                    $validCount = Milestone::query()
-                        ->where('team_id', $teamId)
-                        ->whereIn('id', $milestoneIds)
-                        ->count();
-                    if ($validCount !== count($milestoneIds)) {
-                        return ToolResult::error('VALIDATION_ERROR', 'Einige milestone_ids sind ungültig (müssen existieren und zum Team gehören).');
-                    }
-                }
-                $objective->milestones()->sync($milestoneIds);
-            }
 
             return ToolResult::success([
                 'id' => $objective->id,
@@ -120,7 +88,6 @@ class CreateObjectiveTool implements ToolContract, ToolMetadataContract
                 'cycle_id' => $objective->cycle_id,
                 'title' => $objective->title,
                 'order' => $objective->order,
-                'milestone_ids' => $objective->milestones()->pluck('okr_milestones.id')->toArray(),
                 'message' => 'Objective erfolgreich erstellt.',
             ]);
         } catch (\Throwable $e) {

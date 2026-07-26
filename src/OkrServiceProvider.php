@@ -57,18 +57,9 @@ class OkrServiceProvider extends ServiceProvider
             // Organization-Modul nicht geladen
         }
 
-        // MilestoneContributor registrieren (OKR-Items als Beitraege auf der Transformations-Map)
-        try {
-            resolve(\Platform\Organization\Services\MilestoneContributorRegistry::class)
-                ->register(new \Platform\Okr\Organization\OkrMilestoneContributor());
-        } catch (\Throwable $e) {
-            // Organization-Modul nicht geladen
-        }
-
         // Policies
         Gate::policy(Okr::class, OkrPolicy::class);
         Gate::policy(Cycle::class, CyclePolicy::class);
-        Gate::policy(\Platform\Okr\Models\Forecast::class, \Platform\Okr\Policies\ForecastPolicy::class);
 
         // Schritt 1: Config laden
         $this->mergeConfigFrom(__DIR__.'/../config/okr.php', 'okr');
@@ -133,11 +124,6 @@ class OkrServiceProvider extends ServiceProvider
         Livewire::component('okr.objective-show', \Platform\Okr\Livewire\ObjectiveShow::class);
         Livewire::component('okr.sidebar', \Platform\Okr\Livewire\Sidebar::class);
         Livewire::component('okr.modal-key-result', \Platform\Okr\Livewire\ModalKeyResult::class);
-        Livewire::component('okr.strategic-documents-management', \Platform\Okr\Livewire\StrategicDocumentsManagement::class);
-        Livewire::component('platform.okr.livewire.strategic-documents-management', \Platform\Okr\Livewire\StrategicDocumentsManagement::class);
-        Livewire::component('okr.forecast-management', \Platform\Okr\Livewire\ForecastManagement::class);
-        Livewire::component('okr.forecast-show', \Platform\Okr\Livewire\ForecastShow::class);
-        Livewire::component('okr.focus-area-show', \Platform\Okr\Livewire\FocusAreaShow::class);
 
         // Embedded Components
         if (class_exists(\Platform\Okr\Livewire\Embedded\Cycle::class)) {
@@ -229,14 +215,6 @@ class OkrServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Okr\Tools\GetContextKeyResultsTool());
             $registry->register(new \Platform\Okr\Tools\ListPerformancesTool());
 
-            // Forecast & FocusArea Read Tools
-            $registry->register(new \Platform\Okr\Tools\ListForecastsTool());
-            $registry->register(new \Platform\Okr\Tools\GetForecastTool());
-            $registry->register(new \Platform\Okr\Tools\ListFocusAreasTool());
-            $registry->register(new \Platform\Okr\Tools\ListVisionImagesTool());
-            $registry->register(new \Platform\Okr\Tools\ListObstaclesTool());
-            $registry->register(new \Platform\Okr\Tools\ListMilestonesTool());
-
             // Write tool (OKR container / Zielsteuerung)
             $registry->register(new \Platform\Okr\Tools\CreateOkrTool());
             $registry->register(new \Platform\Okr\Tools\UpdateOkrTool());
@@ -259,38 +237,6 @@ class OkrServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Okr\Tools\CreateKeyResultMeasureTool());
             $registry->register(new \Platform\Okr\Tools\ListKeyResultMeasuresTool());
             $registry->register(new \Platform\Okr\Tools\DeleteKeyResultMeasureTool());
-
-            // FocusArea Tools
-            $registry->register(new \Platform\Okr\Tools\CreateFocusAreaTool());
-            $registry->register(new \Platform\Okr\Tools\UpdateFocusAreaTool());
-            $registry->register(new \Platform\Okr\Tools\DeleteFocusAreaTool());
-            $registry->register(new \Platform\Okr\Tools\BulkCreateFocusAreasTool());
-            $registry->register(new \Platform\Okr\Tools\BulkUpdateFocusAreasTool());
-            $registry->register(new \Platform\Okr\Tools\BulkDeleteFocusAreasTool());
-
-            // VisionImage Tools
-            $registry->register(new \Platform\Okr\Tools\CreateVisionImageTool());
-            $registry->register(new \Platform\Okr\Tools\UpdateVisionImageTool());
-            $registry->register(new \Platform\Okr\Tools\DeleteVisionImageTool());
-            $registry->register(new \Platform\Okr\Tools\BulkCreateVisionImagesTool());
-            $registry->register(new \Platform\Okr\Tools\BulkUpdateVisionImagesTool());
-            $registry->register(new \Platform\Okr\Tools\BulkDeleteVisionImagesTool());
-
-            // Obstacle Tools
-            $registry->register(new \Platform\Okr\Tools\CreateObstacleTool());
-            $registry->register(new \Platform\Okr\Tools\UpdateObstacleTool());
-            $registry->register(new \Platform\Okr\Tools\DeleteObstacleTool());
-            $registry->register(new \Platform\Okr\Tools\BulkCreateObstaclesTool());
-            $registry->register(new \Platform\Okr\Tools\BulkUpdateObstaclesTool());
-            $registry->register(new \Platform\Okr\Tools\BulkDeleteObstaclesTool());
-
-            // Milestone Tools
-            $registry->register(new \Platform\Okr\Tools\CreateMilestoneTool());
-            $registry->register(new \Platform\Okr\Tools\UpdateMilestoneTool());
-            $registry->register(new \Platform\Okr\Tools\DeleteMilestoneTool());
-            $registry->register(new \Platform\Okr\Tools\BulkCreateMilestonesTool());
-            $registry->register(new \Platform\Okr\Tools\BulkUpdateMilestonesTool());
-            $registry->register(new \Platform\Okr\Tools\BulkDeleteMilestonesTool());
         } catch (\Throwable $e) {
             \Log::warning('OKR: Tool-Registrierung fehlgeschlagen', ['error' => $e->getMessage()]);
         }

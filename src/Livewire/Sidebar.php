@@ -5,7 +5,6 @@ namespace Platform\Okr\Livewire;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use Platform\Okr\Models\Okr;
-use Platform\Okr\Models\Forecast;
 use Platform\Organization\Services\EntityAncestorService;
 use Platform\Organization\Services\EntityDimensionBridge;
 use Platform\Organization\Models\OrganizationEntity;
@@ -102,7 +101,6 @@ class Sidebar extends Component
             return view('okr::livewire.sidebar', [
                 'entityTypeGroups' => collect(),
                 'unlinkedOkrs' => collect(),
-                'forecasts' => collect(),
                 'okrs' => collect(),
                 'users' => collect(),
             ]);
@@ -124,13 +122,6 @@ class Sidebar extends Component
             ->orderBy('title')
             ->get();
 
-        // Team-basierte Forecasts holen
-        $forecasts = Forecast::query()
-            ->where('team_id', $teamId)
-            ->orderBy('target_date', 'desc')
-            ->orderBy('title')
-            ->get();
-
         // Users für Manager-Dropdown (vom Root-Team wenn Parent Tool)
         $rootTeam = ($okrModule && $okrModule->isRootScoped()) 
             ? $baseTeam->getRootTeam() 
@@ -147,7 +138,6 @@ class Sidebar extends Component
             'entityTypeGroups' => $entityTypeGroups,
             'unlinkedOkrs' => $unlinkedOkrs,
             'okrs' => $okrs,
-            'forecasts' => $forecasts,
             'users' => $users,
         ]);
     }

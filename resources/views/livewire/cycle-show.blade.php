@@ -96,66 +96,6 @@
 
         {{-- Cycle Details entfernt (Info im Header enthalten) --}}
 
-        {{-- Strategic Documents Section (Read-Only) --}}
-        @if($this->mission || $this->vision)
-            <div class="bg-[color:var(--nx-surface)] rounded-lg border border-[color:var(--nx-line)] p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-[var(--nx-accent)] text-[var(--nx-on-accent)] rounded-lg flex items-center justify-center">
-                            @svg('heroicon-o-document-text', 'w-4 h-4')
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-semibold text-[var(--nx-text)]">Strategische Orientierung</h3>
-                            <p class="text-sm text-[var(--nx-muted)]">Mission & Vision (Read-Only)</p>
-                        </div>
-                    </div>
-                    <x-nx-button variant="secondary" size="sm" :href="route('okr.strategic-documents.index')" wire:navigate>
-                        @svg('heroicon-o-pencil', 'w-4 h-4')
-                        <span class="ml-1">Verwalten</span>
-                    </x-nx-button>
-                </div>
-
-                <div class="space-y-4">
-                    {{-- Mission --}}
-                    @if($this->mission)
-                        <div class="bg-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)] p-4">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="w-5 h-5 bg-[color:var(--nx-info)] text-white rounded flex items-center justify-center">
-                                    @svg('heroicon-o-document-text', 'w-3 h-3')
-                                </div>
-                                <h4 class="font-semibold text-[var(--nx-text)] text-sm">🧭 Mission</h4>
-                                <span class="text-xs text-[var(--nx-muted)] ml-auto">
-                                    v{{ $this->mission->version }} • {{ $this->mission->valid_from->format('d.m.Y') }}
-                                </span>
-                            </div>
-                            <div class="prose prose-sm max-w-none text-[var(--nx-text)] text-sm">
-                                {!! \Illuminate\Support\Str::markdown(\Illuminate\Support\Str::limit($this->mission->content ?? '', 200)) !!}
-                            </div>
-                        </div>
-                    @endif
-
-                    {{-- Vision --}}
-                    @if($this->vision)
-                        <div class="bg-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)] p-4">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="w-5 h-5 bg-[color:var(--nx-tone-violet)] text-white rounded flex items-center justify-center">
-                                    @svg('heroicon-o-sun', 'w-3 h-3')
-                                </div>
-                                <h4 class="font-semibold text-[var(--nx-text)] text-sm">🌄 Vision</h4>
-                                <span class="text-xs text-[var(--nx-muted)] ml-auto">
-                                    v{{ $this->vision->version }} • {{ $this->vision->valid_from->format('d.m.Y') }}
-                                </span>
-                            </div>
-                            <div class="prose prose-sm max-w-none text-[var(--nx-text)] text-sm">
-                                {!! \Illuminate\Support\Str::markdown(\Illuminate\Support\Str::limit($this->vision->content ?? '', 200)) !!}
-                            </div>
-                        </div>
-                    @endif
-
-                </div>
-            </div>
-        @endif
-
         {{-- Objectives & Key Results --}}
         <div class="bg-[color:var(--nx-surface)] rounded-lg border border-[color:var(--nx-line)] p-8">
             <div class="flex items-center justify-between mb-6">
@@ -203,16 +143,6 @@
                                     @if($objective->description)
                                         <div class="text-sm text-[var(--nx-muted)] mt-2">{{ Str::limit($objective->description, 100) }}</div>
                                     @endif
-                                    @if($objective->milestones->count() > 0)
-                                        <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                                            @foreach($objective->milestones as $milestone)
-                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-[var(--nx-tone-violet)]/10 text-[color:var(--nx-tone-violet)] border border-[var(--nx-tone-violet)]/30">
-                                                    @svg('heroicon-o-flag', 'w-3 h-3')
-                                                    {{ $milestone->title }}
-                                                </span>
-                                            @endforeach
-                                        </div>
-                                    @endif
                                 </div>
                                 <div class="flex gap-2">
                                     <x-nx-button 
@@ -257,7 +187,7 @@
                                                 @php
                                                     $primaryContexts = $keyResult->primaryContexts()->with('context')->get();
                                                 @endphp
-                                                @if($primaryContexts->count() > 0 || $keyResult->milestones->count() > 0)
+                                                @if($primaryContexts->count() > 0)
                                                     <div class="flex flex-wrap items-center gap-1.5 mt-2">
                                                         @foreach($primaryContexts as $context)
                                                             @php
@@ -273,12 +203,6 @@
                                                                 <span class="{{ $isContextDone ? 'line-through' : '' }}">
                                                                     {{ $context->context_label ?? class_basename($context->context_type) }}
                                                                 </span>
-                                                            </span>
-                                                        @endforeach
-                                                        @foreach($keyResult->milestones as $milestone)
-                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-[var(--nx-tone-violet)]/10 text-[color:var(--nx-tone-violet)] border border-[var(--nx-tone-violet)]/30">
-                                                                @svg('heroicon-o-flag', 'w-3 h-3')
-                                                                {{ $milestone->title }}
                                                             </span>
                                                         @endforeach
                                                     </div>
@@ -735,16 +659,6 @@
                     min="0"
                     required
                 />
-
-                <x-nx-input-select
-                    name="objectiveSelectedMilestoneIds"
-                    label="Meilensteine"
-                    :options="$this->availableMilestones->toArray()"
-                    wire:model="objectiveSelectedMilestoneIds"
-                    :nullable="true"
-                    :multiple="true"
-                    placeholder="Meilensteine auswählen..."
-                />
             </form>
         </div>
 
@@ -876,16 +790,6 @@
                 nullLabel="– Verantwortlichen auswählen –"
                 :nullable="true"
             />
-
-            <x-nx-input-select
-                name="keyResultSelectedMilestoneIds"
-                label="Meilensteine"
-                :options="$this->availableMilestones->toArray()"
-                wire:model="keyResultSelectedMilestoneIds"
-                :nullable="true"
-                :multiple="true"
-                placeholder="Meilensteine auswählen..."
-            />
         </div>
 
         <x-slot name="footer">
@@ -944,16 +848,6 @@
                     :options="$this->okrMembers->pluck('fullname', 'id')->toArray()"
                     nullLabel="– Verantwortlichen auswählen –"
                     :nullable="true"
-                />
-
-                <x-nx-input-select
-                    name="keyResultSelectedMilestoneIds"
-                    label="Meilensteine"
-                    :options="$this->availableMilestones->toArray()"
-                    wire:model="keyResultSelectedMilestoneIds"
-                    :nullable="true"
-                    :multiple="true"
-                    placeholder="Meilensteine auswählen..."
                 />
             </div>
 
