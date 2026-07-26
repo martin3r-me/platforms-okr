@@ -9,7 +9,7 @@
         ]" />
     </x-slot>
 
-    <x-ui-page-container>
+    <x-ui-page-container width="contained">
         {{-- Hero Stats - Nur die wichtigsten 4 Metriken --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <x-nx-stat label="Performance Score" :value="round($averageScore ?? 0, 1)" hint="Team Durchschnitt" icon="heroicon-o-chart-bar" />

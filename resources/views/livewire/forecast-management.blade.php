@@ -15,7 +15,7 @@
         </x-ui-page-actionbar>
     </x-slot>
 
-    <x-ui-page-container>
+    <x-ui-page-container width="contained">
         {{-- Header mit Aktionen --}}
         <div class="mb-6">
             <div class="flex items-center justify-between mb-4">

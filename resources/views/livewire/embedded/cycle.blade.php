@@ -3,7 +3,7 @@
     <x-ui-page-navbar :title="$cycle->template->label ?? 'Zyklus'" icon="heroicon-o-calendar"/>
   </x-slot>
 
-  <x-ui-page-container spacing="space-y-8">
+  <x-ui-page-container width="contained" spacing="space-y-8">
     {{-- Header-Karte --}}
     <div class="bg-gradient-to-r from-[var(--nx-bg)] to-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)] p-8">
       <div class="flex items-start justify-between">

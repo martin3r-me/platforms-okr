@@ -22,7 +22,7 @@
         </x-ui-page-actionbar>
     </x-slot>
 
-    <x-ui-page-container spacing="space-y-8">
+    <x-ui-page-container width="contained" spacing="space-y-8">
         {{-- Flash Messages --}}
         @if(session()->has('message'))
             <div class="p-4 bg-[var(--nx-bg)] border border-[color:var(--nx-line)] rounded-lg">
