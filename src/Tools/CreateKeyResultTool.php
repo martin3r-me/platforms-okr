@@ -141,12 +141,17 @@ class CreateKeyResultTool implements ToolContract, ToolMetadataContract
                     $current = is_numeric($currentArg) ? (float)$currentArg : 0.0;
                 }
 
+                $targetValue = (float) $target;
+                $performanceScore = $perfType === 'boolean'
+                    ? ($isCompleted ? 1.0 : 0.0)
+                    : ($targetValue > 0 ? min(1.0, max(0.0, $current / $targetValue)) : 0.0);
+
                 $kr->performances()->create([
                     'type' => $perfType,
-                    'target_value' => $perfType === 'boolean' ? 1.0 : (float)$target,
+                    'target_value' => $perfType === 'boolean' ? 1.0 : $targetValue,
                     'current_value' => $current,
                     'is_completed' => $perfType === 'boolean' ? $isCompleted : false,
-                    'performance_score' => $perfType === 'boolean' ? ($isCompleted ? 1.0 : 0.0) : 0.0,
+                    'performance_score' => $performanceScore,
                     'team_id' => $kr->team_id,
                     'user_id' => $context->user->id,
                 ]);
