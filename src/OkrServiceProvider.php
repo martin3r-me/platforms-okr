@@ -4,7 +4,6 @@ namespace Platform\Okr;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -68,7 +67,7 @@ class OkrServiceProvider extends ServiceProvider
         if (
             config()->has('okr.routing') &&
             config()->has('okr.navigation') &&
-            Schema::hasTable('modules')
+            PlatformCore::modulesTableExists()
         ) {
             PlatformCore::registerModule([
                 'key'        => 'okr',
