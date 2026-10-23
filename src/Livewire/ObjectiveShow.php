@@ -3,6 +3,8 @@
 namespace Platform\Okr\Livewire;
 
 use Livewire\Component;
+use Illuminate\Database\Eloquent\Model;
+use Platform\Core\Livewire\Concerns\HasPageContext;
 use Platform\Okr\Models\Objective;
 use Platform\Okr\Models\KeyResult;
 use Platform\Core\Models\User;
@@ -10,6 +12,8 @@ use Livewire\Attributes\Computed;
 
 class ObjectiveShow extends Component
 {
+    use HasPageContext;
+
     public Objective $objective;
     public $isDirty = false;
 
@@ -43,6 +47,19 @@ class ObjectiveShow extends Component
     {
         $this->objective = $objective;
         $this->objective->load(['cycle', 'okr', 'keyResults.performances', 'keyResults.measures']);
+    }
+
+    protected function pageContext(): ?Model
+    {
+        return $this->objective;
+    }
+
+    protected function pageContextOptions(): array
+    {
+        return [
+            'url' => route('okr.objectives.show', $this->objective),
+            'source' => 'okr.objective.view',
+        ];
     }
 
     #[Computed]

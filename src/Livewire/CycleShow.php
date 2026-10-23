@@ -3,6 +3,8 @@
 namespace Platform\Okr\Livewire;
 
 use Livewire\Component;
+use Illuminate\Database\Eloquent\Model;
+use Platform\Core\Livewire\Concerns\HasPageContext;
 use Platform\Okr\Models\Cycle;
 use Platform\Okr\Models\Objective;
 use Platform\Core\Models\User;
@@ -10,6 +12,8 @@ use Livewire\Attributes\Computed;
 
 class CycleShow extends Component
 {
+    use HasPageContext;
+
     public Cycle $cycle;
     public $isDirty = false;
 
@@ -58,17 +62,19 @@ class CycleShow extends Component
         $this->cycle->load(['okr', 'template', 'objectives.keyResults.performance', 'objectives.keyResults.primaryContexts', 'objectives.keyResults.manager', 'okr.members']);
     }
 
-    public function rendered()
+    protected function pageContext(): ?Model
     {
-        // Context an CursorSidebar senden
-        $this->dispatch('comms', [
-            'model' => get_class($this->cycle),                                // z. B. 'Platform\Okr\Models\Cycle'
-            'modelId' => $this->cycle->id,
+        return $this->cycle;
+    }
+
+    protected function pageContextOptions(): array
+    {
+        return [
+            // Bisheriger Kanal-Name „OKR — Zyklus" erhalten
             'subject' => trim(($this->cycle->okr->title ?? 'OKR') . ' — ' . ($this->cycle->label ?? $this->cycle->template?->label ?? 'Cycle')),
             'description' => $this->cycle->okr->description ?? '',
-            'url' => route('okr.cycles.show', $this->cycle),                  // absolute URL zum Cycle
-            'source' => 'okr.cycle.view',                                     // eindeutiger Quell-Identifier
-            'recipients' => [],                                               // falls vorhanden, sonst leer
+            'url' => route('okr.cycles.show', $this->cycle),
+            'source' => 'okr.cycle.view',
             'meta' => [
                 'status' => $this->cycle->status,
                 'objectives_count' => $this->cycle->objectives->count(),
@@ -77,23 +83,9 @@ class CycleShow extends Component
                 }),
                 'team_id' => $this->cycle->okr->team_id ?? null,
             ],
-        ]);
-
-        // Organization-Kontext setzen - nur Zeiten erlauben, keine Entity-Verknüpfung, keine Dimensionen
-        $this->dispatch('organization', [
-            'context_type' => get_class($this->cycle),
-            'context_id' => $this->cycle->id,
-            'linked_contexts' => $this->cycle->okr ? [['type' => get_class($this->cycle->okr), 'id' => $this->cycle->okr->id]] : [],
-            'allow_time_entry' => true,
-            'allow_entities' => false,
-            'allow_dimensions' => false,
-        ]);
-
-        // KeyResult-Kontext setzen - ermöglicht Verknüpfung von KeyResults mit diesem Cycle
-        $this->dispatch('keyresult', [
-            'context_type' => get_class($this->cycle),
-            'context_id' => $this->cycle->id,
-        ]);
+            // Cycle hat weder HasTimeEntries noch HasKeyResultAncestors — wie bisher erzwingen
+            'apps' => ['time' => true, 'okr' => true],
+        ];
     }
 
     #[Computed]

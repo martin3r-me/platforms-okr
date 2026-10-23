@@ -3,6 +3,8 @@
 namespace Platform\Okr\Livewire;
 
 use Livewire\Component;
+use Illuminate\Database\Eloquent\Model;
+use Platform\Core\Livewire\Concerns\HasPageContext;
 use Platform\Okr\Models\Okr;
 use Platform\Okr\Models\Cycle;
 use Platform\Okr\Models\CycleTemplate;
@@ -13,6 +15,8 @@ use Livewire\Attributes\On;
 
 class OkrShow extends Component
 {
+    use HasPageContext;
+
     public Okr $okr;
     public $isDirty = false;
 
@@ -128,34 +132,25 @@ class OkrShow extends Component
         }
     }
 
-    public function rendered()
+    protected function pageContext(): ?Model
     {
-        $this->dispatch('comms', [
-            'model' => get_class($this->okr),
-            'modelId' => $this->okr->id,
-            'subject' => $this->okr->title,
-            'description' => $this->okr->description ?? '',
+        return $this->okr;
+    }
+
+    protected function pageContextOptions(): array
+    {
+        return [
             'url' => route('okr.okrs.show', $this->okr),
             'source' => 'okr.okr.view',
-            'recipients' => [],
             'meta' => [
                 'performance_score' => $this->okr->performance_score,
                 'auto_transfer' => $this->okr->auto_transfer,
                 'is_template' => $this->okr->is_template,
                 'team_id' => $this->okr->team_id ?? null,
             ],
-        ]);
-
-        // Organization-Kontext setzen - beides erlauben: Zeiten + Entity-Verknüpfung + Dimensionen
-        $this->dispatch('organization', [
-            'context_type' => get_class($this->okr),
-            'context_id' => $this->okr->id,
-            'allow_time_entry' => true,
-            'allow_entities' => true,
-            'allow_dimensions' => true,
-            // Verfügbare Relations für Children-Cascade (z.B. Cycles mit Objectives/KeyResults)
-            'include_children_relations' => ['cycles', 'cycles.objectives', 'cycles.objectives.keyResults'],
-        ]);
+            // Okr hat kein HasTimeEntries — Zeiterfassung wie bisher erzwingen
+            'apps' => ['time' => true],
+        ];
     }
 
     public $cycleTemplates = [];
