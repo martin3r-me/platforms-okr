@@ -14,7 +14,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <x-nx-stat label="Performance Score" :value="round($averageScore ?? 0, 1)" hint="Team Durchschnitt" icon="heroicon-o-chart-bar" />
             <x-nx-stat label="Aktive Zielsteuerungen" :value="$activeOkrsCount" hint="laufende Ziele" icon="heroicon-o-flag" />
-            <x-nx-stat label="Erreichte Ziele" :value="$achievedObjectivesCount" hint="von {{ $activeObjectivesCount }}" icon="heroicon-o-check-circle" />
+            <x-nx-stat label="Erreichte Ziele" :value="$achievedObjectivesCount" hint="von {{ $activeObjectivesCount }} · {{ $achievedKeyResultsCount }} Erfolgskriterien erreicht" icon="heroicon-o-check-circle" />
             <x-nx-stat label="Aktive Zyklen" :value="$activeCyclesCount" hint="laufende Zeiträume" icon="heroicon-o-calendar" />
         </div>
 
@@ -175,36 +175,4 @@
     </x-slot>
 
     {{-- Right Sidebar - Aktivitäten --}}
-    <x-slot name="activity">
-        <x-ui-page-sidebar title="Aktivitäten & Timeline" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
-            <div class="p-6 space-y-6">
-                {{-- Recent Activities --}}
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--nx-muted)] mb-3">Letzte Aktivitäten</h3>
-                    <div class="space-y-3 text-sm">
-                        <div class="text-[var(--nx-muted)]">Keine Aktivitäten verfügbar</div>
-                    </div>
-                </div>
-
-                {{-- Performance Übersicht --}}
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--nx-muted)] mb-3">Performance</h3>
-                    <div class="space-y-3">
-                        <div class="bg-[var(--nx-bg)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-[var(--nx-accent)]">{{ round($averageScore ?? 0, 1) }}%</div>
-                            <div class="text-xs text-[var(--nx-muted)]">Durchschnitt Score</div>
-                        </div>
-                        <div class="bg-[var(--nx-bg)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-[color:var(--nx-success)]">{{ $achievedObjectivesCount ?? 0 }}</div>
-                            <div class="text-xs text-[var(--nx-muted)]">Erreichte Ziele</div>
-                        </div>
-                        <div class="bg-[var(--nx-bg)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-[color:var(--nx-info)]">{{ $achievedKeyResultsCount ?? 0 }}</div>
-                            <div class="text-xs text-[var(--nx-muted)]">Erreichte KR</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </x-ui-page-sidebar>
-    </x-slot>
 </x-ui-page>

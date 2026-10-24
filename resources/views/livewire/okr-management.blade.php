@@ -76,7 +76,7 @@
                     </div>
                     <div>
                         <div class="text-2xl font-bold text-[var(--nx-text)]">{{ round($averageScore, 1) }}%</div>
-                        <div class="text-xs text-[var(--nx-muted)]">Ø Score</div>
+                        <div class="text-xs text-[var(--nx-muted)]">Ø Score · {{ $successfulOkrs }} erfolgreich (≥80%) · {{ $autoTransferOkrs }} Auto-Transfer</div>
                     </div>
                 </div>
             </div>
@@ -340,36 +340,4 @@
     </x-slot>
 
     {{-- Right Sidebar --}}
-    <x-slot name="activity">
-        <x-ui-page-sidebar title="Aktivitäten" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
-            <div class="p-6 space-y-6">
-                {{-- Recent Activities --}}
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--nx-muted)] mb-3">Letzte Aktivitäten</h3>
-                    <div class="space-y-3 text-sm">
-                        <div class="text-[var(--nx-muted)]">Keine Aktivitäten verfügbar</div>
-                    </div>
-                </div>
-
-                {{-- Performance Übersicht --}}
-                <div>
-                    <h3 class="text-xs font-semibold uppercase tracking-wide text-[var(--nx-muted)] mb-3">Performance</h3>
-                    <div class="space-y-3">
-                        <div class="bg-[var(--nx-bg)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-[var(--nx-accent)]">{{ round($averageScore, 1) }}%</div>
-                            <div class="text-xs text-[var(--nx-muted)]">Durchschnitt Score</div>
-                        </div>
-                        <div class="bg-[var(--nx-bg)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-[color:var(--nx-success)]">{{ $successfulOkrs }}</div>
-                            <div class="text-xs text-[var(--nx-muted)]">Erfolgreich (≥80%)</div>
-                        </div>
-                        <div class="bg-[var(--nx-bg)] rounded-lg p-3">
-                            <div class="text-lg font-bold text-[color:var(--nx-info)]">{{ $autoTransferOkrs }}</div>
-                            <div class="text-xs text-[var(--nx-muted)]">Auto-Transfer</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </x-ui-page-sidebar>
-    </x-slot>
 </x-ui-page>

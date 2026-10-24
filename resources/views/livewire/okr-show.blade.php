@@ -435,9 +435,4 @@
     </x-slot>
 
     {{-- Right Sidebar --}}
-    <x-slot name="activity">
-        <x-ui-page-sidebar title="Aktivitäten" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
-            <div class="p-6 text-sm text-[var(--nx-muted)]">Keine Aktivitäten verfügbar</div>
-        </x-ui-page-sidebar>
-    </x-slot>
 </x-ui-page>

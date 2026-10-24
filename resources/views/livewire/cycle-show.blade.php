@@ -59,6 +59,7 @@
                                     @svg('heroicon-o-flag', 'w-4 h-4')
                                     {{ $cycle->okr->title }}
                                 </span>
+                                @if($cycle->created_at)<span>Erstellt {{ $cycle->created_at->format('d.m.Y') }}</span>@endif
                             </div>
                         </div>
                     </div>
@@ -468,106 +469,6 @@
                     />
                 </div>
 
-            </div>
-        </x-ui-page-sidebar>
-    </x-slot>
-
-    <x-slot name="activity">
-        <x-ui-page-sidebar title="Aktivitäten & Timeline" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
-            <div class="p-6 space-y-6">
-                {{-- Recent Activities --}}
-                <div>
-                    <h3 class="text-sm font-bold text-[var(--nx-text)] uppercase tracking-wider mb-4">Letzte Aktivitäten</h3>
-                    <div class="space-y-3">
-                        <div class="flex items-start gap-3 p-3 rounded-lg border border-[color:var(--nx-line)] bg-[var(--nx-bg)]">
-                            <div class="w-8 h-8 bg-[var(--nx-accent)] text-[var(--nx-on-accent)] rounded-full flex items-center justify-center text-xs font-semibold">
-                                @svg('heroicon-o-calendar', 'w-4 h-4')
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="font-medium text-[var(--nx-text)] text-sm">Cycle erstellt</div>
-                                <div class="text-xs text-[var(--nx-muted)]">{{ $cycle->created_at->diffForHumans() }}</div>
-                            </div>
-                        </div>
-
-                        @if($cycle->objectives->count() > 0)
-                            <div class="flex items-start gap-3 p-3 rounded-lg border border-[color:var(--nx-line)] bg-[var(--nx-bg)]">
-                                <div class="w-8 h-8 bg-[var(--nx-success)]/10 text-[color:var(--nx-success)] rounded-full flex items-center justify-center text-xs font-semibold">
-                                    @svg('heroicon-o-flag', 'w-4 h-4')
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="font-medium text-[var(--nx-text)] text-sm">{{ $cycle->objectives->count() }} Objectives hinzugefügt</div>
-                                    <div class="text-xs text-[var(--nx-muted)]">Letzte Änderung: {{ $cycle->updated_at->diffForHumans() }}</div>
-                                </div>
-                            </div>
-                        @endif
-
-                        @php
-                            $totalKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->count());
-                        @endphp
-                        @if($totalKeyResults > 0)
-                            <div class="flex items-start gap-3 p-3 rounded-lg border border-[color:var(--nx-line)] bg-[var(--nx-bg)]">
-                                <div class="w-8 h-8 bg-[var(--nx-info)]/10 text-[color:var(--nx-info)] rounded-full flex items-center justify-center text-xs font-semibold">
-                                    @svg('heroicon-o-chart-bar', 'w-4 h-4')
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="font-medium text-[var(--nx-text)] text-sm">{{ $totalKeyResults }} Erfolgskriterien definiert</div>
-                                    <div class="text-xs text-[var(--nx-muted)]">Messbare Ziele gesetzt</div>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-
-                {{-- Performance Overview --}}
-                <div>
-                    <h3 class="text-sm font-bold text-[var(--nx-text)] uppercase tracking-wider mb-4">Performance</h3>
-                    <div class="space-y-3">
-                        @php
-                            $completedKeyResults = $cycle->objectives->sum(fn($obj) => $obj->keyResults->where('performance.is_completed', true)->count());
-                            $progress = $totalKeyResults > 0 ? round(($completedKeyResults / $totalKeyResults) * 100) : 0;
-                        @endphp
-                        
-                        <div class="bg-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)] p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-sm font-medium text-[var(--nx-text)]">Gesamtfortschritt</span>
-                                <span class="text-sm font-bold text-[var(--nx-accent)]">{{ $progress }}%</span>
-                            </div>
-                            <div class="w-full bg-[color:var(--nx-line)] rounded-full h-2">
-                                <div class="bg-[var(--nx-accent)] h-2 rounded-full transition-all duration-300" style="width: {{ $progress }}%"></div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2">
-                            <div class="text-center p-3 bg-[var(--nx-success)]/10 border border-[var(--nx-success)]/30 rounded-lg">
-                                <div class="text-lg font-bold text-[color:var(--nx-success)]">{{ $completedKeyResults }}</div>
-                                <div class="text-xs text-[color:var(--nx-success)]">Erreicht</div>
-                            </div>
-                            <div class="text-center p-3 bg-[var(--nx-warning)]/10 border border-[var(--nx-warning)]/30 rounded-lg">
-                                <div class="text-lg font-bold text-[color:var(--nx-warning)]">{{ $totalKeyResults - $completedKeyResults }}</div>
-                                <div class="text-xs text-[color:var(--nx-warning)]">Offen</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Quick Stats --}}
-                <div>
-                    <h3 class="text-sm font-bold text-[var(--nx-text)] uppercase tracking-wider mb-4">Schnellübersicht</h3>
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between py-2 px-3 bg-[var(--nx-bg)] rounded-lg">
-                            <span class="text-sm text-[var(--nx-text)]">Template</span>
-                            <span class="text-sm font-medium text-[var(--nx-muted)]">{{ $cycle->template?->label ?? 'Kein Template' }}</span>
-                        </div>
-                        <div class="flex items-center justify-between py-2 px-3 bg-[var(--nx-bg)] rounded-lg">
-                            <span class="text-sm text-[var(--nx-text)]">Status</span>
-                            <x-nx-badge variant="neutral" size="xs">{{ ucfirst($cycle->status) }}</x-nx-badge>
-                        </div>
-                        <div class="flex items-center justify-between py-2 px-3 bg-[var(--nx-bg)] rounded-lg">
-                            <span class="text-sm text-[var(--nx-text)]">Erstellt</span>
-                            <span class="text-sm font-medium text-[var(--nx-muted)]">{{ $cycle->created_at->format('d.m.Y') }}</span>
-                        </div>
-                    </div>
-                </div>
             </div>
         </x-ui-page-sidebar>
     </x-slot>
