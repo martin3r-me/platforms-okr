@@ -112,6 +112,31 @@ class OkrServiceProvider extends ServiceProvider
 
         // Schritt 8: Tools registrieren (für AI/Chat) – analog zum Planner-Modul
         $this->registerTools();
+
+        // Schritt 9: OKR-Reiter im Kontext-Panel — erst nach dem Boot aller Provider,
+        // damit er den Core-Platzhalter (gleicher Schlüssel 'okr') sicher ersetzt
+        $this->app->booted(fn () => $this->registerContextPanelApp());
+    }
+
+    /**
+     * Der Core registriert unter 'okr' nur einen Platzhalter (kein Core→okr-Pfeil);
+     * okr ersetzt Reiter und Terminal-Komponente durch die echte Verknüpfung.
+     */
+    protected function registerContextPanelApp(): void
+    {
+        try {
+            Livewire::component('okr.panel.key-results', \Platform\Okr\Livewire\Panel\KeyResults::class);
+            Livewire::component('core.terminal.okr', \Platform\Okr\Livewire\Panel\KeyResults::class);
+
+            \Platform\Core\Terminal\TerminalAppRegistry::register(new \Platform\Core\Terminal\Apps\CountedContextApp(
+                'okr', 'OKR', 'flag', 60, 'okr.panel.key-results',
+                fn (\Platform\Core\Terminal\TerminalContext $context) => \Platform\Core\Terminal\Apps\ContextBadges::count(
+                    app(\Platform\Okr\Services\KeyResultContextLinks::class)->countFor((string) $context->contextType, (int) $context->contextId)
+                ),
+            ));
+        } catch (\Throwable $e) {
+            \Log::warning('OKR: Kontext-Panel-Reiter nicht registriert', ['error' => $e->getMessage()]);
+        }
     }
 
     private function registerLivewireComponents(): void
@@ -212,6 +237,8 @@ class OkrServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Okr\Tools\GetKeyResultTool());
             $registry->register(new \Platform\Okr\Tools\GetKeyResultContextsTool());
             $registry->register(new \Platform\Okr\Tools\GetContextKeyResultsTool());
+            $registry->register(new \Platform\Okr\Tools\LinkKeyResultContextTool());
+            $registry->register(new \Platform\Okr\Tools\UnlinkKeyResultContextTool());
             $registry->register(new \Platform\Okr\Tools\ListPerformancesTool());
 
             // Write tool (OKR container / Zielsteuerung)

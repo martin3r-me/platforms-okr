@@ -85,6 +85,16 @@ class StoreKeyResultContext
                 $isRoot = $ancestor['is_root'] ?? false;
                 $ancestorLabel = $ancestor['label'] ?? $this->resolver->resolveLabel($ancestor['type'], $ancestor['id']);
 
+                // Direkt verknüpfter Vorfahre (z. B. Projekt selbst am KR) bleibt primär
+                $alreadyPrimary = KeyResultContext::where('key_result_id', $keyResultId)
+                    ->where('context_type', $ancestor['type'])
+                    ->where('context_id', $ancestor['id'])
+                    ->where('is_primary', true)
+                    ->exists();
+                if ($alreadyPrimary) {
+                    continue;
+                }
+
                 KeyResultContext::updateOrCreate(
                     [
                         'key_result_id' => $keyResultId,
@@ -108,23 +118,55 @@ class StoreKeyResultContext
 
     /**
      * Entfernt eine Verknüpfung zwischen KeyResult und Kontext.
-     * Löscht den primären Kontext und alle zugehörigen Ancestor-Kontexte.
      *
-     * @param int $keyResultId KeyResult-ID
-     * @param string $contextType Kontext-Typ
-     * @param int $contextId Kontext-ID
-     * @return bool
+     * Vorfahren-Zeilen (z. B. das Projekt einer Aufgabe) fallen mit weg, sobald
+     * kein anderer primärer Kontext des KR mehr an ihnen hängt. Hängen am gelösten
+     * Kontext selbst noch Kinder (Projekt gelöst, Aufgaben bleiben), wird er zur
+     * Vorfahren-Zeile herabgestuft statt gelöscht.
      */
     public function detach(int $keyResultId, string $contextType, int $contextId): bool
     {
         return DB::transaction(function () use ($keyResultId, $contextType, $contextId) {
-            // Lösche alle Kontexte für diesen KeyResult (primär + ancestors)
-            // (Ancestors werden automatisch gelöscht wenn sie nicht mehr referenziert werden)
-            return KeyResultContext::where('key_result_id', $keyResultId)
+            $row = KeyResultContext::where('key_result_id', $keyResultId)
                 ->where('context_type', $contextType)
                 ->where('context_id', $contextId)
-                ->delete() > 0;
+                ->where('is_primary', true)
+                ->first();
+
+            if (! $row) {
+                return false;
+            }
+
+            $hasChildren = $this->primaryRowsUnder($keyResultId, $contextType, $contextId, $row->id)->exists();
+            if ($hasChildren) {
+                $row->update(['is_primary' => false, 'depth' => 1]);
+            } else {
+                $row->delete();
+            }
+
+            if ($row->root_context_type && ! ($row->root_context_type === $contextType && (int) $row->root_context_id === $contextId)) {
+                $rootStillUsed = $this->primaryRowsUnder($keyResultId, $row->root_context_type, (int) $row->root_context_id)->exists();
+                if (! $rootStillUsed) {
+                    KeyResultContext::where('key_result_id', $keyResultId)
+                        ->where('context_type', $row->root_context_type)
+                        ->where('context_id', $row->root_context_id)
+                        ->where('is_primary', false)
+                        ->delete();
+                }
+            }
+
+            return true;
         });
     }
-}
 
+    /** Primäre Zeilen des KR, deren Root der angegebene Kontext ist (ohne ihn selbst). */
+    protected function primaryRowsUnder(int $keyResultId, string $type, int $id, ?int $exceptId = null)
+    {
+        return KeyResultContext::where('key_result_id', $keyResultId)
+            ->where('is_primary', true)
+            ->where('root_context_type', $type)
+            ->where('root_context_id', $id)
+            ->where(fn ($q) => $q->where('context_type', '!=', $type)->orWhere('context_id', '!=', $id))
+            ->when($exceptId, fn ($q) => $q->where('id', '!=', $exceptId));
+    }
+}

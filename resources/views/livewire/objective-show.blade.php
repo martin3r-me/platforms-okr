@@ -84,6 +84,7 @@
                                         • Aktuell: {{ $keyResult->current_value }}{{ $keyResult->unit ? ' ' . $keyResult->unit : '' }}
                                     @endif
                                 </div>
+                                @include('okr::livewire.partials.key-result-contexts', ['keyResult' => $keyResult])
                                 @if($keyResult->measures->isNotEmpty())
                                     <div class="mt-1 flex flex-wrap items-center gap-1">
                                         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-[var(--nx-success)]/10 text-[color:var(--nx-success)]">

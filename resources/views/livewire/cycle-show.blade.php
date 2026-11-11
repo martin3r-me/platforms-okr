@@ -185,30 +185,8 @@
                                                 @endif
                                                 
                                                 {{-- Verknüpfungen (Contexts) --}}
-                                                @php
-                                                    $primaryContexts = $keyResult->primaryContexts()->with('context')->get();
-                                                @endphp
-                                                @if($primaryContexts->count() > 0)
-                                                    <div class="flex flex-wrap items-center gap-1.5 mt-2">
-                                                        @foreach($primaryContexts as $context)
-                                                            @php
-                                                                $contextModel = $context->context;
-                                                                $isContextDone = $contextModel && !is_null(data_get($contextModel, 'done_at'));
-                                                            @endphp
-                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium border {{ $isContextDone ? 'bg-[var(--nx-success)]/10 text-[var(--nx-success)] border-[var(--nx-success)]/20' : 'bg-[var(--nx-accent)]/10 text-[var(--nx-accent)] border-[var(--nx-accent)]/20' }}">
-                                                                @if($isContextDone)
-                                                                    @svg('heroicon-o-check-circle', 'w-3 h-3')
-                                                                @else
-                                                                    @svg('heroicon-o-link', 'w-3 h-3')
-                                                                @endif
-                                                                <span class="{{ $isContextDone ? 'line-through' : '' }}">
-                                                                    {{ $context->context_label ?? class_basename($context->context_type) }}
-                                                                </span>
-                                                            </span>
-                                                        @endforeach
-                                                    </div>
-                                                @endif
-                                                
+                                                @include('okr::livewire.partials.key-result-contexts', ['keyResult' => $keyResult])
+
                                                 {{-- Verantwortlicher --}}
                                                 @if($keyResult->manager)
                                                     <div class="flex items-center gap-1.5 mt-1.5">
@@ -754,35 +732,15 @@
 
             {{-- Verknüpfungen (Contexts) --}}
             @php
-                $editingKeyResult = null;
-                if($this->editingKeyResultId) {
-                    $editingKeyResult = \Platform\Okr\Models\KeyResult::with('primaryContexts.context')->find($this->editingKeyResultId);
-                }
-                $primaryContexts = $editingKeyResult?->primaryContexts ?? collect();
+                $editingKeyResult = $this->editingKeyResultId
+                    ? \Platform\Okr\Models\KeyResult::with('primaryContexts.context')->find($this->editingKeyResultId)
+                    : null;
             @endphp
-            @if($primaryContexts->count() > 0)
+            @if($editingKeyResult && $editingKeyResult->primaryContexts->isNotEmpty())
                 <div class="bg-[var(--nx-bg)] rounded-lg border border-[color:var(--nx-line)] p-4">
-                    <h3 class="text-sm font-semibold text-[var(--nx-text)] mb-3">Verknüpfungen</h3>
-                    <div class="flex flex-wrap gap-2">
-                        @foreach($primaryContexts as $context)
-                            @php
-                                // Loose coupling: wenn das Kontext-Modell ein done_at hat und es nicht null ist -> als erledigt markieren
-                                $contextModel = $context->context;
-                                $isContextDone = $contextModel && !is_null(data_get($contextModel, 'done_at'));
-                            @endphp
-                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium border {{ $isContextDone ? 'bg-[var(--nx-success)]/10 text-[var(--nx-success)] border-[var(--nx-success)]/20' : 'bg-[var(--nx-accent)]/10 text-[var(--nx-accent)] border-[var(--nx-accent)]/20' }}">
-                                @if($isContextDone)
-                                    @svg('heroicon-o-check-circle', 'w-4 h-4')
-                                @else
-                                    @svg('heroicon-o-link', 'w-4 h-4')
-                                @endif
-                                <span class="{{ $isContextDone ? 'line-through' : '' }}">
-                                    {{ $context->context_label ?? class_basename($context->context_type) }}
-                                </span>
-                            </span>
-                        @endforeach
-                    </div>
-                    <p class="text-xs text-[var(--nx-muted)] mt-2">Dieses Erfolgskriterium ist mit den oben genannten Kontexten verknüpft.</p>
+                    <h3 class="text-sm font-semibold text-[var(--nx-text)]">Zahlt ein</h3>
+                    @include('okr::livewire.partials.key-result-contexts', ['keyResult' => $editingKeyResult])
+                    <p class="text-xs text-[var(--nx-muted)] mt-2">Verknüpfen und lösen im OKR-Reiter der Aufgabe bzw. des Projekts.</p>
                 </div>
             @endif
 
