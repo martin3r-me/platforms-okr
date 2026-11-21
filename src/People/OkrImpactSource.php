@@ -6,6 +6,7 @@ use Carbon\CarbonInterface;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Platform\Okr\Models\KeyResult;
 use Platform\Okr\Models\KeyResultContext;
+use Platform\Okr\Models\KeyResultMeasure;
 use Platform\Okr\Models\Objective;
 use Platform\People\Support\ImpactSourceBase;
 
@@ -115,6 +116,8 @@ class OkrImpactSource extends ImpactSourceBase
             ->with('cycle.template')
             ->get();
 
+        $maintained = $this->maintainedObjectiveIds($objectives->pluck('id')->all());
+
         $now = now();
         $out = [];
         foreach ($objectives as $o) {
@@ -133,9 +136,45 @@ class OkrImpactSource extends ImpactSourceBase
                 'attainment' => max(0.0, min(1.0, (float) $o->performance_score)),
                 'ends_at' => $endsAt ? $endsAt->copy()->endOfDay() : null,
                 'closed' => $endsAt ? $endsAt->copy()->endOfDay()->lt($now) : false,
+                'maintained' => isset($maintained[(int) $o->id]),
             ];
         }
 
         return $out;
+    }
+
+    /**
+     * Gepflegte Objectives: mindestens ein KR wurde eingecheckt ODER ist metrik-getrieben mit
+     * verfügbarem Messwert. Ein Query (EXISTS-Subqueries) über alle KRs der Objectives.
+     *
+     * „Eingecheckt" = mindestens ZWEI okr_key_result_performances-Zeilen: beim Anlegen eines KR
+     * schreiben CreateKeyResultTool und CycleShow bereits eine Start-Performance — die ist
+     * Einrichtung, kein Check-in. Erst jede weitere Version ist ein Fortschreiben des Werts.
+     * Metrik-getrieben = eine Measure mit Rolle ≠ info (wie KeyResult::isMetricDriven), die
+     * zusätzlich is_available hat (der Sync hat tatsächlich einen Wert geliefert).
+     *
+     * @param  array<int,int>  $objectiveIds
+     * @return array<int,true> objective_id → true
+     */
+    protected function maintainedObjectiveIds(array $objectiveIds): array
+    {
+        if (! $objectiveIds) {
+            return [];
+        }
+
+        $ids = KeyResult::query()
+            ->whereIn('objective_id', $objectiveIds)
+            ->where(function ($q) {
+                $q->has('performances', '>=', 2)
+                    ->orWhereHas('measures', function ($m) {
+                        $m->where('role', '!=', KeyResultMeasure::ROLE_INFO)
+                            ->where('is_available', true);
+                    });
+            })
+            ->distinct()
+            ->pluck('objective_id')
+            ->all();
+
+        return array_fill_keys(array_map('intval', $ids), true);
     }
 }
