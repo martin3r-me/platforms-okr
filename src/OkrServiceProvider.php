@@ -56,6 +56,16 @@ class OkrServiceProvider extends ServiceProvider
             // Organization-Modul nicht geladen
         }
 
+        // Wirkungs-Quelle für people registrieren (loose Kopplung)
+        try {
+            if (class_exists(\Platform\People\Support\ImpactSourceBase::class)) {
+                resolve(\Platform\People\Services\ImpactSourceRegistry::class)
+                    ->register(new \Platform\Okr\People\OkrImpactSource());
+            }
+        } catch (\Throwable $e) {
+            // People-Modul nicht geladen
+        }
+
         // Policies
         Gate::policy(Okr::class, OkrPolicy::class);
         Gate::policy(Cycle::class, CyclePolicy::class);
