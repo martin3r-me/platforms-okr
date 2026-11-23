@@ -194,7 +194,8 @@ class OkrAgentController extends Controller
     }
 
     /**
-     * POST /api/okr/agent/checkins — Check-in auf ein EIGENES Key Result (neue Performance-Version).
+     * POST /api/okr/agent/checkins — Check-in auf ein EIGENES Key Result (neue Performance-Version);
+     * eigen = das KR oder sein Objective gehört mir.
      * Body: { key_result_id, current_value?: number, is_completed?: bool }
      */
     public function checkin(Request $request): JsonResponse
@@ -209,8 +210,9 @@ class OkrAgentController extends Controller
             'is_completed' => 'nullable|boolean',
         ]);
 
-        $kr = KeyResult::query()->where('team_id', $teamId)->with('performance')->find($data['key_result_id']);
-        if (!$kr || (int) $kr->user_id !== $userId) {
+        $kr = KeyResult::query()->where('team_id', $teamId)->with(['performance', 'objective:id,user_id'])->find($data['key_result_id']);
+        // Eigen = das KR gehört mir ODER sein Objective (z. B. ein mir zugewiesenes Venture-Objective).
+        if (!$kr || ((int) $kr->user_id !== $userId && (int) ($kr->objective?->user_id ?? 0) !== $userId)) {
             return response()->json(['message' => 'Key Result nicht gefunden oder nicht deins.'], 404);
         }
         if ($kr->isMetricDriven()) {
@@ -248,6 +250,43 @@ class OkrAgentController extends Controller
             'performance_score' => $score,
             'checked_in_at' => $perf->created_at?->toIso8601String(),
         ]], 201);
+    }
+
+    /**
+     * POST /api/okr/agent/links — meine Aufgabe zahlt auf ein Key Result ein (Kontext-Verknüpfung).
+     * Body: { key_result_id, task_id }. Eigen: das KR (oder sein Objective) gehört mir, die Aufgabe ist
+     * mir zugewiesen. Idempotent.
+     */
+    public function link(Request $request): JsonResponse
+    {
+        [$userId, $teamId, $err] = $this->actor($request);
+        if ($err) {
+            return $err;
+        }
+        $data = $request->validate([
+            'key_result_id' => 'required|integer',
+            'task_id' => 'required|integer',
+        ]);
+        $kr = KeyResult::query()->where('team_id', $teamId)->with('objective:id,user_id')->find($data['key_result_id']);
+        if (!$kr || ((int) $kr->user_id !== $userId && (int) ($kr->objective?->user_id ?? 0) !== $userId)) {
+            return response()->json(['message' => 'Key Result nicht gefunden oder nicht deins.'], 404);
+        }
+        $type = \Platform\Okr\Services\KeyResultContextLinks::resolveType('planner_task');
+        $task = $type ? $type::find($data['task_id']) : null;
+        if (!$task || (int) ($task->user_in_charge_id ?? 0) !== $userId) {
+            return response()->json(['message' => 'Aufgabe nicht gefunden oder nicht dir zugewiesen.'], 404);
+        }
+        $links = app(\Platform\Okr\Services\KeyResultContextLinks::class);
+        $already = $links->linkedTo($type, $task->getKey())->contains(fn ($k) => (int) $k->id === (int) $kr->id);
+        if (!$already) {
+            $links->link($kr, $type, $task->getKey());
+        }
+
+        return response()->json(['data' => [
+            'key_result_id' => $kr->id,
+            'task_id' => (int) $task->getKey(),
+            'created' => !$already,
+        ]], $already ? 200 : 201);
     }
 
     // ── Hilfen ───────────────────────────────────────────────────────────────────────────────

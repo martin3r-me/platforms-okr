@@ -21,5 +21,6 @@ Route::prefix('agent')->group(function () {
     Route::post('/drafts', [OkrAgentController::class, 'storeDraft'])->name('okr.api.agent.drafts.store');
     Route::post('/drafts/{cycle}/activate', [OkrAgentController::class, 'activateDraft'])->whereNumber('cycle')->name('okr.api.agent.drafts.activate');
     Route::post('/checkins', [OkrAgentController::class, 'checkin'])->name('okr.api.agent.checkins');
+    Route::post('/links', [OkrAgentController::class, 'link'])->name('okr.api.agent.links');
 });
 
