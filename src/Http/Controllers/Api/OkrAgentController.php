@@ -210,9 +210,9 @@ class OkrAgentController extends Controller
             'is_completed' => 'nullable|boolean',
         ]);
 
-        $kr = KeyResult::query()->where('team_id', $teamId)->with(['performance', 'objective:id,user_id'])->find($data['key_result_id']);
+        $kr = KeyResult::query()->where('team_id', $teamId)->with(['performance', 'objective:id,user_id,manager_user_id'])->find($data['key_result_id']);
         // Eigen = das KR gehört mir ODER sein Objective (z. B. ein mir zugewiesenes Venture-Objective).
-        if (!$kr || ((int) $kr->user_id !== $userId && (int) ($kr->objective?->user_id ?? 0) !== $userId)) {
+        if (!$this->ownsKeyResult($kr, $userId)) {
             return response()->json(['message' => 'Key Result nicht gefunden oder nicht deins.'], 404);
         }
         if ($kr->isMetricDriven()) {
@@ -267,8 +267,8 @@ class OkrAgentController extends Controller
             'key_result_id' => 'required|integer',
             'task_id' => 'required|integer',
         ]);
-        $kr = KeyResult::query()->where('team_id', $teamId)->with('objective:id,user_id')->find($data['key_result_id']);
-        if (!$kr || ((int) $kr->user_id !== $userId && (int) ($kr->objective?->user_id ?? 0) !== $userId)) {
+        $kr = KeyResult::query()->where('team_id', $teamId)->with('objective:id,user_id,manager_user_id')->find($data['key_result_id']);
+        if (!$this->ownsKeyResult($kr, $userId)) {
             return response()->json(['message' => 'Key Result nicht gefunden oder nicht deins.'], 404);
         }
         $type = \Platform\Okr\Services\KeyResultContextLinks::resolveType('planner_task');
@@ -290,6 +290,17 @@ class OkrAgentController extends Controller
     }
 
     // ── Hilfen ───────────────────────────────────────────────────────────────────────────────
+
+    /** Eigenes KR: angelegt von mir, oder sein Objective hat mich als Owner (manager_user_id, sonst Ersteller). */
+    private function ownsKeyResult(?KeyResult $kr, int $userId): bool
+    {
+        if (!$kr) {
+            return false;
+        }
+        $o = $kr->objective;
+
+        return (int) $kr->user_id === $userId || ($o && (int) ($o->manager_user_id ?: $o->user_id) === $userId);
+    }
 
     /** @return array{0:int,1:int,2:?JsonResponse} */
     private function actor(Request $request): array
